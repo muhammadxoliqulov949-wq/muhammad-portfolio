@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #050816;
+  --bg2: #0b1020;
+  --text: #e8eefc;
+  --muted: #9aa7c2;
+  --blue: #1e6bff;
+  --blue2: #00b7ff;
+  --border: rgba(255, 255, 255, 0.08);
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: radial-gradient(circle at top, #0d1633 0%, var(--bg) 45%, #03040a 100%);
+  background-attachment: fixed;
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+.pf-card {
+  background: linear-gradient(180deg, rgba(15, 20, 40, 0.92), rgba(8, 10, 20, 0.96));
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+}
+
+.pf-badge {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 183, 255, 0.35);
+  background: rgba(0, 183, 255, 0.08);
+  color: #bfefff;
+  font-size: 14px;
+}
+
+.pf-btn {
+  display: inline-block;
+  padding: 14px 20px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+
+.pf-btn:hover {
+  transform: translateY(-2px);
+}
+
+.pf-btn-primary {
+  background: linear-gradient(135deg, var(--blue), var(--blue2));
+  border: none;
+  color: #fff;
+}
+
+.pf-muted {
+  color: var(--muted);
+}
+
+.pf-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 15px;
+}
+
+.pf-input:focus {
+  outline: none;
+  border-color: var(--blue2);
+}
+
+.pf-input::placeholder {
+  color: var(--muted);
+}
