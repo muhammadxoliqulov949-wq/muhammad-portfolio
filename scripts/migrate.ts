@@ -1,6 +1,7 @@
 import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
 import { migrate } from "drizzle-orm/libsql/migrator";
+import { ensureLocalDbFolder, localDbUrl } from "../src/db/local";
 
 /**
  * Migratsiyalarni qo'llash (Drizzle migratori orqali).
@@ -13,19 +14,16 @@ import { migrate } from "drizzle-orm/libsql/migrator";
  * Ishlatish: `npm run db:migrate:run`
  */
 
-const url = process.env.TURSO_DATABASE_URL || `file:${process.env.DATABASE_PATH || "./data/app.db"}`;
+const url = localDbUrl();
 const authToken = process.env.TURSO_AUTH_TOKEN;
+// Papkani createClient'dan OLDIN yaratish shart — aks holda libsql ochilishda
+// SQLITE_CANTOPEN beradi (yangi klon'da data/ papkasi yo'q).
+ensureLocalDbFolder(url);
 
 const client = createClient(authToken ? { url, authToken } : { url });
 const db = drizzle(client);
 
 async function main() {
-  if (!url.startsWith("http")) {
-    // Lokal fayl uchun papkani tayyorlab olamiz
-    const fs = await import("node:fs");
-    const dir = url.replace(/^file:/, "").replace(/[^/]*$/, "");
-    if (dir) fs.mkdirSync(dir, { recursive: true });
-  }
   await migrate(db, { migrationsFolder: "./drizzle" });
   console.log("Migratsiyalar qollandi (drizzle/).");
 }
