@@ -1,0 +1,193 @@
+import { cache } from "react";
+import { db } from "@/db";
+import { experience, profile, projects, services, skills, testimonials } from "@/db/schema";
+import { asc, eq } from "drizzle-orm";
+
+/**
+ * Sayt ma'lumotlarini yuklash — bitta manba.
+ *
+ * Audit tuzatishlari:
+ *  - 6 ta so'rov ketma-ket emas, PARALLELL (Promise.all) → serverless'da
+ *    6× RTT o'rniga 1× RTT;
+ *  - so'rovlar `unstable_cache`ga o'xshab qayta ishlanadi: sahifa
+ *    `revalidate` bilan cachedan o'qiladi (mutatsiyada revalidatePath);
+ *  - fallback'lar endi soxta ma'lumot ("yourname@example.com") EMAS — bo'sh
+ *    qiymat "bu maydon to'ldirilmagan" degani va UI uni ko'rsatmaydi.
+ */
+
+export type Profile = typeof profile.$inferSelect;
+export type Project = typeof projects.$inferSelect;
+export type Skill = typeof skills.$inferSelect;
+export type Service = typeof services.$inferSelect;
+export type ExperienceItem = typeof experience.$inferSelect;
+export type Testimonial = typeof testimonials.$inferSelect;
+
+export const EMPTY_PROFILE: Profile = {
+  id: 0,
+  fullName: "",
+  title: "",
+  role2: "",
+  role3: "",
+  badge: "",
+  bio: "",
+  avatarInitials: "",
+  photoUrl: "",
+  email: "",
+  telegram: "",
+  github: "",
+  linkedin: "",
+  instagram: "",
+  location: "",
+  resumeUrl: "",
+  responseTime: "",
+  sinceYear: "",
+  statProjects: "",
+  statExperience: "",
+  statAvailability: "",
+  updatedAt: new Date(0),
+};
+
+export type SiteData = {
+  profile: Profile;
+  projects: Project[];
+  skills: Skill[];
+  services: Service[];
+  experience: ExperienceItem[];
+  testimonials: Testimonial[];
+};
+
+/**
+ * Barcha ochiq kontentni bitta parallell so'rov to'plamida oladi.
+ * `cache()` — bir HTTP so'rovi ichida layout va sahifa bir marta o'qiydi.
+ */
+export const getSiteData = cache(async function getSiteData(): Promise<SiteData> {
+  const [p, projectList, skillList, serviceList, experienceList, testimonialList] = await Promise.all([
+    db.select().from(profile).get(),
+    db
+      .select()
+      .from(projects)
+      .where(eq(projects.published, true))
+      .orderBy(asc(projects.featured), asc(projects.order))
+      .all(),
+    db.select().from(skills).orderBy(asc(skills.category), asc(skills.order)).all(),
+    db.select().from(services).orderBy(asc(services.order)).all(),
+    db.select().from(experience).orderBy(asc(experience.order)).all(),
+    db.select().from(testimonials).orderBy(asc(testimonials.order)).all(),
+  ]);
+
+  return {
+    profile: p ?? EMPTY_PROFILE,
+    projects: projectList,
+    skills: skillList,
+    services: serviceList,
+    experience: experienceList,
+    testimonials: testimonialList,
+  };
+});
+
+/**
+ * Bitta loyihani o'qish. `cache()` — Request memoization: bitta so'rovda
+ * `generateMetadata` va sahifaning o'zi bir xil id bilan ikki marta so'rasa,
+ * DB'ga bitta so'rov ketadi.
+ */
+export const getProjectById = cache((id: number): Promise<Project | undefined> =>
+  db.select().from(projects).where(eq(projects.id, id)).get()
+);
+
+export function getPublishedProjectIds(): Promise<{ id: number }[]> {
+  return db
+    .select({ id: projects.id })
+    .from(projects)
+    .where(eq(projects.published, true))
+    .orderBy(asc(projects.order))
+    .all();
+}
+
+/* ------------------------------------------------------------------ *
+ * Derived / view-model yordamchilari
+ * ------------------------------------------------------------------ */
+
+/** Xavfsiz tashqi havola: `javascript:` va noma'lum sxemalarni qaytarmaydi. */
+export function safeHref(value?: string | null): string | null {
+  if (!value) return null;
+  const v = value.trim();
+  if (!v) return null;
+  if (/^(https?:|mailto:|tel:)/i.test(v)) return v;
+  if (v.startsWith("/") && !v.startsWith("//")) return v;
+  return null;
+}
+
+/** "@user" / "https://t.me/user" / bo'sh → href yoki null. */
+export function telegramHref(telegram?: string | null): string | null {
+  if (!telegram) return null;
+  const t = telegram.trim();
+  if (!t) return null;
+  if (/^https?:\/\//i.test(t)) return safeHref(t);
+  if (t.startsWith("@")) return `https://t.me/${t.slice(1)}`;
+  return `https://t.me/${t}`;
+}
+
+/** Hero'dagi kasb satri — DB'dan (admin tahrirlay oladi, P0-1 tuzatildi). */
+export function rolesOf(p: Profile): string[] {
+  return [p.title, p.role2, p.role3].map((s) => (s ?? "").trim()).filter(Boolean);
+}
+
+export type Social = { key: "github" | "linkedin" | "instagram" | "telegram" | "email"; label: string; href: string };
+
+export function socialsOf(p: Profile): Social[] {
+  const items: Array<Social | null> = [
+    p.github && safeHref(p.github) ? { key: "github", label: "GitHub", href: safeHref(p.github) as string } : null,
+    p.linkedin && safeHref(p.linkedin)
+      ? { key: "linkedin", label: "LinkedIn", href: safeHref(p.linkedin) as string }
+      : null,
+    p.instagram && safeHref(p.instagram)
+      ? { key: "instagram", label: "Instagram", href: safeHref(p.instagram) as string }
+      : null,
+    telegramHref(p.telegram) ? { key: "telegram", label: "Telegram", href: telegramHref(p.telegram) as string } : null,
+    p.email ? { key: "email", label: "Email", href: `mailto:${p.email}` } : null,
+  ];
+  return items.filter((x): x is Social => x !== null);
+}
+
+/** "Frontend: React(4y)..." guruhlangan texnologiya to'plami. */
+export function skillsByCategory(list: Skill[]): { category: string; items: Skill[] }[] {
+  const map = new Map<string, Skill[]>();
+  for (const s of list) {
+    const key = s.category || "Boshqa";
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(s);
+  }
+  return Array.from(map, ([category, items]) => ({ category, items }));
+}
+
+/** CSV/vergul ro'yxatini toza massivga. */
+export const listFrom = (value?: string | null): string[] => toListSafe(value);
+
+export const galleryOf = (value?: string | null): string[] =>
+  toListSafe(value)
+    .map((u) => safeHref(u))
+    .filter((u): u is string => !!u);
+
+export const techOf = (value?: string | null): string[] => toListSafe(value);
+
+function toListSafe(value?: string | null): string[] {
+  return (value ?? "")
+    .split(/[,\n|]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+export const featuresOf = (value?: string | null): string[] => toListSafe(value);
+export const highlightsOf = (value?: string | null): string[] => toListSafe(value);
+
+/** Sahifa uchun navetsiya (bo'lim mavjud bo'lsagina ko'rsatiladi). */
+export function sectionsOf(data: SiteData) {
+  return [
+    { id: "home", label: "Bosh sahifa" },
+    { id: "work", label: "Ishlar", has: data.projects.length > 0 },
+    { id: "services", label: "Xizmatlar", has: data.services.length > 0 },
+    { id: "experience", label: "Tajriba", has: data.experience.length > 0 },
+    { id: "toolbox", label: "Toolbox", has: data.skills.length > 0 },
+    { id: "contact", label: "Aloqa", has: true },
+  ].filter((s) => s.has !== false);
+}

@@ -1,47 +1,99 @@
-type Testimonial = {
-  id: number;
-  name: string;
-  role: string;
-  text: string;
-  avatarInitials: string;
-  order: number;
-};
+import SectionHead from "./ui/Section";
+import Card from "./ui/Card";
+import Icon from "./ui/Icon";
+import { safeHref, type Testimonial } from "@/lib/content";
 
-function Stars() {
+function Stars({ rating, name }: { rating: number; name: string }) {
+  const value = Math.max(0, Math.min(5, Math.round(rating)));
   return (
-    <div className="flex gap-1 text-amber-400 mb-4" aria-label="5 yulduz">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <svg key={i} width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2l2.9 6.26 6.86.8-5.07 4.68 1.35 6.76L12 17.3l-6.04 3.2 1.35-6.76L2.24 9.06l6.86-.8L12 2z" />
-        </svg>
-      ))}
-    </div>
+    <p className="mb-4 flex items-center gap-1.5">
+      <span className="flex gap-0.5" aria-hidden>
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Icon key={i} name="star" size={13} className={i < value ? "text-accent-text" : "text-ink-3/50"} />
+        ))}
+      </span>
+      <span className="sr-only">{name} baho berdi: 5 dan {value}</span>
+      <span className="u-num font-mono text-micro text-ink-3">{value}.0/5</span>
+    </p>
   );
 }
 
+/**
+ * Mijozlar fikri — rating DB'dan (avval hamma joyda qattiq 5 yulduz edi,
+ * bu "soxta ijtimoiy dalil" hissini berardi — audit P1-11).
+ */
 export default function Testimonials({ items }: { items: Testimonial[] }) {
   if (items.length === 0) return null;
+  const [first, ...rest] = items;
 
   return (
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-      {items.map((t) => (
-        <figure key={t.id} className="pf-card pf-card-hover p-6 flex flex-col">
-          <span className="font-display text-5xl leading-none pf-grad-text mb-2" aria-hidden>
-            &ldquo;
-          </span>
-          <Stars />
-          <blockquote className="pf-muted text-[15px] leading-relaxed flex-1">{t.text}</blockquote>
-          <figcaption className="flex items-center gap-3 mt-6 pt-5 border-t border-[var(--border)]">
-            <span className="w-11 h-11 grid place-items-center rounded-full font-display font-bold text-sm bg-gradient-to-br from-[var(--blue)] to-[var(--blue2)] text-white">
-              {t.avatarInitials || t.name.slice(0, 2).toUpperCase()}
-            </span>
-            <div>
-              <p className="font-semibold text-sm">{t.name}</p>
-              <p className="pf-muted text-xs">{t.role}</p>
-            </div>
-          </figcaption>
-        </figure>
-      ))}
-    </div>
+    <section id="testimonials" className="u-section u-cv">
+      <div className="u-container">
+        <SectionHead
+          index="05"
+          eyebrow="Fikrlar"
+          title={
+            <>
+              Mijozlar <span className="display-em">nima deydi</span>
+            </>
+          }
+          lead="Ism va lavozimlar rozilik bilan berilgan; baho — hamkorlik yakunidagi real baholat."
+        />
+
+        <div className="bento">
+          <div data-span="wide" className="reveal">
+            <Card className="flex h-full flex-col justify-between gap-6 p-6 md:p-8" interactive={false}>
+              <div>
+                <Icon name="quote" size={26} className="text-accent-text" />
+                <blockquote className="display mt-4 text-display-m italic leading-snug">
+                  {first.text}
+                </blockquote>
+              </div>
+              <figcaption className="flex flex-wrap items-center justify-between gap-4 border-t border-line-1 pt-5">
+                <span className="flex items-center gap-3">
+                  <span className="grid size-10 place-items-center rounded-full bg-accent font-mono text-micro font-bold text-accent-ink">
+                    {first.avatarInitials || first.name.slice(0, 2).toUpperCase()}
+                  </span>
+                  <span>
+                    <span className="block text-body font-semibold">{first.name}</span>
+                    <span className="block text-small text-ink-2">{first.role}</span>
+                  </span>
+                </span>
+                <Stars rating={first.rating} name={first.name} />
+              </figcaption>
+            </Card>
+          </div>
+
+          {rest.map((t) => {
+            const source = safeHref(t.sourceUrl);
+            return (
+              <div key={t.id} data-span="third" className="reveal">
+                <Card className="flex h-full flex-col gap-4 p-5" interactive={false}>
+                  <Stars rating={t.rating} name={t.name} />
+                  <blockquote className="flex-1 text-body text-ink-2">{t.text}</blockquote>
+                  <div className="flex items-center justify-between gap-3 border-t border-line-1 pt-4">
+                    <span className="min-w-0">
+                      <span className="block truncate text-small font-semibold">{t.name}</span>
+                      <span className="block truncate text-small text-ink-3">{t.role}</span>
+                    </span>
+                    {source ? (
+                      <a
+                        href={source}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="icon-btn !size-9"
+                        aria-label={`${t.name} haqidagi manbani ochish`}
+                      >
+                        <Icon name="external" size={14} />
+                      </a>
+                    ) : null}
+                  </div>
+                </Card>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
   );
 }

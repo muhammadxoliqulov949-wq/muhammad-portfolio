@@ -1,13 +1,10 @@
-import { createCollectionRoutes } from "@/lib/crud";
-import { testimonials } from "@/db/schema";
-import { z } from "zod";
+import { NextRequest } from "next/server";
+import { collections } from "@/lib/collections";
 
-export const testimonialSchema = z.object({
-  name: z.string().min(1).max(120),
-  role: z.string().max(120).default(""),
-  text: z.string().min(1).max(2000),
-  avatarInitials: z.string().max(6).default(""),
-  order: z.number().int().default(0),
-});
+const routes = collections.testimonials;
 
-export const { GET, POST } = createCollectionRoutes(testimonials, testimonialSchema, testimonials.order);
+/** GET /api/testimonials — ochiq ro'yxat; ?all=1 (admin sessiyasi bilan) — hammasi. */
+export const GET = (req: NextRequest) => routes.GET(req);
+
+/** POST /api/testimonials — yangi yozuv (faqat admin, Origin tekshiruvi bilan). */
+export const POST = (req: NextRequest) => routes.POST(req);

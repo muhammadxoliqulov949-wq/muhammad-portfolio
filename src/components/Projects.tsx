@@ -1,153 +1,185 @@
-type Project = {
-  id: number;
-  title: string;
-  description: string;
-  link: string | null;
-  github: string | null;
-  image: string | null;
-  tech: string | null;
-  featured: boolean;
-  order: number;
-  published: boolean;
-};
+import Image from "next/image";
+import Link from "next/link";
+import SectionHead from "./ui/Section";
+import Card from "./ui/Card";
+import Icon from "./ui/Icon";
+import { safeHref, techOf, type Project } from "@/lib/content";
 
-function TechChips({ tech }: { tech: string }) {
-  if (!tech) return null;
-  return (
-    <div className="flex flex-wrap gap-2 mt-4">
-      {tech
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean)
-        .map((t) => (
-          <span key={t} className="pf-chip">
-            {t}
-          </span>
-        ))}
-    </div>
-  );
-}
-
-function ProjectVisual({ project }: { project: Project }) {
-  if (project.image) {
+/** Loyiha rasmi yoki monogram fallback (buzuk rasm ko'rsatmaslik uchun). */
+function Cover({ project, priority = false }: { project: Project; priority?: boolean }) {
+  const img = safeHref(project.image);
+  if (img) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={project.image}
-        alt={project.title}
-        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+      <Image
+        src={img}
+        alt={`${project.title} — loyiha ko'rinishi`}
+        fill
+        priority={priority}
+        sizes="(min-width: 64rem) 50vw, 100vw"
+        className="object-cover transition-transform duration-700 group-hover:scale-[1.015]"
       />
     );
   }
   return (
-    <div className="w-full h-full bg-gradient-to-br from-[#0d1a3d] via-[#123f82] to-[#00b7ff] grid place-items-center relative overflow-hidden">
-      <div className="pf-grid-bg absolute inset-0 opacity-60" aria-hidden />
-      <span className="relative font-display font-extrabold text-6xl text-white/90 tracking-tight">
-        {project.title.slice(0, 1)}
+    <div
+      className="grid h-full w-full place-items-center bg-[radial-gradient(130%_110%_at_15%_0%,var(--c-accent-soft),transparent_55%),linear-gradient(160deg,var(--c-surface-2),var(--c-surface-1))]"
+      aria-hidden
+    >
+      <span className="display text-[clamp(3.5rem,8vw,6.5rem)] leading-none text-ink-2/60">
+        {(project.title || "P").trim().charAt(0)}
       </span>
     </div>
   );
 }
 
+function Tags({ tech }: { tech: string | null }) {
+  const items = techOf(tech).slice(0, 5);
+  if (items.length === 0) return null;
+  return (
+    <ul className="mt-4 flex flex-wrap gap-1.5">
+      {items.map((t) => (
+        <li key={t}>
+          <span className="chip">{t}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/**
+ * Loyihalar — bento (katta featured + qolganlari), har birida rol, yil va
+ * **o'lchanadigan natija**. Kartalar case study sahifasiga o'tadi.
+ *
+ * Audit tuzatishlari: butun kartani `<a>` ichiga olish o'rniga "stretched
+ * link" (ichida yana havolalar bo'lgani uchun invalid HTML va "yolg'on
+ * affordance" yuzaga kelardi — P1-10), hamda `next/image` + `sizes`.
+ */
 export default function Projects({ projects }: { projects: Project[] }) {
   if (projects.length === 0) {
     return (
-      <div className="pf-card p-8 text-center">
-        <p className="pf-muted">Hozircha loyihalar qo&apos;shilmagan.</p>
-      </div>
+      <section id="work" className="u-section">
+        <div className="u-container">
+          <SectionHead index="01" eyebrow="Ishlar" title="Hali ochiq holatda" lead="Birinchi buyurtma uchun tayyorman — pastdagi forma orqali yozing." />
+        </div>
+      </section>
     );
   }
 
   const [featured, ...rest] = projects;
+  const links: { href: string; label: string }[] = [];
+  const demoHref = safeHref(featured.link);
+  const codeHref = safeHref(featured.github);
+  if (demoHref) links.push({ href: demoHref, label: "Jonli demo" });
+  if (codeHref) links.push({ href: codeHref, label: "Kod" });
 
   return (
-    <div className="space-y-8">
-      {/* Featured loyiha */}
-      <a
-        href={featured.link || "#projects"}
-        target={featured.link ? "_blank" : undefined}
-        rel={featured.link ? "noopener noreferrer" : undefined}
-        className="pf-card pf-card-hover group overflow-hidden grid lg:grid-cols-2 !p-0"
-      >
-        <div className="relative h-56 lg:h-full min-h-[220px] overflow-hidden">
-          <ProjectVisual project={featured} />
-          <span className="absolute top-4 left-4 pf-badge !bg-[rgba(5,8,22,0.7)] backdrop-blur">
-            ⭐ Asosiy loyiha
-          </span>
-        </div>
-        <div className="p-7 lg:p-9 flex flex-col justify-center">
-          <h3 className="font-display text-2xl md:text-[28px] font-bold mb-3 group-hover:text-[var(--blue2)] transition-colors">
-            {featured.title}
-          </h3>
-          <p className="pf-muted">{featured.description}</p>
-          <TechChips tech={featured.tech ?? ""} />
-          <div className="flex gap-4 mt-6">
-            {featured.link ? (
-              <span className="inline-flex items-center gap-2 font-semibold text-[var(--blue2)]">
-                Demoni ko&apos;rish
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M7 17L17 7" />
-                  <path d="M9 7h8v8" />
-                </svg>
-              </span>
-            ) : null}
-            {featured.github ? (
-              <span className="inline-flex items-center gap-2 font-semibold pf-muted hover:text-[var(--text)]">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-2.15c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.75 2.69 1.25 3.35.95.1-.74.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.42-2.7 5.39-5.26 5.68.41.35.78 1.05.78 2.12v3.14c0 .3.21.66.8.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z" />
-                </svg>
-                Kod
-              </span>
-            ) : null}
-          </div>
-        </div>
-      </a>
+    <section id="work" className="u-section u-cv">
+      <div className="u-container">
+        <SectionHead
+          index="01"
+          eyebrow="Tanlangan ishlar"
+          title={
+            <>
+              Uch yilda <span className="display-em">eng muhim</span> to&apos;rt tasi
+            </>
+          }
+          lead="Har bir loyihada muammo, texnik yechim va raqam bilan natija ko'rsatilgan — kartani bosing."
+          action={
+            <Link href="/projects" className="btn btn--sm">
+              Barcha ishlar
+              <Icon name="arrow-up-right" size={14} />
+            </Link>
+          }
+        />
 
-      {/* Qolgan loyihalar */}
-      {rest.length > 0 ? (
-        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {rest.map((p) => (
-            <div key={p.id} className="pf-card pf-card-hover group overflow-hidden flex flex-col">
-              <div className="relative h-44 overflow-hidden">
-                <ProjectVisual project={p} />
+        <div className="bento">
+          <div data-span="full" className="reveal">
+            <Card href={`/projects/${featured.id}`} className="group grid overflow-hidden !rounded-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+              <div className="relative min-h-[240px] overflow-hidden border-b border-line-1 bg-surface-2 lg:border-b-0 lg:border-r">
+                <Cover project={featured} priority />
+                <span className="chip chip--accent absolute left-4 top-4 backdrop-blur-sm">
+                  <Icon name="star" size={11} />
+                  Asosiy loyiha
+                </span>
               </div>
-              <div className="p-6 flex flex-col flex-1">
-                <h3 className="font-display text-lg font-bold mb-2 group-hover:text-[var(--blue2)] transition-colors">
-                  {p.title}
-                </h3>
-                <p className="pf-muted text-sm flex-1">{p.description}</p>
-                <TechChips tech={p.tech ?? ""} />
-                <div className="flex gap-5 mt-5 pt-4 border-t border-[var(--border)]">
-                  {p.link ? (
-                    <a
-                      href={p.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--blue2)] hover:underline"
-                    >
-                      Demo
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M7 17L17 7" />
-                        <path d="M9 7h8v8" />
-                      </svg>
-                    </a>
-                  ) : null}
-                  {p.github ? (
-                    <a
-                      href={p.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-sm font-semibold pf-muted hover:text-[var(--text)]"
-                    >
-                      Kod
-                    </a>
-                  ) : null}
+
+              <div className="flex flex-col justify-between gap-6 p-6 md:p-8">
+                <div>
+                  <div className="label mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+                    {featured.year ? <span className="u-num">{featured.year}</span> : null}
+                    {featured.role ? <span>{featured.role}</span> : null}
+                  </div>
+                  <h3 className="display text-display-m">
+                    {/* Stretched link: butun karta bosiladigan, lekin HTML valid */}
+                    <span className="after:absolute after:inset-0 after:content-[''] group-hover:text-accent-text transition-colors">
+                      {featured.title}
+                    </span>
+                  </h3>
+                  <p className="mt-3 max-w-prose text-body text-ink-2">{featured.description}</p>
+                </div>
+
+                {featured.impact ? (
+                  <p className="flex items-start gap-2.5 border-t border-line-1 pt-4 text-body">
+                    <Icon name="target" size={16} className="mt-0.5 shrink-0 text-accent-text" />
+                    <span>
+                      <span className="font-semibold">{featured.impact}</span>
+                    </span>
+                  </p>
+                ) : null}
+
+                <div className="flex flex-wrap items-end justify-between gap-4">
+                  <Tags tech={featured.tech} />
+                  <span className="flex items-center gap-3">
+                    {links.map((l) => (
+                      <a
+                        key={l.href}
+                        href={l.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn--sm"
+                      >
+                        {l.label}
+                        <Icon name="arrow-up-right" size={13} />
+                      </a>
+                    ))}
+                  </span>
                 </div>
               </div>
+            </Card>
+          </div>
+
+          {rest.map((p) => (
+            <div key={p.id} data-span="third" className="reveal">
+              <Card href={`/projects/${p.id}`} className="group flex h-full flex-col overflow-hidden !rounded-4">
+                <div className="relative aspect-16/10 overflow-hidden border-b border-line-1 bg-surface-2">
+                  <Cover project={p} />
+                </div>
+                <div className="flex flex-1 flex-col gap-4 p-5">
+                  <div>
+                    <div className="label mb-2.5 flex items-center gap-3">
+                      {p.year ? <span className="u-num">{p.year}</span> : null}
+                      {p.role ? <span className="truncate">{p.role}</span> : null}
+                    </div>
+                    <h3 className="display text-title font-semibold">
+                      <span className="after:absolute after:inset-0 after:content-[''] transition-colors group-hover:text-accent-text">
+                        {p.title}
+                      </span>
+                    </h3>
+                    <p className="mt-2 line-clamp-3 text-small text-ink-2">{p.description}</p>
+                  </div>
+                  {p.impact ? (
+                    <p className="mt-auto flex items-start gap-2 border-t border-line-1 pt-3 text-small text-ink-2">
+                      <Icon name="target" size={13} className="mt-0.5 shrink-0 text-accent-text" />
+                      {p.impact}
+                    </p>
+                  ) : null}
+                  <Tags tech={p.tech} />
+                </div>
+              </Card>
             </div>
           ))}
         </div>
-      ) : null}
-    </div>
+      </div>
+    </section>
   );
 }

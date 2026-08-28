@@ -1,12 +1,10 @@
-import { createCollectionRoutes } from "@/lib/crud";
-import { services } from "@/db/schema";
-import { z } from "zod";
+import { NextRequest } from "next/server";
+import { collections } from "@/lib/collections";
 
-export const serviceSchema = z.object({
-  title: z.string().min(1).max(120),
-  description: z.string().min(1).max(1000),
-  icon: z.string().max(20).default("🚀"),
-  order: z.number().int().default(0),
-});
+const routes = collections.services;
 
-export const { GET, POST } = createCollectionRoutes(services, serviceSchema, services.order);
+/** GET /api/services — ochiq ro'yxat; ?all=1 (admin sessiyasi bilan) — hammasi. */
+export const GET = (req: NextRequest) => routes.GET(req);
+
+/** POST /api/services — yangi yozuv (faqat admin, Origin tekshiruvi bilan). */
+export const POST = (req: NextRequest) => routes.POST(req);
