@@ -13,6 +13,8 @@
     "setup": "npm run db:generate && npm run db:migrate && npm run db:seed"
   },
   "dependencies": {
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/space-grotesk": "^5.3.0",
     "@libsql/client": "^0.17.4",
     "bcryptjs": "^3.0.3",
     "drizzle-orm": "^0.45.2",

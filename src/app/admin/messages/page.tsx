@@ -16,7 +16,6 @@ export default function AdminMessagesPage() {
   const [loading, setLoading] = useState(true);
 
   async function load() {
-    setLoading(true);
     const res = await fetch("/api/messages");
     if (res.ok) {
       const data = await res.json();
@@ -26,7 +25,14 @@ export default function AdminMessagesPage() {
   }
 
   useEffect(() => {
-    load();
+    let cancelled = false;
+    (async () => {
+      await load();
+      if (cancelled) setLoading(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   async function markRead(id: number, read: boolean) {

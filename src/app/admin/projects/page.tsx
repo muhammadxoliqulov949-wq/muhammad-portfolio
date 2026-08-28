@@ -7,11 +7,25 @@ type Project = {
   title: string;
   description: string;
   link: string | null;
+  github: string | null;
+  image: string | null;
+  tech: string | null;
+  featured: boolean;
   order: number;
   published: boolean;
 };
 
-const emptyForm = { title: "", description: "", link: "", order: 0, published: true };
+const emptyForm = {
+  title: "",
+  description: "",
+  link: "",
+  github: "",
+  image: "",
+  tech: "",
+  featured: false,
+  order: 0,
+  published: true,
+};
 
 export default function AdminProjectsPage() {
   const [projectsList, setProjectsList] = useState<Project[]>([]);
@@ -22,15 +36,25 @@ export default function AdminProjectsPage() {
   const [error, setError] = useState("");
 
   async function load() {
-    setLoading(true);
     const res = await fetch("/api/projects?all=1");
     const data = await res.json();
     setProjectsList(data);
-    setLoading(false);
   }
 
   useEffect(() => {
-    load();
+    let cancelled = false;
+    (async () => {
+      try {
+        await load();
+      } catch {
+        if (!cancelled) setProjectsList([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   function startEdit(p: Project) {
@@ -39,6 +63,10 @@ export default function AdminProjectsPage() {
       title: p.title,
       description: p.description,
       link: p.link ?? "",
+      github: p.github ?? "",
+      image: p.image ?? "",
+      tech: p.tech ?? "",
+      featured: p.featured,
       order: p.order,
       published: p.published,
     });
@@ -110,13 +138,33 @@ export default function AdminProjectsPage() {
           onChange={(e) => setForm({ ...form, description: e.target.value })}
           required
         />
-        <input
-          className="pf-input"
-          placeholder="Havola (ixtiyoriy) — https://..."
-          value={form.link}
-          onChange={(e) => setForm({ ...form, link: e.target.value })}
-        />
-        <div className="flex gap-4 items-center">
+        <div className="grid sm:grid-cols-2 gap-4">
+          <input
+            className="pf-input"
+            placeholder="Rasm URL (ixtiyoriy) — https://..."
+            value={form.image}
+            onChange={(e) => setForm({ ...form, image: e.target.value })}
+          />
+          <input
+            className="pf-input"
+            placeholder="Texnologiyalar — Next.js, Tailwind"
+            value={form.tech}
+            onChange={(e) => setForm({ ...form, tech: e.target.value })}
+          />
+          <input
+            className="pf-input"
+            placeholder="Demo havola (ixtiyoriy) — https://..."
+            value={form.link}
+            onChange={(e) => setForm({ ...form, link: e.target.value })}
+          />
+          <input
+            className="pf-input"
+            placeholder="GitHub havola (ixtiyoriy) — https://github.com/..."
+            value={form.github}
+            onChange={(e) => setForm({ ...form, github: e.target.value })}
+          />
+        </div>
+        <div className="flex gap-5 items-center flex-wrap">
           <label className="flex items-center gap-2 pf-muted text-sm">
             Tartib raqami
             <input
@@ -131,8 +179,18 @@ export default function AdminProjectsPage() {
               type="checkbox"
               checked={form.published}
               onChange={(e) => setForm({ ...form, published: e.target.checked })}
+              className="accent-[var(--blue2)]"
             />
             Saytda ko&apos;rinsin
+          </label>
+          <label className="flex items-center gap-2 pf-muted text-sm">
+            <input
+              type="checkbox"
+              checked={form.featured}
+              onChange={(e) => setForm({ ...form, featured: e.target.checked })}
+              className="accent-[var(--blue2)]"
+            />
+            Katta ko&apos;rinishda (featured)
           </label>
         </div>
 
@@ -159,8 +217,13 @@ export default function AdminProjectsPage() {
           {projectsList.map((p) => (
             <div key={p.id} className="pf-card p-4 flex justify-between items-start gap-4">
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="font-semibold">{p.title}</h3>
+                  {p.featured ? (
+                    <span className="text-xs text-[var(--blue2)] border border-[var(--blue2)]/30 rounded-full px-2 py-0.5">
+                      Featured
+                    </span>
+                  ) : null}
                   {!p.published ? (
                     <span className="text-xs pf-muted border border-[var(--border)] rounded-full px-2 py-0.5">
                       Yashirilgan
@@ -168,6 +231,7 @@ export default function AdminProjectsPage() {
                   ) : null}
                 </div>
                 <p className="pf-muted text-sm mt-1">{p.description}</p>
+                {p.tech ? <p className="text-xs pf-muted mt-1">⚙️ {p.tech}</p> : null}
               </div>
               <div className="flex gap-2 shrink-0">
                 <button onClick={() => startEdit(p)} className="pf-btn text-sm py-2 px-3">
