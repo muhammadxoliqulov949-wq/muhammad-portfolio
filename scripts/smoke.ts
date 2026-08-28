@@ -265,6 +265,14 @@ async function main() {
     afterLogout.res.status === 401,
     `status=${afterLogout.res.status}`,
   );
+  // Bir sekunda to'g'ri keladigan qayta kirish 401 bo'lib qolmasligi kerak
+  const relogin = await post("/api/auth/login", { email: EMAIL, password: PASSWORD });
+  const freshCookie = (relogin.res.headers.getSetCookie?.() ?? []).map((c) => c.split(";")[0]).join("; ");
+  ok(
+    "Darhol qayta login → yangi token ishlaydi",
+    relogin.res.status === 200 && (await get("/api/messages", freshCookie)).res.status === 200,
+    `login=${relogin.res.status}`,
+  );
 
   console.log(
     `\n────────────────────────────\n  ✓ ${pass}   ✕ ${fail}${

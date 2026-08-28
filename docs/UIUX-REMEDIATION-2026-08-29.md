@@ -41,7 +41,7 @@ tekshirish" jadvali va yangi baho. Kod: `4164d6f → 2d6c474`
 | 404/error sahifalari yo'q | Brend uslubidagi `not-found.tsx` + `error.tsx` (qaytish CTA'lari bilan) |
 | Tema faqat dark | `data-theme="dark|light"`, `ThemeToggle`, `localStorage`, FOUC bootstrap, `theme-color` (ikkala sxema) |
 | Marquee/pausing va `reduced-motion` | `marquee[data-paused]` (hover/focus'da to'xtaydi), `prefers-reduced-motion`, `forced-colors` bloki |
-| Testlar yo'q | `scripts/smoke.ts` — **48 real HTTP tekshiruv, 0 fail** (`npm run smoke`); lint 0 xato, `tsc --noEmit` 0 xato, `next build` muvaffaqiyatli |
+| Testlar yo'q | `scripts/smoke.ts` — **49 real HTTP tekshiruv, 0 fail** (`npm run smoke`); lint 0 xato, `tsc --noEmit` 0 xato, `next build` muvaffaqiyatli |
 | README eskirgan | Qayta yozildi: buyruqlar jadvali, API kontrakti, arxitektura, a11y/perf, chegara; `.env.example` qo'shildi |
 
 ## 4. O'lchanadigan natijalar
@@ -56,7 +56,7 @@ tekshirish" jadvali va yangi baho. Kod: `4164d6f → 2d6c474`
 | Qarish (contrast) | 3 ta AA fail | 0 ta topilgan AA fail; focus/target/hover holatlari ikkala temada |
 | Admin mobil'da | 7 bo'limdan 1 tasi ochiq | 7/7 ochiq, badge'lar bilan |
 | API xato formati | har route'da boshqacha | yagona: 422/401/403/415/404/400 |
-| Smoke-test | yo'q | 48/48 ✓ |
+| Smoke-test | yo'q | 49/49 ✓ |
 
 ## 5. Yangi baho: **9.0 / 10**
 

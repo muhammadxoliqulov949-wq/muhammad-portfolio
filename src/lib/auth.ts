@@ -15,6 +15,8 @@ export type SessionPayload = {
   adminId: number;
   email: string;
   name: string;
+  /** epoch ms — `iat`dan aniqroq, revoke solishtiruvi uchun ishlatiladi. */
+  iatMs: number;
 };
 
 export async function hashPassword(password: string) {
@@ -25,8 +27,8 @@ export async function verifyPassword(password: string, hash: string) {
   return bcrypt.compare(password, hash);
 }
 
-export async function createSession(payload: SessionPayload) {
-  const token = await new SignJWT({ ...payload })
+export async function createSession(payload: Omit<SessionPayload, "iatMs">) {
+  const token = await new SignJWT({ ...payload, iatMs: Date.now() })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(`${SESSION_DURATION}s`)
@@ -55,7 +57,7 @@ export async function destroySession() {
 export async function revokeSessions(adminId: number) {
   await db
     .update(admins)
-    .set({ sessionsRevokedAt: new Date() })
+    .set({ sessionsRevokedAt: Date.now() })
     .where(eq(admins.id, adminId))
     .run();
 }
@@ -78,8 +80,16 @@ export async function getSession(): Promise<SessionPayload | null> {
       .where(and(eq(admins.id, session.adminId)))
       .get();
     if (!admin) return null;
-    const iat = typeof payload.iat === "number" ? payload.iat : 0;
-    if (admin.sessionsRevokedAt && iat * 1000 <= admin.sessionsRevokedAt.getTime()) return null;
+    const revoked = admin.sessionsRevokedAt;
+    if (typeof revoked === "number") {
+      const issued =
+        typeof payload.iatMs === "number"
+          ? payload.iatMs
+          : typeof payload.iat === "number"
+            ? payload.iat * 1000
+            : 0;
+      if (issued <= revoked) return null;
+    }
 
     return session;
   } catch {

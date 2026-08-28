@@ -134,7 +134,7 @@ Xato kontraktilari: `422 { error, fields: { maydon: "xabar" } }` (forma inline k
 ```bash
 npm run lint && npm run typecheck && npm run build   # uchasi ham 0 xato
 npm run build && npm start                            # boshqa terminalda
-npm run smoke                                         # 48 tekshiruv
+npm run smoke                                         # 49 tekshiruv
 ```
 
 `scripts/smoke.ts` qamrovi: sahifa statuslari, skip-link/JSON-LD/tema bootstrap, case study bo'limlari va canonical, OG/icon/robots/sitemap, `published` filtri, Origin/CSRF, anonim yozishlar, login/noto'g'ri parol, CRUD + 422 + reorder, profil PUT, kontakt + honeypot + rate limit, xabarlar read/unread/delete, logout'dan keyin token bekor qilinishi.

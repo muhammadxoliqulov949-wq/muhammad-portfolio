@@ -20,11 +20,13 @@ export const admins = sqliteTable("admins", {
   passwordHash: text("password_hash").notNull(),
   name: text("name").notNull().default("Admin"),
   /**
-   * Shu vaqtdan oldin imzolangan barcha JWT'lar yaroqsiz (logout va parolni
-   * almashtirish shu ustunni yangilaydi) — stateless tokenlarga bekor qilish
-   * imkonini beruvchi yagona ishonchli mexanizm.
+   * Shu vaqtdan (epoch ms) oldin imzolangan barcha JWT'lar yaroqsiz — logout va
+   * parolni almashtirish shu ustunni yangilaydi. Stateless tokenlarni bekor
+   * qilishning yagona ishonchli yo'li. Sekund emas, **millisekund** saqlanadi:
+   * `iat` sekund aniqligida chiqib-kirish bir sekunda to'g'ri kelsa, token
+   * adolat bilan yaroqsiz bo'lmay qolardi.
    */
-  sessionsRevokedAt: integer("sessions_revoked_at", { mode: "timestamp" }),
+  sessionsRevokedAt: integer("sessions_revoked_at"),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 });
 
