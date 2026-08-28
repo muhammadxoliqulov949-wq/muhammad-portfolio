@@ -14,12 +14,24 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               Admin <span className="text-[var(--blue2)]">panel</span>
             </Link>
             {session ? (
-              <nav className="hidden sm:flex gap-5 pf-muted text-sm">
+              <nav className="hidden lg:flex gap-5 pf-muted text-sm">
                 <Link href="/admin" className="hover:text-[var(--text)]">
                   Profil
                 </Link>
                 <Link href="/admin/projects" className="hover:text-[var(--text)]">
                   Loyihalar
+                </Link>
+                <Link href="/admin/skills" className="hover:text-[var(--text)]">
+                  Ko&apos;nikmalar
+                </Link>
+                <Link href="/admin/services" className="hover:text-[var(--text)]">
+                  Xizmatlar
+                </Link>
+                <Link href="/admin/experience" className="hover:text-[var(--text)]">
+                  Tajriba
+                </Link>
+                <Link href="/admin/testimonials" className="hover:text-[var(--text)]">
+                  Fikrlar
                 </Link>
                 <Link href="/admin/messages" className="hover:text-[var(--text)]">
                   Xabarlar
@@ -30,6 +42,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <div className="flex items-center gap-4">
             <Link href="/" className="pf-muted text-sm hover:text-[var(--text)]">
               Saytni ko&apos;rish ↗
+            </Link>
+            <Link
+              href="/admin/messages"
+              className="lg:hidden text-sm text-[var(--blue2)] hover:underline"
+            >
+              Xabarlar
             </Link>
             {session ? <LogoutButton /> : null}
           </div>

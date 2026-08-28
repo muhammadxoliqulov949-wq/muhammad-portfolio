@@ -1,16 +1,17 @@
-# Portfolio — to'liq backend + production-ready
+# Portfolio — premium, to'liq backend + production-ready
 
-Bu loyiha to'liq professional darajaga keltirildi: ma'lumotlar bazasi, autentifikatsiya, admin panel, SEO va Vercel'ga **bitta linkda** deploy qilishga tayyor holat.
+Bu loyiha professional darajadagi portfolio: premium dizayn, ma'lumotlar bazasi, autentifikatsiya, kengaytirilgan admin panel, SEO va Vercel'ga **bitta linkda** deploy qilishga tayyor holat.
 
 ## Nima bor
 
+- **Premium bir sahifalik dizayn** — Space Grotesk + Inter fontlar (self-hosted), scroll animatsiyalar, gradient aksentlar, marquee-lenta, typewriter effekt, sanoq statistikalar
+- **Bo'limlar** — Hero, ko'nikmalar (animatsiyali progress bar), xizmatlar, tajriba (timeline), loyihalar (featured + grid), mijozlar fikri, aloqa, footer
 - **Ma'lumotlar bazasi**: Turso (bulutli SQLite, Vercel'ning serverless muhitida ishlaydigan) — Drizzle ORM orqali
-- **Admin panel** (`/admin`) — parol bilan himoyalangan: profilni tahrirlash, loyihalarni CRUD qilish, kelgan xabarlarni boshqarish
+- **Admin panel** (`/admin`) — parol bilan himoyalangan: profil, loyihalar, ko'nikmalar, xizmatlar, tajriba, fikrlar (hammasi CRUD) + xabarlar
 - **Autentifikatsiya** — bcrypt + JWT sessiya (httpOnly cookie)
 - **Aloqa formasi** — real xabar yuboradi, DB'ga saqlaydi, rate-limit bilan himoyalangan
-- **SEO** — to'liq meta teglar (Open Graph, Twitter Card), `robots.txt`, `sitemap.xml`, dinamik favicon
+- **SEO** — to'liq meta teglar (Open Graph, Twitter Card), avtomatik OG-image, JSON-LD (Person schema), `robots.txt`, `sitemap.xml`, dinamik favicon
 - **Xatolik sahifalari** — brand dizaynida 404 va xatolik chegarasi
-- Asl dizayn (qora/ko'k gradient) to'liq saqlangan, Tailwind CSS + React'ga o'tkazilgan
 
 ---
 
@@ -107,19 +108,26 @@ Admin: http://localhost:3000/admin/login (`.env` dagi `ADMIN_EMAIL` / `ADMIN_PAS
 ```
 src/
   app/
-    page.tsx              # Asosiy sahifa (DB'dan o'qiydi)
-    layout.tsx             # SEO metadata
-    icon.tsx                # Dinamik favicon
-    robots.ts / sitemap.ts  # SEO fayllari
+    page.tsx                 # Asosiy sahifa (DB'dan o'qiydi, barcha bo'limlar)
+    layout.tsx               # Fontlar + SEO metadata + JSON-LD
+    opengraph-image.tsx      # Avtomatik OG-image
+    icon.tsx                 # Dinamik favicon
+    robots.ts / sitemap.ts   # SEO fayllari
     not-found.tsx / error.tsx  # Xatolik sahifalari
-    admin/                  # Admin panel (login, profil, loyihalar, xabarlar)
-    api/                    # Barcha backend endpointlar
-  components/               # ContactForm, LogoutButton
+    admin/                   # Admin panel (profil, loyihalar, ko'nikmalar,
+                             #   xizmatlar, tajriba, fikrlar, xabarlar)
+    api/                     # Barcha backend endpointlar
+  components/
+    Header, Hero, Marquee, Skills, Services, Experience,
+    Projects, Testimonials, Footer, ContactForm, Reveal,
+    AdminCrudPage, LogoutButton
   db/
-    schema.ts               # Drizzle jadval sxemalari
+    schema.ts                # Drizzle jadval sxemalari (7 jadval)
     index.ts                 # Turso/lokal DB connection
     seed.ts                  # Boshlang'ich ma'lumotlar
-  lib/auth.ts                # JWT sessiya, parol xeshlash
+  lib/
+    auth.ts                  # JWT sessiya, parol xeshlash
+    crud.ts                  # Qayta ishlatiladigan CRUD API fabrikasi
   proxy.ts                   # /admin himoyasi (middleware)
 ```
 

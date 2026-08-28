@@ -7,6 +7,7 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  void error;
   return (
     <div className="min-h-screen grid place-items-center px-4 text-center">
       <div>

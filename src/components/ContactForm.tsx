@@ -45,14 +45,15 @@ export default function ContactForm() {
 
   if (status === "success") {
     return (
-      <div className="text-center py-4">
-        <p className="text-[var(--blue2)] font-semibold mb-1">Xabaringiz yuborildi ✓</p>
-        <p className="pf-muted text-sm">Tez orada javob beraman.</p>
-        <button
-          type="button"
-          onClick={() => setStatus("idle")}
-          className="pf-btn mt-4 text-sm"
-        >
+      <div className="text-center py-10 px-4">
+        <div className="w-16 h-16 mx-auto mb-5 rounded-full grid place-items-center bg-emerald-400/10 border border-emerald-400/40">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#34d399" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 6L9 17l-5-5" />
+          </svg>
+        </div>
+        <p className="font-display text-xl font-bold mb-2">Xabaringiz yuborildi ✓</p>
+        <p className="pf-muted text-sm mb-6">Rahmat! Tez orada siz bilan bog&apos;lanaman.</p>
+        <button type="button" onClick={() => setStatus("idle")} className="pf-btn text-sm">
           Yana xabar yuborish
         </button>
       </div>
@@ -60,34 +61,74 @@ export default function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-      <input
-        type="text"
-        name="name"
-        placeholder="Ismingiz"
-        required
-        maxLength={120}
-        className="pf-input"
-      />
-      <input
-        type="email"
-        name="email"
-        placeholder="Email manzilingiz"
-        required
-        maxLength={200}
-        className="pf-input"
-      />
-      <textarea
-        name="message"
-        placeholder="Xabaringiz"
-        required
-        maxLength={4000}
-        rows={4}
-        className="pf-input resize-none"
-      />
-      {status === "error" ? <p className="text-red-400 text-sm">{errorMsg}</p> : null}
-      <button type="submit" disabled={status === "loading"} className="pf-btn pf-btn-primary disabled:opacity-60">
-        {status === "loading" ? "Yuborilmoqda..." : "Yuborish"}
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <div>
+        <label htmlFor="cf-name" className="block text-sm pf-muted mb-1.5">
+          Ismingiz
+        </label>
+        <input
+          id="cf-name"
+          type="text"
+          name="name"
+          placeholder="Masalan: Aziz"
+          required
+          maxLength={120}
+          className="pf-input"
+        />
+      </div>
+      <div>
+        <label htmlFor="cf-email" className="block text-sm pf-muted mb-1.5">
+          Email manzilingiz
+        </label>
+        <input
+          id="cf-email"
+          type="email"
+          name="email"
+          placeholder="aziz@example.com"
+          required
+          maxLength={200}
+          className="pf-input"
+        />
+      </div>
+      <div>
+        <label htmlFor="cf-message" className="block text-sm pf-muted mb-1.5">
+          Xabaringiz
+        </label>
+        <textarea
+          id="cf-message"
+          name="message"
+          placeholder="Loyihangiz haqida qisqacha yozing..."
+          required
+          maxLength={4000}
+          rows={5}
+          className="pf-input resize-none"
+        />
+      </div>
+      {status === "error" ? (
+        <p className="text-red-400 text-sm bg-red-400/5 border border-red-400/20 rounded-xl px-4 py-3">{errorMsg}</p>
+      ) : null}
+      <button
+        type="submit"
+        disabled={status === "loading"}
+        className="pf-btn pf-btn-primary w-full !py-3.5 disabled:opacity-60"
+      >
+        {status === "loading" ? (
+          <>
+            <svg className="animate-spin" width="17" height="17" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeOpacity="0.3" strokeWidth="3" />
+              <path d="M22 12a10 10 0 0 0-10-10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+            </svg>
+            Yuborilmoqda...
+          </>
+        ) : (
+          <>
+            Xabar yuborish
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 2L11 13" />
+              <path d="M22 2l-7 20-4-9-9-4 20-7z" />
+            </svg>
+          </>
+        )}
       </button>
     </form>
   );

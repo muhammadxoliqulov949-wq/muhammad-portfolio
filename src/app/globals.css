@@ -1,14 +1,24 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-space-grotesk), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
 :root {
   --bg: #050816;
-  --bg2: #0b1020;
-  --text: #e8eefc;
-  --muted: #9aa7c2;
+  --bg2: #0b1122;
+  --text: #e9efff;
+  --muted: #93a1c0;
   --blue: #1e6bff;
   --blue2: #00b7ff;
+  --blue3: #7dd3fc;
   --border: rgba(255, 255, 255, 0.08);
-  --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --card: rgba(13, 19, 41, 0.55);
+  --shadow: 0 24px 70px rgba(2, 6, 23, 0.55);
+  --glow-blue: rgba(0, 183, 255, 0.28);
+  --grad: linear-gradient(135deg, var(--blue) 0%, var(--blue2) 100%);
 }
 
 * {
@@ -17,73 +27,400 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 90px;
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
-  background: radial-gradient(circle at top, #0d1633 0%, var(--bg) 45%, #03040a 100%);
+  font-family: var(--font-sans);
+  background:
+    radial-gradient(1100px 700px at 85% -10%, rgba(30, 107, 255, 0.16), transparent 60%),
+    radial-gradient(900px 600px at -10% 30%, rgba(0, 183, 255, 0.1), transparent 55%),
+    radial-gradient(1000px 800px at 50% 120%, rgba(30, 107, 255, 0.08), transparent 60%),
+    #050816;
   background-attachment: fixed;
   color: var(--text);
-  line-height: 1.6;
+  line-height: 1.65;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
-.pf-card {
-  background: linear-gradient(180deg, rgba(15, 20, 40, 0.92), rgba(8, 10, 20, 0.96));
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  box-shadow: var(--shadow);
-}
-
-.pf-badge {
-  display: inline-block;
-  padding: 8px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(0, 183, 255, 0.35);
-  background: rgba(0, 183, 255, 0.08);
-  color: #bfefff;
-  font-size: 14px;
-}
-
-.pf-btn {
-  display: inline-block;
-  padding: 14px 20px;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  font-weight: 700;
-  transition: 0.2s ease;
-}
-
-.pf-btn:hover {
-  transform: translateY(-2px);
-}
-
-.pf-btn-primary {
-  background: linear-gradient(135deg, var(--blue), var(--blue2));
-  border: none;
+::selection {
+  background: rgba(0, 183, 255, 0.35);
   color: #fff;
 }
 
-.pf-muted {
-  color: var(--muted);
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #070b1a;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #1e3a8a, #0e7490);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #2563eb, #06b6d4);
 }
 
-.pf-input {
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text);
-  font-family: inherit;
-  font-size: 15px;
+/* ---------- Komponentlar ---------- */
+@layer components {
+  .pf-container {
+    width: min(92%, 1140px);
+    margin-inline: auto;
+  }
+
+  .pf-card {
+    position: relative;
+    background: linear-gradient(180deg, rgba(17, 24, 50, 0.72), rgba(8, 12, 26, 0.85));
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    box-shadow: var(--shadow);
+    transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+  }
+
+  .pf-card-hover:hover {
+    transform: translateY(-5px);
+    border-color: rgba(0, 183, 255, 0.35);
+    box-shadow: 0 30px 80px rgba(2, 6, 23, 0.6), 0 0 40px rgba(0, 183, 255, 0.07);
+  }
+
+  .pf-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 183, 255, 0.35);
+    background: linear-gradient(135deg, rgba(30, 107, 255, 0.14), rgba(0, 183, 255, 0.08));
+    color: #c9f2ff;
+    font-size: 13.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .pf-badge::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: #22d3ee;
+    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.7);
+    animation: pulse-dot 2.2s infinite;
+  }
+
+  .pf-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px 24px;
+    border-radius: 14px;
+    border: 1px solid var(--border-strong);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text);
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-decoration: none;
+  }
+
+  .pf-btn:hover {
+    transform: translateY(-2px);
+    border-color: rgba(0, 183, 255, 0.5);
+    box-shadow: 0 12px 32px rgba(0, 183, 255, 0.15);
+  }
+
+  .pf-btn-primary {
+    background: linear-gradient(135deg, var(--blue), var(--blue2));
+    border: none;
+    color: #fff;
+    box-shadow: 0 12px 36px rgba(30, 107, 255, 0.35);
+  }
+
+  .pf-btn-primary:hover {
+    box-shadow: 0 16px 44px rgba(0, 183, 255, 0.45);
+    filter: brightness(1.08);
+  }
+
+  .pf-muted {
+    color: var(--muted);
+  }
+
+  .pf-input {
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: 13px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.035);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 15px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  }
+
+  .pf-input:focus {
+    outline: none;
+    border-color: var(--blue2);
+    background: rgba(0, 183, 255, 0.05);
+    box-shadow: 0 0 0 3px rgba(0, 183, 255, 0.14);
+  }
+
+  .pf-input::placeholder {
+    color: #64748f;
+  }
+
+  .pf-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--blue2);
+    margin-bottom: 14px;
+  }
+
+  .pf-kicker::before {
+    content: "";
+    width: 26px;
+    height: 2px;
+    background: var(--grad);
+    border-radius: 2px;
+  }
+
+  .pf-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.12;
+  }
+
+  .pf-grid-bg {
+    background-image:
+      linear-gradient(rgba(148, 163, 184, 0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148, 163, 184, 0.055) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, #000 40%, transparent 100%);
+  }
+
+  .pf-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--blue3);
+    background: rgba(0, 183, 255, 0.08);
+    border: 1px solid rgba(0, 183, 255, 0.22);
+  }
+
+  .pf-orb {
+    position: absolute;
+    border-radius: 999px;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+  }
 }
 
-.pf-input:focus {
-  outline: none;
-  border-color: var(--blue2);
+/* ---------- Animatsiyalar ---------- */
+@keyframes pulse-dot {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 9px rgba(34, 211, 238, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0);
+  }
 }
 
-.pf-input::placeholder {
-  color: var(--muted);
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes caret-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes gradient-pan {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Marquee */
+.pf-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 32s linear infinite;
+  will-change: transform;
+}
+
+.pf-marquee-wrap:hover .pf-marquee {
+  animation-play-state: paused;
+}
+
+.pf-marquee-mask {
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+
+/* Reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 0.75s ease,
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Typing caret */
+.pf-caret {
+  display: inline-block;
+  width: 3px;
+  height: 1em;
+  margin-left: 4px;
+  vertical-align: -0.12em;
+  background: var(--blue2);
+  border-radius: 2px;
+  animation: caret-blink 0.9s step-end infinite;
+}
+
+/* Skill bar */
+.pf-skill-track {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.12);
+  overflow: hidden;
+}
+
+.pf-skill-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: var(--grad);
+  background-size: 200% 200%;
+  animation: gradient-pan 4s ease infinite;
+  transition: width 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Gradient text */
+.pf-grad-text {
+  background: linear-gradient(120deg, #60a5fa 0%, var(--blue2) 45%, #a5f3fc 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradient-pan 6s ease infinite;
+}
+
+/* Timeline */
+.pf-timeline {
+  position: relative;
+}
+
+.pf-timeline::before {
+  content: "";
+  position: absolute;
+  left: 9px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--blue), var(--blue2), transparent);
+  opacity: 0.45;
+  border-radius: 2px;
+}
+
+.pf-dot {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 2px solid var(--blue2);
+  box-shadow: 0 0 0 4px rgba(0, 183, 255, 0.15);
+}
+
+/* Hero avatar ring */
+.pf-avatar-ring {
+  position: relative;
+}
+
+.pf-avatar-ring::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 26px;
+  background: conic-gradient(from 0deg, var(--blue), var(--blue2), #1e3a8a, var(--blue));
+  animation: spin-slow 9s linear infinite;
+  opacity: 0.9;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+  .pf-skill-fill {
+    width: var(--skill-w, 80%) !important;
+    transition: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
 }

@@ -5,11 +5,19 @@ import { useEffect, useState, FormEvent } from "react";
 type Profile = {
   fullName: string;
   title: string;
+  role2: string;
+  role3: string;
   badge: string;
   bio: string;
   avatarInitials: string;
+  photoUrl: string;
   email: string;
   telegram: string;
+  github: string;
+  linkedin: string;
+  instagram: string;
+  location: string;
+  resumeUrl: string;
   statProjects: string;
   statExperience: string;
   statAvailability: string;
@@ -18,11 +26,19 @@ type Profile = {
 const emptyProfile: Profile = {
   fullName: "",
   title: "",
+  role2: "",
+  role3: "",
   badge: "",
   bio: "",
   avatarInitials: "",
+  photoUrl: "",
   email: "",
   telegram: "",
+  github: "",
+  linkedin: "",
+  instagram: "",
+  location: "",
+  resumeUrl: "",
   statProjects: "",
   statExperience: "",
   statAvailability: "",
@@ -62,136 +78,122 @@ export default function AdminProfilePage() {
         return;
       }
 
-      setMessage({ type: "success", text: "Profil muvaffaqiyatli saqlandi." });
+      setMessage({ type: "success", text: "Profil saqlandi ✓" });
     } catch {
-      setMessage({ type: "error", text: "Tarmoq xatosi." });
+      setMessage({ type: "error", text: "Tarmoq xatosi yuz berdi." });
     } finally {
       setSaving(false);
     }
   }
 
-  function update<K extends keyof Profile>(key: K, value: Profile[K]) {
+  function set<K extends keyof Profile>(key: K, value: string) {
     setProfile((prev) => ({ ...prev, [key]: value }));
   }
 
-  if (loading) {
-    return <p className="pf-muted">Yuklanmoqda...</p>;
-  }
+  if (loading) return <p className="pf-muted">Yuklanmoqda...</p>;
+
+  const input = "pf-input";
+  const label = "block text-sm pf-muted mb-1.5";
 
   return (
-    <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold mb-1">Profil ma&apos;lumotlari</h1>
-      <p className="pf-muted text-sm mb-6">
-        Bu ma&apos;lumotlar saytning bosh sahifasida ko&apos;rinadi.
-      </p>
+    <form onSubmit={handleSubmit} className="space-y-8">
+      {message ? (
+        <p className={message.type === "success" ? "text-emerald-400" : "text-red-400"}>{message.text}</p>
+      ) : null}
 
-      <form onSubmit={handleSubmit} className="pf-card p-6 flex flex-col gap-4">
-        <Field label="To'liq ism">
-          <input
-            className="pf-input"
-            value={profile.fullName}
-            onChange={(e) => update("fullName", e.target.value)}
-            required
-          />
-        </Field>
-
-        <Field label="Kasb / unvon">
-          <input
-            className="pf-input"
-            value={profile.title}
-            onChange={(e) => update("title", e.target.value)}
-            required
-          />
-        </Field>
-
-        <Field label="Badge matni (hero ustidagi kichik yorliq)">
-          <input
-            className="pf-input"
-            value={profile.badge}
-            onChange={(e) => update("badge", e.target.value)}
-          />
-        </Field>
-
-        <Field label="Bio / tavsif">
-          <textarea
-            className="pf-input resize-none"
-            rows={3}
-            value={profile.bio}
-            onChange={(e) => update("bio", e.target.value)}
-          />
-        </Field>
-
-        <Field label="Avatar harflari (masalan MX)">
-          <input
-            className="pf-input"
-            value={profile.avatarInitials}
-            onChange={(e) => update("avatarInitials", e.target.value)}
-            maxLength={4}
-          />
-        </Field>
-
-        <div className="grid grid-cols-2 gap-4">
-          <Field label="Email">
-            <input
-              type="email"
-              className="pf-input"
-              value={profile.email}
-              onChange={(e) => update("email", e.target.value)}
-              required
-            />
-          </Field>
-          <Field label="Telegram">
-            <input
-              className="pf-input"
-              value={profile.telegram}
-              onChange={(e) => update("telegram", e.target.value)}
-            />
-          </Field>
+      <section className="pf-card p-5.5 space-y-4">
+        <h2 className="text-lg font-bold">Asosiy ma&apos;lumotlar</h2>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className={label}>To&apos;liq ism</label>
+            <input className={input} value={profile.fullName} onChange={(e) => set("fullName", e.target.value)} required />
+          </div>
+          <div>
+            <label className={label}>Asosiy kasb (title)</label>
+            <input className={input} value={profile.title} onChange={(e) => set("title", e.target.value)} required />
+          </div>
+          <div>
+            <label className={label}>Ikkinchi kasb (yozuv)</label>
+            <input className={input} value={profile.role2} onChange={(e) => set("role2", e.target.value)} placeholder="Masalan: Veb-saytlar yarataman" />
+          </div>
+          <div>
+            <label className={label}>Uchinchi kasb (yozuv)</label>
+            <input className={input} value={profile.role3} onChange={(e) => set("role3", e.target.value)} placeholder="Masalan: Admin panellar quraman" />
+          </div>
+          <div>
+            <label className={label}>Badge (tepa belgisi)</label>
+            <input className={input} value={profile.badge} onChange={(e) => set("badge", e.target.value)} />
+          </div>
+          <div>
+            <label className={label}>Avatar harflari</label>
+            <input className={input} maxLength={4} value={profile.avatarInitials} onChange={(e) => set("avatarInitials", e.target.value)} />
+          </div>
+          <div className="sm:col-span-2">
+            <label className={label}>Rasm URL (ixtiyoriy — avatar o&apos;rniga)</label>
+            <input className={input} value={profile.photoUrl} onChange={(e) => set("photoUrl", e.target.value)} placeholder="https://..." />
+          </div>
+          <div className="sm:col-span-2">
+            <label className={label}>Bio (qisqa ta&apos;rif)</label>
+            <textarea className={`${input} resize-none`} rows={4} value={profile.bio} onChange={(e) => set("bio", e.target.value)} />
+          </div>
         </div>
+      </section>
 
-        <div className="grid grid-cols-3 gap-4">
-          <Field label="Loyihalar soni">
-            <input
-              className="pf-input"
-              value={profile.statProjects}
-              onChange={(e) => update("statProjects", e.target.value)}
-            />
-          </Field>
-          <Field label="Tajriba">
-            <input
-              className="pf-input"
-              value={profile.statExperience}
-              onChange={(e) => update("statExperience", e.target.value)}
-            />
-          </Field>
-          <Field label="Aloqa holati">
-            <input
-              className="pf-input"
-              value={profile.statAvailability}
-              onChange={(e) => update("statAvailability", e.target.value)}
-            />
-          </Field>
+      <section className="pf-card p-5.5 space-y-4">
+        <h2 className="text-lg font-bold">Aloqa va ijtimoiy tarmoqlar</h2>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className={label}>Email</label>
+            <input type="email" className={input} value={profile.email} onChange={(e) => set("email", e.target.value)} required />
+          </div>
+          <div>
+            <label className={label}>Telegram</label>
+            <input className={input} value={profile.telegram} onChange={(e) => set("telegram", e.target.value)} placeholder="@username" />
+          </div>
+          <div>
+            <label className={label}>GitHub</label>
+            <input className={input} value={profile.github} onChange={(e) => set("github", e.target.value)} placeholder="https://github.com/..." />
+          </div>
+          <div>
+            <label className={label}>LinkedIn</label>
+            <input className={input} value={profile.linkedin} onChange={(e) => set("linkedin", e.target.value)} placeholder="https://linkedin.com/in/..." />
+          </div>
+          <div>
+            <label className={label}>Instagram</label>
+            <input className={input} value={profile.instagram} onChange={(e) => set("instagram", e.target.value)} placeholder="https://instagram.com/..." />
+          </div>
+          <div>
+            <label className={label}>Joylashuv</label>
+            <input className={input} value={profile.location} onChange={(e) => set("location", e.target.value)} placeholder="Toshkent, O'zbekiston" />
+          </div>
+          <div className="sm:col-span-2">
+            <label className={label}>CV / Resume havolasi (ixtiyoriy)</label>
+            <input className={input} value={profile.resumeUrl} onChange={(e) => set("resumeUrl", e.target.value)} placeholder="https://.../cv.pdf" />
+          </div>
         </div>
+      </section>
 
-        {message ? (
-          <p className={message.type === "success" ? "text-[var(--blue2)] text-sm" : "text-red-400 text-sm"}>
-            {message.text}
-          </p>
-        ) : null}
+      <section className="pf-card p-5.5 space-y-4">
+        <h2 className="text-lg font-bold">Statistikalar (bosh sahifa)</h2>
+        <div className="grid sm:grid-cols-3 gap-4">
+          <div>
+            <label className={label}>Loyihalar soni</label>
+            <input className={input} value={profile.statProjects} onChange={(e) => set("statProjects", e.target.value)} placeholder="25+" />
+          </div>
+          <div>
+            <label className={label}>Tajriba</label>
+            <input className={input} value={profile.statExperience} onChange={(e) => set("statExperience", e.target.value)} placeholder="3 yil" />
+          </div>
+          <div>
+            <label className={label}>Aloqadorlik</label>
+            <input className={input} value={profile.statAvailability} onChange={(e) => set("statAvailability", e.target.value)} placeholder="Doim aloqada" />
+          </div>
+        </div>
+      </section>
 
-        <button type="submit" disabled={saving} className="pf-btn pf-btn-primary self-start disabled:opacity-60">
-          {saving ? "Saqlanmoqda..." : "Saqlash"}
-        </button>
-      </form>
-    </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="flex flex-col gap-1.5">
-      <span className="pf-muted text-sm">{label}</span>
-      {children}
-    </label>
+      <button type="submit" disabled={saving} className="pf-btn pf-btn-primary disabled:opacity-60">
+        {saving ? "Saqlanmoqda..." : "Profilni saqlash"}
+      </button>
+    </form>
   );
 }

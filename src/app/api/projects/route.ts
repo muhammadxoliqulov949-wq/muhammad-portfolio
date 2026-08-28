@@ -9,6 +9,10 @@ const projectSchema = z.object({
   title: z.string().min(1).max(160),
   description: z.string().min(1).max(2000),
   link: z.string().max(500).optional().default(""),
+  github: z.string().max(500).optional().default(""),
+  image: z.string().max(1000).optional().default(""),
+  tech: z.string().max(300).optional().default(""),
+  featured: z.boolean().optional().default(false),
   order: z.number().int().optional().default(0),
   published: z.boolean().optional().default(true),
 });
