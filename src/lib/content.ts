@@ -183,7 +183,7 @@ export type Social = {
   href: string;
 };
 
-export function socialsOf(p: Profile): Social[] {
+export function socialsOf(p: Profile, locale: Locale = "uz"): Social[] {
   const items: Array<Social | null> = [
     p.github && safeHref(p.github) ? { key: "github", label: "GitHub", href: safeHref(p.github) as string } : null,
     p.linkedin && safeHref(p.linkedin)
@@ -194,7 +194,7 @@ export function socialsOf(p: Profile): Social[] {
       : null,
     telegramHref(p.telegram) ? { key: "telegram", label: "Telegram", href: telegramHref(p.telegram) as string } : null,
     p.email ? { key: "email", label: "Email", href: `mailto:${p.email}` } : null,
-    phoneHref(p.phone) ? { key: "phone", label: "Telefon", href: phoneHref(p.phone) as string } : null,
+    phoneHref(p.phone) ? { key: "phone", label: t(locale, "contact.phone"), href: phoneHref(p.phone) as string } : null,
   ];
   return items.filter((x): x is Social => x !== null);
 }

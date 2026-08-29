@@ -44,8 +44,10 @@ const mono = localFont({
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
+const OG_LOCALE = { uz: "uz_UZ", en: "en_US", ru: "ru_RU" } as const;
+
 export async function generateMetadata(): Promise<Metadata> {
-  const { profile } = await getSiteData();
+  const [{ profile }, locale] = await Promise.all([getSiteData(), getLocale()]);
   const name = profile.fullName || "Portfolio";
   const title = profile.title || "Student & AI Developer";
   const description = `${name} | ${title}. AI-assisted development, web development, AI-powered applications and freelance product work. Tashkent, Uzbekistan.`;
@@ -75,7 +77,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       url: siteUrl,
       siteName: `${name} — Portfolio`,
-      locale: "uz_UZ",
+      locale: OG_LOCALE[locale],
       type: "website",
     },
     twitter: {

@@ -34,6 +34,7 @@ export const UI = {
       ai: "AI yordamchi",
       live: "Vercel'da jonli",
       workflowEmpty: "Ish oqimi admin panelda sozlanadi.",
+      prompt: "prompt · kod · izoh",
       portrait: "portret",
     },
     about: {
@@ -238,6 +239,7 @@ export const UI = {
       ai: "AI partner",
       live: "Live on Vercel",
       workflowEmpty: "Workflow is set in the admin panel.",
+      prompt: "prompt · code · review",
       portrait: "portrait",
     },
     about: {
@@ -294,7 +296,7 @@ export const UI = {
       eyebrow: "Education",
       titleBefore: "I study",
       titleEm: "business",
-      titleAfter: "and I build in code",
+      titleAfter: " and I build in code",
       lead: "I am a student — this section only states where, what, and until when.",
       now: "Now",
     },
@@ -440,6 +442,7 @@ export const UI = {
       ai: "AI-помощник",
       live: "Живой на Vercel",
       workflowEmpty: "Процесс задаётся в админ-панели.",
+      prompt: "промпт · код · проверка",
       portrait: "портрет",
     },
     about: {
@@ -496,7 +499,7 @@ export const UI = {
       eyebrow: "Образование",
       titleBefore: "Учу",
       titleEm: "бизнес",
-      titleAfter: "и собираю в коде",
+      titleAfter: " и собираю в коде",
       lead: "Я студент — здесь только где, что и до какого года.",
       now: "Сейчас",
     },

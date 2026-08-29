@@ -735,7 +735,7 @@ select {
 .site-header__cta {
   display: none;
 }
-@media (min-width: 40rem) {
+@media (min-width: 64rem) {
   .site-header__cta {
     display: inline-flex;
   }

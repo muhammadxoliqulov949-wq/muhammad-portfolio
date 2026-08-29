@@ -61,7 +61,7 @@ export default async function ProjectsIndexPage() {
               const tech = techOf(p.tech).slice(0, 4);
               return (
                 <li key={p.id} className="reveal">
-                  <Card href={`/projects/${p.id}`} className="group flex gap-5 p-4 md:p-5">
+                  <Card href={`/projects/${p.id}`} hitLabel={t(locale, "more")} className="group flex gap-5 p-4 md:p-5">
                     <div className="relative aspect-square w-28 shrink-0 overflow-hidden rounded-2 border border-line-1 bg-surface-2 md:w-32">
                       {img ? (
                         <Image

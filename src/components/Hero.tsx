@@ -36,7 +36,7 @@ type Props = { profile: Profile; study?: string; locale?: Locale };
 
 export default function Hero({ profile: p, study, locale = "uz" }: Props) {
   const roles = txEach(locale, rolesOf(p));
-  const socials = socialsOf(p);
+  const socials = socialsOf(p, locale);
   const steps = txEach(locale, listFrom(p.workflow));
   const resume = safeHref(p.resumeUrl);
   const portrait = portraitOf(p);
@@ -156,7 +156,7 @@ export default function Hero({ profile: p, study, locale = "uz" }: Props) {
             <div className="hero-panels">
               <div className="hero-panel hero-panel--back" aria-hidden="true">
                 <p className="label mb-2">{t(locale, "hero.ai")}</p>
-                <p className="text-small text-ink-2">prompt · kod · izoh</p>
+                <p className="text-small text-ink-2">{t(locale, "hero.prompt")}</p>
               </div>
               <div className="hero-panel hero-panel--mid" aria-hidden="true">
                 <p className="label mb-3 flex items-center justify-between">

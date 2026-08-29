@@ -122,6 +122,7 @@ export default function Projects({
           <div data-span="full" className="reveal">
             <Card
               href={`/projects/${featured.id}`}
+              hitLabel={t(locale, "more")}
               className="group grid overflow-hidden !rounded-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]"
             >
               <div className="relative min-h-[260px] overflow-hidden border-b border-line-1 bg-surface-2 lg:border-b-0 lg:border-r">
@@ -196,7 +197,7 @@ export default function Projects({
 
           {rest.map((p) => (
             <div key={p.id} data-span="third" className="reveal">
-              <Card href={`/projects/${p.id}`} className="group flex h-full flex-col overflow-hidden !rounded-4">
+              <Card href={`/projects/${p.id}`} hitLabel={t(locale, "more")} className="group flex h-full flex-col overflow-hidden !rounded-4">
                 <div className="relative aspect-16/10 overflow-hidden border-b border-line-1 bg-surface-2">
                   <Cover project={p} locale={locale} />
                 </div>

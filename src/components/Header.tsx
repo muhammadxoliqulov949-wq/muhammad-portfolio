@@ -141,7 +141,7 @@ export default function Header({ name, initials, links, ctaLabel, locale = "uz",
                 e.preventDefault();
                 go(l.id);
               }}
-              aria-current={active === l.id ? "true" : undefined}
+              aria-current={active === l.id ? "page" : undefined}
               className={`site-header__link${SECONDARY_SECTIONS.has(l.id) ? " site-header__link--more" : ""}`}
             >
               {l.label}
@@ -193,7 +193,7 @@ export default function Header({ name, initials, links, ctaLabel, locale = "uz",
                     e.preventDefault();
                     go(l.id);
                   }}
-                  aria-current={active === l.id ? "true" : undefined}
+                  aria-current={active === l.id ? "page" : undefined}
                   className="site-header__sheet-link"
                 >
                   {l.label}

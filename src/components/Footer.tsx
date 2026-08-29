@@ -19,7 +19,7 @@ const ICON = {
 } as const;
 
 export default function Footer({ profile: p, links, locale = "uz" }: Props) {
-  const socials = socialsOf(p);
+  const socials = socialsOf(p, locale);
 
   return (
     <footer className="border-t border-line-1 bg-canvas-sunken/50">

@@ -6,6 +6,7 @@ type BaseProps = {
   className?: string;
   /** hover/pressed effekti kerak bo'lmasa false */
   interactive?: boolean;
+  hitLabel?: string;
 };
 
 type Props = BaseProps & {
@@ -19,18 +20,26 @@ type Props = BaseProps & {
  * Ichidagi demo/GitHub havolalari nested anchor bo'lmasin deb stretched-link
  * (`card__hit`) ishlatiladi.
  */
-export default function Card({ children, className = "", href, external, interactive = true, ...rest }: Props) {
+export default function Card({
+  children,
+  className = "",
+  href,
+  external,
+  interactive = true,
+  hitLabel = "Details",
+  ...rest
+}: Props) {
   const cls = `card relative block ${interactive ? "card--hover" : "card--flat"} ${className}`;
 
   if (href) {
     const isExternal = external ?? /^https?:/i.test(href);
     const hit = isExternal ? (
       <a href={href} target="_blank" rel="noopener noreferrer" className="card__hit">
-        <span className="sr-only">Batafsil</span>
+        <span className="sr-only">{hitLabel}</span>
       </a>
     ) : (
       <Link href={href} className="card__hit">
-        <span className="sr-only">Batafsil</span>
+        <span className="sr-only">{hitLabel}</span>
       </Link>
     );
     return (
