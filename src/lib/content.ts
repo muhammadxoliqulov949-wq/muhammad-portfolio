@@ -279,7 +279,7 @@ export function sectionsOf(data: SiteData) {
     { id: "services", label: "Xizmatlar", has: data.services.length > 0 },
     { id: "education", label: "Ta'lim", has: data.education.length > 0 },
     { id: "achievements", label: "Yutuqlar", has: data.achievements.length > 0 },
-    { id: "approach", label: "Uslub", has: hasApproach },
+    { id: "approach", label: "Odamlar bilan", has: hasApproach || data.experience.length > 0 },
     { id: "contact", label: "Aloqa", has: true },
   ].filter((s) => s.has !== false);
 }

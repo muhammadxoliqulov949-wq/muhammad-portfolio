@@ -7,8 +7,10 @@ import { skillsByCategory, type Skill } from "@/lib/content";
 const GROUP_ICON: Record<string, IconName> = {
   "AI & Development": "bot",
   Web: "code",
+  Design: "pen",
   Tools: "gauge",
   "AI tools": "sparkle",
+  Practice: "target",
 };
 
 /**
@@ -33,10 +35,10 @@ export default function Skills({ skills }: { skills: Skill[] }) {
               Roʻyxat emas, <span className="display-em">ishlatish tarzim</span>
             </>
           }
-          lead="Foizli shkala yoʻq — u hech narsani isbotlamaydi. Buning oʻrniga toʻrt guruh: nimadan foydalanaman va uni qaysi ishda qoʻllayman."
+          lead="Foizli shkala yoʻq. Guruhlar: AI & Development, Web, Design, Tools, AI tools va amaliy odatlar — har birida nima qilishim yozilgan."
         />
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {groups.map((g) => (
             <div key={g.category} className="reveal">
               <Card className="flex h-full flex-col p-6">

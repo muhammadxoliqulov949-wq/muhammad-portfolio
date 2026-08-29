@@ -13,6 +13,7 @@ import type { AnySQLiteTable } from "drizzle-orm/sqlite-core";
  *
  *  - Admin hisobi env'dan (ADMIN_EMAIL / ADMIN_PASSWORD).
  *  - `--force` bilan kontent qatorlari qayta yoziladi (admin va xabarlar qoladi).
+ *  - Portret (`photoUrl` + media) force'da saqlanadi — egasi yuklagan rasm o'chmaydi.
  */
 
 const FORCE = process.argv.includes("--force");
@@ -22,14 +23,14 @@ const FORCE = process.argv.includes("--force");
 const profileRow = {
   fullName: "Muhammad Xoliqulov",
   title: "Student & AI Developer",
-  role2: "AI-assisted full-stack development",
+  role2: "AI-assisted web development",
   role3: "Vibe coding — gʻoyadan deploygacha",
   badge: "Toshkent · Oʻzbekiston",
-  bio: "AI'ni tayyor javob beruvchi deb emas, ish sherigi deb ishlataman: gʻoyani tez yigʻaman, chiqqan kodni oʻqib chiqaman, buzaman, tuzataman va ishlaydigan mahsulotga yetkazaman.",
+  bio: "Oʻzim oʻrgangan, AI yordamida toʻliq veb-ilova quradigan talabaman. Gʻoyani prototipga, prototipni ishlaydigan mahsulotga aylantiraman: kodni oʻqib chiqaman, buzaman, tuzataman va eʼlon qilaman.",
   avatarInitials: "MX",
   photoUrl: "",
   email: "muhammadxoliqulov949@gmail.com",
-  phone: "+998 99 201 11 77",
+  phone: "+998 (99) 201-1177",
   telegram: "@mukham_06",
   github: "https://github.com/muhammadxoliqulov949-wq",
   linkedin: "",
@@ -40,18 +41,19 @@ const profileRow = {
   sinceYear: "",
   englishLevel: "B2",
   story:
-    "Men International OXUS Universitetida Iqtisodiyot va biznes boshqaruvi yoʻnalishida oʻqiyman (2026–2030) va birinchi kursdayoq haqiqiy mijozlar uchun ishlab boʻlganman. Kod yozishni oʻzim oʻrgandim — kitobdan emas, ishlaydigan narsa qurish orqali.\n\n" +
-    "Meni \"har bir qatorni qoʻlda yozadigan dasturchi\" deb tasvirlash toʻgʻri emas: men AI yordamida quraman, lekin AI yozgan kodni tekshirmasdan qabul qilmayman. Marshrut sodda: gʻoya → prototip → kodni oʻqib chiqish → buzilgan joyini topish → sinash → eʼlon qilish.\n\n" +
-    "Marketing agentligida 10 dan ortiq mijoz bilan, futbol mashgʻulotlarida 30 dan ortiq bola bilan ishlash mendan ikki narsani qoldirdi: odam bilan aniq kelishish va soʻz berilgan sanani buzmaslik.",
+    "International OXUS Universitetida Iqtisodiyot va biznes boshqaruvi yoʻnalishida 1-kursman (2026–2030). Biznesga qarab oʻylash, tahlil, ijod va AI-assisted dasturlashni bitta ish oqimida tutaman.\n\n" +
+    "Har qatorni qoʻlda yozadigan dasturchi emasman. AI vositalari bilan quraman, chiqqan kodni koʻrib chiqaman, xatoni topaman, sinayman va deploy qilaman. Shu usul gʻoyani tez ishlaydigan raqamli mahsulotga aylantiradi.\n\n" +
+    "Oʻrganish, qurish va muammoni yechish menga yoqadi. Boshlagan ishni tugataman; aytgan narsani vaqtida qilaman — kechikish imkoniyatni yoʻqotadi.\n\n" +
+    "Uzoq muddatdagi orzu (hozirgi yutuq emas): atrofimda oʻsishni xohlaydigan odamlar oʻqiydigan, ishlaydigan va birga vaqt oʻtkazadigan professional muhit — oʻz maktabim.",
   strengths:
-    "Tez oʻrganish, Mustaqil oʻqish, Oʻzim boshlab oʻzim tugatish, Ijodiy yechim, Tahliliy fikrlash, Qatʻiyat, Masʻuliyatni olish, Muddatga rioya qilish",
-  interests: "Futbol, Taʼlim, Biznes, Texnologiya, Sunʼiy intellekt, Shaxsiy oʻsish, Murakkab masalalar",
-  principleWork: "Boshlagan narsani tugatgim keladi — yarim ishlangan loyiha natija hisoblanmaydi.",
+    "Tez oʻrganish, Mustaqil oʻqish, Oʻzim boshlab oʻzim tugatish, Ijodiy yechim, Tahliliy fikrlash, Qatʻiyat, Masʻuliyatni olish, Murakkab masalalarni yoqtirish",
+  interests: "Futbol, Taʼlim, Biznes, Texnologiya, Sunʼiy intellekt, Shaxsiy oʻsish, Muammoni yechish",
+  principleWork: "Boshlagan narsani tugataman — yarim ishlangan loyiha natija hisoblanmaydi.",
   principleDelivery: "Aytgan ishni oʻz vaqtida qilish. Kechikish — imkoniyatni yoʻqotish.",
   workflow:
     "Talabni qogʻozga tushiraman | AI bilan tez prototip yigʻaman | Har bir qatorni oʻqib chiqaman | Buzilgan joyini topib tuzataman | Brauzer va telefonda sinayman | Vercelʼga chiqaraman",
   goals:
-    "20+ professional loyiha qurish | Professional brend va blog yuritish | 5+ yirik kompaniya bilan ishlash | Oʻz onlayn kursimni yaratish | Kuchli professional muhit | AI/web dasturchi sifatida chuqurlashish",
+    "20+ professional loyiha qurish | Professional brend va blog | 5+ yirik kompaniya bilan ishlash | Oʻz onlayn kurslarim | Kuchli professional tarmoq | AI/web dasturchi sifatida chuqurlashish | Oʻrtacha oylik daromad $5,000+ (maqsad, hozirgi holat emas)",
   statProjects: "5 ta sayt",
   statExperience: "≈1,5 yil",
   statAvailability: "10+ mijoz",
@@ -69,14 +71,14 @@ const projectRows = [
     image: "/media/ielts-mock-home.jpg",
     tech: "HTML, CSS, JavaScript, Node.js, REST API, Gemini AI API, PWA, Service Worker",
     year: "",
-    role: "Loyihani AI yordamida mustaqil quraman",
+    role: "Loyihani AI yordamida mustaqil quraman — rivojlantirish, debug, test, integratsiya",
     impact: "Amaliyot, xatoni koʻrib chiqish va AI izohi — bitta joyda.",
     problem:
       "IELTSʼga tayyorlanishda ikki narsa kam: koʻp mashq qiladigan joy va javobingni tekshirib beradigan odam. Kurs hammaga mos kelavermaydi, mustaqil yozib tashlagan javobda esa xato qayerda — koʻrinmaydi.",
     approach:
-      "Har bir boʻlim uchun alohida amaliyot moduli bilan boshladim: savol → javob → natija tahlili. Keyin xatolarni qayta koʻrish va lugʻat qatlamini qoʻshdim. Yozma javobni yaxshilash uchun Gemini AI APIʼni uldim. AI koʻp kod yozdi — men uni oʻqib chiqdim, tuzatdim, boʻlinishlarni qayta yozdim va har bosqichni brauzerda sinadim. Service Worker bilan platforma oflayn ham ochiladi (PWA).",
+      "Har bir boʻlim uchun alohida amaliyot moduli: savol → javob → natija tahlili. Keyin xatolarni qayta koʻrish va lugʻat qatlami. Yozma javobni yaxshilash uchun Gemini AI API. AI koʻp kod yozdi — men uni oʻqib chiqdim, tuzatdim va har bosqichni brauzerda sinadim. Service Worker bilan platforma oflayn ham ochiladi (PWA).",
     outcome:
-      "Platforma jonli holda ishlaydi va faol rivojlantirilmoqda. Foydalanuvchilar soni yoki ball statistikasi hozircha eʼlon qilinmagan — bu oʻsayotgan mahsulot, tayyor raqam emas.",
+      "Platforma jonli holda ishlaydi va faol rivojlantirilmoqda. Foydalanuvchilar soni yoki ball statistikasi eʼlon qilinmagan — bu oʻsayotgan mahsulot, tayyor raqam emas.",
     gallery: "/media/ielts-mock-exam.jpg | /media/ielts-mock-plans.jpg",
     status: "Ishlab chiqilmoqda — faol davom etmoqda",
     features:
@@ -90,7 +92,6 @@ const projectRows = [
 /* ────────────────────────── Koʻnikmalar ────────────────────────── */
 
 const skillRows = [
-  // AI & Development
   { name: "AI-assisted development", category: "AI & Development", context: "Gʻoyadan deploygacha bitta oqim", order: 0 },
   { name: "Vibe coding", category: "AI & Development", context: "Asosiy ish uslubim", order: 1 },
   { name: "AI API integration", category: "AI & Development", context: "IELTS.mockʼda Gemini API", order: 2 },
@@ -98,9 +99,8 @@ const skillRows = [
   { name: "Debugging", category: "AI & Development", context: "AI chiqargan kodni oʻqib, buzilganini topish", order: 4 },
   { name: "Testing", category: "AI & Development", context: "Har bosqichni qoʻlda va brauzerda sinash", order: 5 },
   { name: "Deployment", category: "AI & Development", context: "Vercel, domen va muhit oʻzgaruvchilari", order: 6 },
-  { name: "AI-assisted UI/UX design", category: "AI & Development", context: "Maketdan kodgacha — AI bilan", order: 7 },
+  { name: "AI-assisted product prototyping", category: "AI & Development", context: "Gʻoyani tez ishlaydigan versiyaga", order: 7 },
 
-  // Web
   { name: "HTML", category: "Web", context: "Tuzilma va semantika", order: 10 },
   { name: "CSS", category: "Web", context: "Uslub, animatsiya, grid", order: 11 },
   { name: "JavaScript", category: "Web", context: "Interaktivlik va API bilan ishlash", order: 12 },
@@ -113,20 +113,29 @@ const skillRows = [
   { name: "Responsive design", category: "Web", context: "Mobil → desktop, bitta kod", order: 19 },
   { name: "Authentication", category: "Web", context: "Sessiya va himoyalangan sahifalar", order: 20 },
 
-  // Tools
+  { name: "AI-assisted UI/UX", category: "Design", context: "Maketdan kodgacha — AI bilan", order: 24 },
+  { name: "Wireframing", category: "Design", context: "Sahifa tuzilmasi", order: 25 },
+  { name: "Prototyping", category: "Design", context: "Bosiladigan maket", order: 26 },
+  { name: "Typography & color", category: "Design", context: "Oʻqilishi va ierarxiya", order: 27 },
+  { name: "CSS animations", category: "Design", context: "Yengil harakat, chalgʻitmaslik", order: 28 },
+  { name: "Creative interface design", category: "Design", context: "Interfeysni mahsulotga moslash", order: 29 },
+
   { name: "Git", category: "Tools", context: "Versiya nazorati", order: 30 },
-  { name: "GitHub", category: "Tools", context: "Kod ombori, PR, Actions", order: 31 },
+  { name: "GitHub", category: "Tools", context: "Kod ombori, PR", order: 31 },
   { name: "Vercel", category: "Tools", context: "Deploy va domen", order: 32 },
   { name: "Figma", category: "Tools", context: "Maket, wireframe, prototip", order: 33 },
   { name: "Canva", category: "Tools", context: "Tez vizual material", order: 34 },
 
-  // AI tools
-  { name: "ChatGPT / GPT", category: "AI tools", context: "Kod va matn yozish, tushuntirish", order: 40 },
-  { name: "Claude", category: "AI tools", context: "Uzun fayllar bilan ishlash, review", order: 41 },
-  { name: "Gemini", category: "AI tools", context: "IELTS.mockʼda AI API sifatida", order: 42 },
+  { name: "ChatGPT / GPT", category: "AI tools", context: "Kod va matn, tushuntirish", order: 40 },
+  { name: "Claude", category: "AI tools", context: "Uzun fayllar, review", order: 41 },
+  { name: "Gemini", category: "AI tools", context: "IELTS.mockʼda AI API", order: 42 },
   { name: "Perplexity", category: "AI tools", context: "Manba topish va tekshirish", order: 43 },
-  { name: "Higgsfield", category: "AI tools", context: "Vizual va video materiallar", order: 44 },
+  { name: "Higgsfield", category: "AI tools", context: "Vizual materiallar", order: 44 },
   { name: "Arena AI", category: "AI tools", context: "Bir nechta modelni qiyoslash", order: 45 },
+
+  { name: "Marketing", category: "Practice", context: "Amaliy, oʻrta daraja — 10+ mijoz", order: 50 },
+  { name: "Business understanding", category: "Practice", context: "Hali rivojlanmoqda — universitet + frilans", order: 51 },
+  { name: "Data analysis", category: "Practice", context: "Qaror va muammoni tahlil qilib yechish odatim", order: 52 },
 ];
 
 /* ────────────────────────── Xizmatlar ────────────────────────── */
@@ -135,67 +144,60 @@ const serviceRows = [
   {
     title: "AI & Web Development",
     description:
-      "Asosiy xizmat: gʻoyani ishlaydigan veb-ilovaga aylantiraman. Interfeys, backend, AI integratsiyasi va deploy — bitta odamdan, bosqichma-bosqich.",
+      "Asosiy xizmat: gʻoyangizni ishlaydigan veb-ilovaga aylantiraman. Interfeys, backend, AI integratsiyasi va deploy — bitta odamdan, bosqichma-bosqich. Agentlik shabloni yoʻq.",
     icon: "bot",
     features:
-      "Tez prototip | AI API integratsiyasi | Backend va REST API | Test va debug | Vercelʼga chiqarish | Kodni tushuntirib berish",
+      "AI-assisted prototip | Full-stack qurilish | AI API integratsiyasi | Test va debug | Vercelʼga chiqarish | Kodni tushuntirish",
     order: 0,
   },
   {
-    title: "AI veb-ilovalar",
-    description: "AI modelini ishlatadigan ilovalar: savol-javob, matnni yaxshilash, tahlil va xulosalar.",
+    title: "AI-powered web applications",
+    description: "Modelni mahsulotga ulash: javobni yaxshilash, tahlil, mashq — foydalanuvchi koʻradigan oqim bilan.",
     icon: "sparkle",
-    features: "Chat interfeysi | Prompt matni | Javobni tekshirish oqimi | Xarajatni nazorat qilish",
+    features: "Gemini / GPT API | Javobni tekshirish oqimi | Xarajatni nazorat | Xato holatlari",
     order: 1,
   },
   {
-    title: "Biznes sayti va landing",
-    description: "Kompaniya yoki xizmat uchun sayt: nima taklif qilishingiz aniq koʻrinadi, ariza/qoʻngʻiroq qabul qilinadi.",
+    title: "Business websites & landing pages",
+    description: "Kompaniya yoki xizmat nima taklif qilishi aniq koʻrinsin, ariza yoki qoʻngʻiroq qabul qilinsin.",
     icon: "layers",
-    features: "Landing yoki koʻp sahifa | Kontent admin panelda | Tez yuklanish | Mobil birinchi",
+    features: "Landing yoki koʻp sahifa | Portfolio sayti | Mobil birinchi | Tez yuklanish",
     order: 2,
   },
   {
-    title: "Portfolio va shaxsiy brend sayti",
-    description: "Oʻz ishni koʻrsatib, mijozga olib keladigan shaxsiy sayt — loyihalar, xizmat va aloqa bir joyda.",
-    icon: "pen",
-    features: "Case study sahifalari | Admin panel | SEO asoslari | Kontakt formasi",
+    title: "AI API integration",
+    description: "Mavjud tizimga AI qoʻshish: chaqiruv serverda, kalit yashirin, javoblar saqlanadi.",
+    icon: "zap",
+    features: "Server tomonida chaqiruv | Kalitni yashirish | Limit va kesh | Xatolarni qayta ishlash",
     order: 3,
   },
   {
-    title: "AI API integratsiyasi",
-    description: "Mavjud tizimga AI qoʻshish: chaqiruv server tomonida, javoblar saqlanadi, xatolar qayta ishlanadi.",
-    icon: "zap",
-    features: "Server tomonida chaqiruv | Kalitni yashirish | Limit va kesh | Xato holatlari",
+    title: "Full-stack web development",
+    description: "Forma, roʻyxat, autentifikatsiya va admin — maʼlumot bazasi bilan birga ishlaydigan ilova.",
+    icon: "code",
+    features: "Auth | CRUD va admin panel | REST API | Deploy",
     order: 4,
   },
   {
-    title: "Full-stack veb-ilova",
-    description: "Forma, roʻyxat, autentifikatsiya va admin panelli ilova — maʼlumot bazasi bilan birga.",
-    icon: "code",
-    features: "Auth (JWT + cookie) | CRUD va admin panel | DB sxemasi | REST API",
+    title: "UI/UX implementation",
+    description: "Figma yoki sketsni javobgar interfeysga aylantirish — holatlar, tipografiya, mobil.",
+    icon: "pen",
+    features: "Responsive | Dark/light | Fokus va a11y | Yengil animatsiya",
     order: 5,
   },
   {
-    title: "PWA va oflayn rejim",
-    description: "Saytni telefonda ilova kabi ishlashiga yetkazish: kesh, oflayn ochilish, eʼlonlashga tayyor qatlam.",
+    title: "PWA development",
+    description: "Sayt telefonda ilova kabi ochilsin: kesh, oflayn, eʼlonlashga tayyor qatlam.",
     icon: "gauge",
     features: "Service Worker | Manifest | Kesh strategiyasi | Offline holat",
     order: 6,
   },
   {
-    title: "Saytni tuzatish va yaxshilash",
-    description: "Buzilgan, ogʻir yoki eski saytni tekshirib, ishlashini va tezligini tiklash.",
+    title: "Website debugging & improvement",
+    description: "Buzilgan, sekin yoki eski saytni tekshirib, ishlashini tiklash — yangisini vaʼda qilmasdan, mavjudini tuzatish.",
     icon: "target",
     features: "Xatoni topish | Performans | Mobil moslashuv | Kodni tozalash",
     order: 7,
-  },
-  {
-    title: "UI/UX implementatsiyasi",
-    description: "Figma maketini toʻliq javobgar interfeysga aylantirish — holatlar, fokus va mobil bilan birga.",
-    icon: "rocket",
-    features: "Dizayn tokenlari | Dark/light rejim | A11y tekshiruvi | Mikro-harakatlar",
-    order: 8,
   },
 ];
 
@@ -207,8 +209,8 @@ const experienceRows = [
     company: "Frilans — mijoz buyurtmalari",
     period: "",
     description:
-      "Buyurtma asosida kichik biznes saytlari va landing sahifalar: dizayn, kod, test va eʼlon qilish — hammasi oʻzim.",
-    highlights: "5 ta sayt topshirilgan | HTML, CSS, JS va Node.js | Vercelʼda eʼlon qilingan | AI yordamida tez prototip",
+      "Soʻrov asosida 5 ta kichik sayt: biznes va landing. Dizayn, kod, test va eʼlon qilish — hammasi oʻzim, AI-assisted oqim bilan.",
+    highlights: "5 ta sayt | HTML, CSS, JS, Node.js | Vercelʼda eʼlon | AI bilan tez prototip",
     current: false,
     order: 0,
   },
@@ -216,8 +218,8 @@ const experienceRows = [
     role: "Marketer",
     company: "Marketing agentligi",
     period: "",
-    description: "Mijozlar uchun kontent va targʻibot ishlarida qatnashdim.",
-    highlights: "10+ mijoz bilan ishlash | Mijoz talabini tushunish | Kontent va reklama matnlari",
+    description: "Mijozlar uchun kontent va targʻibot. Kompaniya nomi berilmagan — shuning uchun yozilmagan.",
+    highlights: "10+ mijoz | Talabni tushunish | Kontent va reklama matnlari",
     current: false,
     order: 1,
   },
@@ -247,11 +249,10 @@ const educationRows = [
   {
     institution: "International OXUS University",
     credential: "Bakalavr",
-    field: "Iqtisodiyot va biznes boshqaruvi",
+    field: "Economics and Business Management",
     period: "2026–2030",
     status: "1-kurs talabasi",
-    detail:
-      "Biznes, iqtisodiyot va boshqaruv asoslari. Texnologiyani biznes nuqtai nazaridan koʻrishni shu yoʻnalish oʻrgatdi: mahsulot nafaqat ishlashi, balki sotilishi kerak.",
+    detail: "Iqtisodiyot va biznes boshqaruvi. Hozirgi holat: birinchi kurs.",
     current: true,
     order: 0,
   },
@@ -261,7 +262,7 @@ const educationRows = [
     field: "",
     period: "",
     status: "Tugatilgan",
-    detail: "Maktabda matematika va fizika boʻyicha shahar bosqichi olimpiadalarida qatnashganman.",
+    detail: "Maktab taʼlimi tugatilgan.",
     current: false,
     order: 1,
   },
@@ -275,7 +276,7 @@ const achievementRows = [
     issuer: "Til sertifikati",
     kind: "cert",
     year: "",
-    detail: "Sertifikat bilan tasdiqlangan daraja. Amaliy ishlatish darajam: B2.",
+    detail: "Sertifikat bilan tasdiqlangan daraja. Amaliy ishlatish: B2.",
     url: "",
     order: 0,
   },
@@ -284,7 +285,7 @@ const achievementRows = [
     issuer: "Google",
     kind: "cert",
     year: "",
-    detail: "AI yordamida dasturlash boʻyicha Google tomonidan berilgan sertifikatlar.",
+    detail: "AI yordamida dasturlash boʻyicha Google sertifikatlari. Alohida nomlar berilmagan.",
     url: "",
     order: 1,
   },
@@ -322,12 +323,6 @@ const testimonialRows: Record<string, never>[] = [];
 
 /* ────────────────────────── Mexanika ────────────────────────── */
 
-/**
- * `--force` bilan qatorlar o'chirilib qayta yozilganda AUTOINCREMENT ham
- * nolga tushiriladi — aks holda har bir seed'da id'lar o'sib, `/projects/8`
- * kabi barqaror bo'lmagan URL'lar paydo bo'ladi (Turso'da ruxsat bo'lmasa
- * jimgina o'tkazib yuboriladi).
- */
 async function resetSequence(table: string) {
   try {
     await db.run(sql.raw(`DELETE FROM sqlite_sequence WHERE name = '${table}'`));
@@ -355,7 +350,6 @@ async function fillTable(label: string, table: AnySQLiteTable, rows: Record<stri
 async function seed() {
   console.log(FORCE ? "🌱 Seed (--force: kontent qayta yoziladi)" : "🌱 Seed");
 
-  // 1) Admin hisobi
   const adminEmail = process.env.ADMIN_EMAIL || "admin@example.com";
   const adminPassword = process.env.ADMIN_PASSWORD || "ChangeMe123!";
   const admins = await db.select().from(schema.admins).all();
@@ -371,14 +365,17 @@ async function seed() {
     console.log(`ℹ️  Admin allaqachon mavjud (${admins[0].email})`);
   }
 
-  // 2) Profil (singleton)
   const profiles = await db.select().from(schema.profile).all();
   if (profiles.length === 0) {
     await db.insert(schema.profile).values({ ...profileRow, updatedAt: new Date() }).run();
     console.log("✅ Profil yaratildi");
   } else if (FORCE) {
-    await db.update(schema.profile).set({ ...profileRow, updatedAt: new Date() }).run();
-    console.log("♻️  Profil yangilandi");
+    const keepPhoto = profiles[0]?.photoUrl ?? "";
+    await db
+      .update(schema.profile)
+      .set({ ...profileRow, photoUrl: keepPhoto || profileRow.photoUrl, updatedAt: new Date() })
+      .run();
+    console.log("♻️  Profil yangilandi (portret saqlanadi)");
   } else {
     console.log("⏭️  Profil mavjud, oʻtkazib yuborildi");
   }

@@ -65,11 +65,13 @@ export default function Hero({ profile: p, study }: Props) {
             ) : null}
 
             <h1 className="display text-display-xl leading-[0.94]">
-              <TitleMark title={p.title || roles[0] || "Portfolio"} />
+              {(p.fullName || "Muhammad").trim().split(/\s+/)[0]}
             </h1>
 
-            <p className="mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="display text-[19px] font-semibold">{p.fullName || "Portfolio"}</span>
+            <p className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span className="display text-[clamp(1.35rem,2.4vw,1.85rem)] font-semibold tracking-tight">
+                <TitleMark title={p.title || roles[0] || "Student & AI Developer"} />
+              </span>
               {roles.length > 1 ? (
                 <Rotator
                   items={roles.slice(1)}
@@ -82,12 +84,12 @@ export default function Hero({ profile: p, study }: Props) {
 
             <div className="hero-actions mt-9 flex flex-wrap items-center gap-2.5">
               <a href={sectionHref("contact")} className="btn btn--accent btn--lg">
-                Keling, birga ishlaymiz
+                Let&apos;s Work Together
                 <Icon name="arrow-right" size={16} />
               </a>
               <a href={sectionHref("work")} className="btn btn--lg">
                 <Icon name="layers" size={16} />
-                Loyihalarni ko&apos;rish
+                View My Projects
               </a>
               {resume ? (
                 <a href={resume} target="_blank" rel="noopener noreferrer" className="btn btn--ghost btn--lg">

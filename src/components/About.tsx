@@ -28,7 +28,7 @@ export default function About({ profile: p }: { profile: Profile }) {
         eyebrow="Kimman"
         title={
           <>
-            Talaba, <span className="display-em">AI developer</span> va javobgarlik oladigan odam
+            1-kurs, biznes va <span className="display-em">AI-assisted</span> dasturlash
           </>
         }
       />

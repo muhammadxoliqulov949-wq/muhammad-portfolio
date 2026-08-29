@@ -100,7 +100,7 @@ export default function Contact({ profile: p }: { profile: Profile }) {
           eyebrow="Aloqa"
           title={
             <>
-              Keling, <span className="display-em">birga ishlaymiz</span>
+              Let&apos;s <span className="display-em">Work Together</span>
             </>
           }
           lead="Bitta aniq g'oya yoki bitta aniq muammo — istalganini yozing. Javob berishdan oldin uni o'qib chiqaman."

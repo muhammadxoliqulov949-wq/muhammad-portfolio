@@ -29,7 +29,7 @@ type Props = {
 /** kenglik tor bo'lganda yashirinadigan qo'shimcha bo'limlar */
 const SECONDARY_SECTIONS = new Set(["about", "education", "achievements", "approach"]);
 
-export default function Header({ name, initials, links, ctaLabel = "Loyiha muhokamasi", portrait }: Props) {
+export default function Header({ name, initials, links, ctaLabel = "Let's Work Together", portrait }: Props) {
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState<string>(links[0]?.id ?? "home");
   const [open, setOpen] = useState(false);

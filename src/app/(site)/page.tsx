@@ -46,7 +46,7 @@ export default async function HomePage() {
                 Bitta odam, lekin <span className="display-em">toʻliq sikl</span>
               </>
             }
-            lead="Agentlik emasman — shuning uchun narx shabloni yoʻq: hajm, muddat va qiymat har loyihada suhbatda aniqlanadi. Evaziga har bosqichda ishlaydigan versiyani koʻrasiz."
+            lead="Asosiy xizmat — AI & Web Development. Bitta odam: prototip, kod, AI integratsiyasi, debug va deploy. Narx shabloni yoʻq — hajm suhbatda aniqlanadi."
           />
           <Services services={services} />
         </Section>
@@ -54,7 +54,7 @@ export default async function HomePage() {
 
       <Education items={education} />
       <Achievements items={achievements} />
-      <Approach profile={profile} />
+      <Approach profile={profile} experience={experience} />
       <Contact profile={profile} />
     </>
   );

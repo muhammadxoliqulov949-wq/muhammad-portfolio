@@ -47,9 +47,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const { profile } = await getSiteData();
   const name = profile.fullName || "Portfolio";
   const title = profile.title || "Student & AI Developer";
-  const description =
-    (profile.bio?.trim() ||
-      `${name} — ${title}. AI yordamida to'liq veb-ilovalar: prototip, backend, AI API integratsiyasi va deploy.`);
+  const description = `${name} | ${title}. AI-assisted development, web development, AI-powered applications and freelance product work. Tashkent, Uzbekistan.`;
 
   return {
     metadataBase: new URL(siteUrl),

@@ -7,7 +7,7 @@ import Icon from "./ui/Icon";
  * Mobil uchun yopishqoq CTA (audit P1-14).
  * Aloqa bo'limi ekranga kirganda yo'qoladi — ekranni bekor band qilmaydi.
  */
-export default function MobileCTA({ label = "Loyihangizni muhokama qilish" }: { label?: string }) {
+export default function MobileCTA({ label = "Let's Work Together" }: { label?: string }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {

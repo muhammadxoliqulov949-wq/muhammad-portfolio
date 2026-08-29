@@ -1,55 +1,79 @@
 import SectionHead, { Section } from "./ui/Section";
 import Card from "./ui/Card";
 import Icon from "./ui/Icon";
-import { goalsOf, listFrom, type Profile } from "@/lib/content";
+import { goalsOf, highlightsOf, listFrom, type ExperienceItem, type Profile } from "@/lib/content";
 
 /**
- * Ish oqimi + rejalar.
- *
- * Bu bo'lim eski "Mijozlar fikri" o'rnida: haqiqiy iqtiboslar bo'lmagani uchun
- * ularni o'ylab topish o'rniga, Muhammadning real ishlash tarzi va hozirgi
- * yoʻnalishi koʻrsatiladi. "Kelgusi 1-2 yil" bloki ataylab ajratilgan —
- * reja natija sifatida o'qilmasligi kerak.
+ * Soxta testimonial o'rniga: odamlar bilan qilingan ish (faqat berilgan raqamlar)
+ * + ish oqimi + kelgusi 1–2 yil (reja, natija emas).
  */
-export default function Approach({ profile: p }: { profile: Profile }) {
+export default function Approach({ profile: p, experience = [] }: { profile: Profile; experience?: ExperienceItem[] }) {
   const steps = listFrom(p.workflow);
   const goals = goalsOf(p);
-  if (steps.length === 0 && goals.length === 0) return null;
+  const people = experience
+    .map((item) => {
+      const metric = highlightsOf(item.highlights)[0];
+      if (!metric) return null;
+      return { role: item.role, company: item.company, metric };
+    })
+    .filter((x): x is { role: string; company: string; metric: string } => !!x);
+
+  if (steps.length === 0 && goals.length === 0 && people.length === 0) return null;
 
   return (
     <Section id="approach">
       <SectionHead
         index="08"
-        eyebrow="Ishlash uslubim"
+        eyebrow="Odamlar bilan"
         title={
           <>
-            AI bilan tez, lekin <span className="display-em">tekshirib</span> yuraman
+            Haqiqiy ish, <span className="display-em">iqtibos yoʻq</span>
           </>
         }
-        lead="Har bir loyihada bosqichlar bir xil — shu tufayli „tayyor“ degan soʻzning maʼnosi aniq."
+        lead="Mijoz fikri hali yozilmagan — shuning uchun o‘ylab topilmaydi. Bu yerda faqat qilingan ishning o‘zi: nechta odam, qanday rol."
       />
+
+      {people.length > 0 ? (
+        <ul className="mb-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {people.map((x) => (
+            <li key={x.role}>
+              <Card className="flex h-full flex-col gap-3 p-5" interactive={false}>
+                <p className="display text-display-m leading-none">{x.metric}</p>
+                <p>
+                  <span className="block text-body font-semibold">{x.role}</span>
+                  <span className="block text-small text-ink-3">{x.company}</span>
+                </p>
+              </Card>
+            </li>
+          ))}
+        </ul>
+      ) : null}
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:gap-12">
         {steps.length > 0 ? (
-          <ol className="grid gap-3 sm:grid-cols-2">
-            {steps.map((step, i) => (
-              <li key={step}>
-                <Card className="flex h-full items-start gap-4 p-5" interactive={false}>
-                  <span className="display u-num shrink-0 text-[26px] leading-none text-ink-3">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span className="text-body">{step}</span>
-                </Card>
-              </li>
-            ))}
-          </ol>
+          <div>
+            <p className="label label-accent mb-4">Ish oqimim</p>
+            <ol className="grid gap-3 sm:grid-cols-2">
+              {steps.map((step, i) => (
+                <li key={step}>
+                  <Card className="flex h-full items-start gap-4 p-5" interactive={false}>
+                    <span className="display u-num shrink-0 text-[26px] leading-none text-ink-3">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="text-body">{step}</span>
+                  </Card>
+                </li>
+              ))}
+            </ol>
+          </div>
         ) : null}
 
         {goals.length > 0 ? (
           <Card className="flex flex-col p-6" interactive={false}>
             <p className="label label-accent mb-1">Kelgusi 1–2 yil</p>
             <p className="mb-5 text-small text-ink-3">
-              Bu — <span className="font-medium text-ink-2">reja</span>, bajarilgan ish emas.
+              Bu — <span className="font-medium text-ink-2">reja</span>, bajarilgan ish emas. $5,000+ ham shu yerda:
+              hozirgi daromad emas.
             </p>
             <ul className="hairline-x stack -my-1">
               {goals.map((g) => (
