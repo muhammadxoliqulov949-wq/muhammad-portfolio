@@ -154,7 +154,7 @@ export default function ContactForm({
           type="submit"
           className="btn btn--accent btn--lg"
           disabled={status === "loading"}
-          aria-busy={status === "loading"}
+          aria-busy={status === "loading" ? "true" : undefined}
         >
           {status === "loading" ? (
             <>

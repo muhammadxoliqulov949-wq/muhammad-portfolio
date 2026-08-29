@@ -5,9 +5,8 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Icon from "./ui/Icon";
-import ThemeToggle from "./ThemeToggle";
-import LangSwitch from "./LangSwitch";
-import { t, type Locale } from "@/lib/i18n-core";
+import { LOCALE_META, LOCALES, t, type Locale } from "@/lib/i18n-core";
+import { setLocale } from "@/lib/set-locale";
 
 export type NavLink = { id: string; label: string };
 
@@ -25,6 +24,86 @@ type Props = {
  * Asosiy 4 havola + «Yana» — 80rem da yo'qolmaydi.
  */
 const PRIMARY = new Set(["about", "work", "services", "contact"]);
+
+type Theme = "dark" | "light";
+const THEME_COLORS: Record<Theme, string> = { dark: "#0a0c10", light: "#f8f6f0" };
+
+function applyTheme(next: Theme) {
+  const root = document.documentElement;
+  root.setAttribute("data-theme", next);
+  root.style.colorScheme = next;
+  try {
+    localStorage.setItem("theme", next);
+  } catch {
+    /* private rejim */
+  }
+  document.querySelectorAll('meta[name="theme-color"]').forEach((el) => {
+    el.setAttribute("content", THEME_COLORS[next]);
+    el.removeAttribute("media");
+  });
+  window.dispatchEvent(new CustomEvent("themechange", { detail: next }));
+}
+
+/** Hook yo'q — server va client bir xil daraxt. aria-busy yo'q. */
+function LocaleSwitch({ locale }: { locale: Locale }) {
+  function choose(next: Locale) {
+    if (next === locale) return;
+    try {
+      localStorage.setItem("locale", next);
+    } catch {
+      /* private */
+    }
+    void setLocale(next);
+    const url = new URL(window.location.href);
+    url.searchParams.set("lang", next);
+    window.location.assign(url.pathname + url.search + url.hash);
+  }
+
+  return (
+    <div className="lang-switch" role="group" aria-label={t(locale, "lang.aria")}>
+      {LOCALES.map((id) => (
+        <button
+          key={id}
+          type="button"
+          className="lang-switch__btn"
+          aria-pressed={locale === id ? "true" : "false"}
+          aria-label={LOCALE_META[id].name}
+          onClick={() => choose(id)}
+        >
+          {LOCALE_META[id].label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** Hook/state yo'q — tanlangan holat html[data-theme] CSS. */
+function ThemeSwitch({ locale }: { locale: Locale }) {
+  return (
+    <div className="theme-switch" role="group" aria-label={t(locale, "theme.group")}>
+      <button
+        type="button"
+        className="theme-switch__btn"
+        data-theme-set="dark"
+        aria-label={t(locale, "theme.darkAria")}
+        onClick={() => applyTheme("dark")}
+      >
+        <Icon name="moon" size={13} />
+        <span className="theme-switch__label">{t(locale, "theme.dark")}</span>
+      </button>
+      <button
+        type="button"
+        className="theme-switch__btn"
+        data-theme-set="light"
+        aria-label={t(locale, "theme.lightAria")}
+        onClick={() => applyTheme("light")}
+      >
+        <Icon name="sun" size={13} />
+        <span className="theme-switch__label">{t(locale, "theme.light")}</span>
+      </button>
+    </div>
+  );
+}
 
 export default function Header({
   name,
@@ -81,7 +160,7 @@ export default function Header({
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
         if (visible) setActive(visible.target.id);
       },
-      { rootMargin: "-45% 0px -45% 0px", threshold: [0, 0.25, 0.6] }
+      { rootMargin: "-45% 0px -45% 0px", threshold: [0, 0.25, 0.6] },
     );
     nodes.forEach((n) => io.observe(n));
     return () => io.disconnect();
@@ -224,8 +303,8 @@ export default function Header({
         </nav>
 
         <div className="site-header__tools">
-          <LangSwitch locale={locale} />
-          <ThemeToggle locale={locale} />
+          <LocaleSwitch locale={locale} />
+          <ThemeSwitch locale={locale} />
           <Link
             href="/#contact"
             onClick={(e) => {
