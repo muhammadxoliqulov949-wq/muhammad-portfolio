@@ -593,7 +593,10 @@ select {
   transition: background-color 0.18s var(--ease-out-soft), color 0.18s var(--ease-out-soft);
 }
 .lang-switch__btn[aria-pressed="true"],
-.theme-switch__btn[aria-pressed="true"] {
+.theme-switch__btn[aria-pressed="true"],
+html:not([data-theme]) .theme-switch__btn[data-theme-set="dark"],
+html[data-theme="dark"] .theme-switch__btn[data-theme-set="dark"],
+html[data-theme="light"] .theme-switch__btn[data-theme-set="light"] {
   background: var(--c-accent);
   color: var(--c-accent-ink);
 }
