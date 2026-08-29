@@ -19,7 +19,7 @@ import { getLocale, t, tx } from "@/lib/i18n";
  * Bo'lim ma'lumoti bo'sh bo'lsa (masalan hozircha mijoz fikri yo'q), blok
  * umuman render bo'lmaydi — "te"lashtirilgan placeholder qo'ymaymiz.
  */
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const [{ profile, projects, services, experience, skills, education, achievements }, locale] = await Promise.all([

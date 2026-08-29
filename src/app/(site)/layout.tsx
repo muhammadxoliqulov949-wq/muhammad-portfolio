@@ -4,6 +4,8 @@ import MobileCTA from "@/components/MobileCTA";
 import { getSiteData, portraitOf, sectionsOf } from "@/lib/content";
 import { getLocale, t } from "@/lib/i18n";
 
+export const dynamic = "force-dynamic";
+
 /**
  * Sayt (public) qobig'i: header + footer bir marta, barcha ochiq
  * sahifalar uchun. `getSiteData()` React cache'i orqali layout va sahifa

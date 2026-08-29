@@ -1,7 +1,7 @@
 import Icon from "./ui/Icon";
 import BackToTop from "./BackToTop";
 import { sectionHref, socialsOf, type Profile } from "@/lib/content";
-import { t, type Locale } from "@/lib/i18n-core";
+import { t, tx, type Locale } from "@/lib/i18n-core";
 
 type Props = {
   profile: Profile;
@@ -30,7 +30,7 @@ export default function Footer({ profile: p, links, locale = "uz" }: Props) {
               {p.fullName ? `${p.fullName}.` : "Portfolio."}{" "}
               <span className="display-em">{t(locale, "footer.more")}</span>
             </p>
-            {p.title ? <p className="mt-2 text-small text-ink-2">{p.title}</p> : null}
+            {p.title ? <p className="mt-2 text-small text-ink-2">{tx(locale, p.title)}</p> : null}
           </div>
 
           <nav aria-label={t(locale, "nav.sections")} className="grid grid-cols-2 gap-x-6 gap-y-1.5 md:justify-items-end">

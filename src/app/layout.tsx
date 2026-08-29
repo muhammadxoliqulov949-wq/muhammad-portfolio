@@ -67,6 +67,9 @@ const mono = localFont({
   display: "swap",
 });
 
+/** Til cookie har so'rovda o'qilishi kerak — static HTML tilni qamab qo'ymasin. */
+export const dynamic = "force-dynamic";
+
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 const OG_LOCALE = { uz: "uz_UZ", en: "en_US", ru: "ru_RU" } as const;

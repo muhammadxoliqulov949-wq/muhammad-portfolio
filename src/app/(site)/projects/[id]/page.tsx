@@ -22,7 +22,7 @@ import { getLocale, t, tx, txEach } from "@/lib/i18n";
  * `dynamicParams` orqali talab bo'yicha.
  */
 export const dynamicParams = true;
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export async function generateStaticParams() {
   const rows = await getPublishedProjectIds();
