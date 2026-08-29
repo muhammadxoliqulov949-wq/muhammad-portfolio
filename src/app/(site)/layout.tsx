@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import MobileCTA from "@/components/MobileCTA";
-import { getSiteData, sectionsOf } from "@/lib/content";
+import { getSiteData, portraitOf, sectionsOf } from "@/lib/content";
 
 /**
  * Sayt (public) qobig'i: header + footer bir marta, barcha ochiq
@@ -14,7 +14,12 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
 
   return (
     <>
-      <Header name={data.profile.fullName || "Portfolio"} initials={data.profile.avatarInitials} links={links} />
+      <Header
+        name={data.profile.fullName || "Portfolio"}
+        initials={data.profile.avatarInitials}
+        links={links}
+        portrait={portraitOf(data.profile)}
+      />
       <main id="main" className="relative z-10 flex-1">
         {children}
       </main>

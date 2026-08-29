@@ -1,9 +1,11 @@
+import Image from "next/image";
 import Icon from "./ui/Icon";
 import Rotator from "./Rotator";
 import CopyButton from "./ui/CopyButton";
 import {
   listFrom,
   phoneHref,
+  portraitOf,
   rolesOf,
   safeHref,
   socialsOf,
@@ -34,6 +36,7 @@ export default function Hero({ profile: p, study }: Props) {
   const socials = socialsOf(p);
   const steps = listFrom(p.workflow);
   const resume = safeHref(p.resumeUrl);
+  const portrait = portraitOf(p);
 
   const stats = [
     { label: "Amaliy tajriba", value: p.statExperience },
@@ -113,8 +116,36 @@ export default function Hero({ profile: p, study }: Props) {
             </div>
           </div>
 
-          {/* Ish oqimi — suzuvchi panellar (pseudo-3D, CSS) */}
+          {/* Portret + ish oqimi panellari. Rasm DB'dan (`photoUrl`) yoki
+              `public/media/portrait.*` faylidan olinadi; ikkalasi bo'lmasa
+              monogram freym chiqadi — bo'sh/buzuq rasm ko'rsatilmaydi. */}
           <div className="reveal relative mx-auto w-full max-w-[440px] lg:max-w-none">
+            <figure className="hero-photo">
+              {portrait ? (
+                <Image
+                  src={portrait}
+                  alt={`${p.fullName || "Muhammad Xoliqulov"} — portret`}
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 90vw, 440px"
+                  className="hero-photo__img"
+                />
+              ) : (
+                <div className="hero-photo__mono" aria-hidden="true">
+                  <span className="display text-display-l font-semibold tracking-tight">
+                    {(p.avatarInitials || p.fullName || "M").trim().slice(0, 2).toUpperCase()}
+                  </span>
+                </div>
+              )}
+              <figcaption className="hero-photo__caption">
+                <span className="text-body font-semibold">{p.fullName || "Portfolio"}</span>
+                {p.location ? <span className="flex items-center gap-1.5 text-small text-ink-2">
+                  <Icon name="pin" size={12} className="text-ink-3" />
+                  {p.location}
+                </span> : null}
+              </figcaption>
+            </figure>
+
             <div className="hero-panels" aria-hidden="true">
               <div className="hero-panel hero-panel--back">
                 <p className="label mb-2">AI yordamchi</p>

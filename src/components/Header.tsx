@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -12,6 +13,8 @@ type Props = {
   initials: string;
   links: NavLink[];
   ctaLabel?: string;
+  /** `profile.photoUrl` yoki `public/media/portrait.*` — bo'lsa avatar chiqadi */
+  portrait?: string | null;
 };
 
 /**
@@ -26,7 +29,7 @@ type Props = {
 /** kenglik tor bo'lganda yashirinadigan qo'shimcha bo'limlar */
 const SECONDARY_SECTIONS = new Set(["about", "education", "achievements", "approach"]);
 
-export default function Header({ name, initials, links, ctaLabel = "Loyiha muhokamasi" }: Props) {
+export default function Header({ name, initials, links, ctaLabel = "Loyiha muhokamasi", portrait }: Props) {
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState<string>(links[0]?.id ?? "home");
   const [open, setOpen] = useState(false);
@@ -120,9 +123,15 @@ export default function Header({ name, initials, links, ctaLabel = "Loyiha muhok
           }}
           className="group flex items-center gap-2.5 rounded-2"
         >
-          <span className="grid size-9 place-items-center rounded-2 bg-accent font-mono text-[11px] font-bold tracking-tight text-accent-ink">
-            {initials || name.slice(0, 2).toUpperCase()}
-          </span>
+          {portrait ? (
+            <span className="relative size-9 overflow-hidden rounded-2 ring-1 ring-line-2">
+              <Image src={portrait} alt="" fill sizes="36px" className="object-cover object-top" priority />
+            </span>
+          ) : (
+            <span className="grid size-9 place-items-center rounded-2 bg-accent font-mono text-[11px] font-bold tracking-tight text-accent-ink">
+              {initials || name.slice(0, 2).toUpperCase()}
+            </span>
+          )}
           <span className="display text-[15px] font-semibold tracking-tight">{name}</span>
         </a>
 

@@ -101,6 +101,19 @@ src/
   proxy.ts                    # /admin va /api/method'lar uchun edge himoyasi
 ```
 
+### Portret rasmi
+
+Sayt portret uchun **ikki manbani** qo'llab-quvvatlaydi; ikkalasi ham bo'lmasa hero'da monogram freymi chiqadi — buzuq yoki soxta rasm hech qachon ko'rsatilmaydi:
+
+1. `public/media/portrait.jpg` — faylni shu nom bilan papkaga tashlash kifoya (`jpg/jpeg/png/webp/avif`). Sayt uni DB'ga tegmasdan avtomatik oladi.
+2. **admin → Profil → «Portret URL»** — `/media/portrait.jpg` yoki to'liq `https://…` URL (ustuvorlik shu maydonda).
+
+Qayerda ko'rinadi: hero'dagi portret freymi (4:5 kadrlash, `object-position: 50% 22%`, `priority` → LCP), sticky header avatari va **OG kartochkadagi** monogram kvadrati. Tavsiya etilgan o'lcham: 1000–1200 px tomon, 200–400 KB.
+
+```bash
+public/media/portrait.jpg        # ← fayl shu yerga tashlanadi
+```
+
 **Ma'lumot oqimi:** `DB → src/lib/content.ts (cache + Promise.all) → RSC (HTML)`. Admin'da yozuv → `src/lib/crud.ts` → `revalidatePath('/', 'layout')` va tegishli yo'llar → sayt 1 daqiqada yangilanadi (ISR). `getSiteData` bitta React `cache()` ichida — har bir request'da 6 ta so'rov parallell.
 
 ## API kontrakti

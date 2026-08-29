@@ -30,7 +30,12 @@ const groups: { title: string; note?: string; fields: FieldConfig[] }[] = [
         hint: "Xatboshilarni bo'sh qator bilan ajrating — har biri alohida paragraf bo'ladi",
         full: true,
       },
-      { name: "photoUrl", label: "Portret URL", type: "url", hint: "Bo'sh bo'lsa monogram chiqadi" },
+      {
+        name: "photoUrl",
+        label: "Portret URL",
+        type: "url",
+        hint: "/media/portrait.jpg (public/media papkasiga tashlanadi) yoki https://… Boʻsh bolsa monogram chiqadi",
+      },
     ],
   },
   {

@@ -820,6 +820,70 @@ textarea.input {
     linear-gradient(90deg, rgba(20, 22, 27, 0.05) 1px, transparent 1px);
 }
 
+/* Hero: portret freymi — rasm bo'lmasa monogram, bo'sh <img> hech qachon.
+   pastki burchakdagi panellar rasm ustiga chiqib turadi (flow + negative margin). */
+.hero-photo {
+  position: relative;
+  isolation: isolate;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-4);
+  border: 1px solid var(--c-line-1);
+  background:
+    radial-gradient(120% 90% at 80% 0%, var(--c-accent-soft), transparent 58%),
+    var(--c-surface-2);
+  overflow: hidden;
+  box-shadow: var(--shadow-3);
+}
+.hero-photo::after {
+  /* ichki hairline — «print» hissi */
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid color-mix(in srgb, var(--c-ink-1) 8%, transparent);
+  pointer-events: none;
+  z-index: 2;
+}
+.hero-photo__img {
+  object-fit: cover;
+  object-position: 50% 22%;
+  transition: scale 0.8s var(--ease-out-soft);
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .hero-photo:hover .hero-photo__img {
+    scale: 1.03;
+  }
+}
+.hero-photo__mono {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: 0.75rem;
+  justify-items: center;
+  text-align: center;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--c-ink-1) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--c-ink-1) 5%, transparent) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.hero-photo__caption {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: 2.25rem 1.1rem 0.95rem;
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--c-canvas) 88%, transparent) 58%);
+  backdrop-filter: blur(2px);
+}
+.hero-panels {
+  margin-top: -2.75rem;
+}
 /* Hero: suzuvchi ish oqimi panellari — pseudo-3D, CSS'gana (JS yo'q).
    Maqsad: "AI-assisted workflow" ni vizual metafora bilan ko'rsatish. */
 .hero-panels {

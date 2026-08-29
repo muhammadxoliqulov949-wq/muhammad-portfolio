@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { cache } from "react";
 import { db } from "@/db";
 import { achievements, education, experience, profile, projects, services, skills, testimonials } from "@/db/schema";
@@ -143,6 +145,30 @@ export function telegramHref(telegram?: string | null): string | null {
   if (/^https?:\/\//i.test(t)) return safeHref(t);
   if (t.startsWith("@")) return `https://t.me/${t.slice(1)}`;
   return `https://t.me/${t}`;
+}
+
+/**
+ * Portret rasmi. Ikki manba:
+ *  1) admin → Profil → «Portret URL» (`/media/portrait.jpg` yoki https://…);
+ *  2) `public/media/portrait.*` fayli — DB bo'sh bo'lsa ham avtomatik olinadi,
+ *     ya'ni rasmni papkaga tashlab qo'yish kifoya (deploy qilingan versiyada
+ *     ham fayl repo' bilan birga keladi).
+ * Ikkalasi bo'lmasa `null` — komponent monogram freymini ko'rsatadi.
+ */
+const PORTRAIT_FILES = ["portrait.jpg", "portrait.jpeg", "portrait.png", "portrait.webp", "portrait.avif"];
+
+export function portraitOf(p?: Partial<Profile> | null): string | null {
+  const explicit = safeHref(p?.photoUrl);
+  if (explicit) return explicit;
+  for (const name of PORTRAIT_FILES) {
+    try {
+      if (existsSync(join(process.cwd(), "public", "media", name))) return `/media/${name}`;
+    } catch {
+      /* read-only yoki edge muhitida fs bo'lmasligi mumkin — monogram qoladi */
+      break;
+    }
+  }
+  return null;
 }
 
 /** Hero'dagi kasb satri — DB'dan (admin tahrirlay oladi, P0-1 tuzatildi). */

@@ -1,5 +1,7 @@
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
-import { getSiteData } from "@/lib/content";
+import { getSiteData, portraitOf } from "@/lib/content";
 
 export const alt = "Muhammad Xoliqulov — Student & AI Developer. AI yordamida veb-ilova qurish.";
 export const size = { width: 1200, height: 630 };
@@ -30,6 +32,10 @@ export default async function OpenGraphImage() {
   let title = "Student & AI Developer";
   let location = "";
   let stats: { label: string; value: string }[] = [];
+  /** Portret — `public/media/portrait.*` faylidan base64 sifatida o'qiladi.
+   *  Satori tashqi URL'ni build payti yuklashi kerak bo'lmasligi uchun faqat
+   *  lokal fayl ishlatiladi (yok bo'lsa monogram qoladi). */
+  let photo: string | null = null;
 
   try {
     const { profile } = await getSiteData();
@@ -51,6 +57,19 @@ export default async function OpenGraphImage() {
   stats = stats.map((s) => ({ ...s, value: safeGlyphs(s.value) }));
 
   const initials = name.replace(/[^A-Za-z]/g, "").slice(0, 2).toUpperCase() || "P";
+
+  try {
+    const rel = portraitOf(await getSiteData().then((d) => d.profile));
+    if (rel?.startsWith("/")) {
+      const file = join(process.cwd(), "public", rel);
+      if (existsSync(file)) {
+        const mime = rel.endsWith(".png") ? "image/png" : rel.endsWith(".webp") ? "image/webp" : "image/jpeg";
+        photo = `data:${mime};base64,${readFileSync(file).toString("base64")}`;
+      }
+    }
+  } catch {
+    /* portret OG uchun majburiy emas */
+  }
 
   return new ImageResponse(
     (
@@ -102,6 +121,7 @@ export default async function OpenGraphImage() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              overflow: "hidden",
               background: "#d6f25c",
               color: "#0a0c10",
               fontSize: "22px",
@@ -109,7 +129,7 @@ export default async function OpenGraphImage() {
               fontFamily: "monospace",
             }}
           >
-            {initials}
+            {photo ? <img src={photo} alt="" width={58} height={58} style={{ width: "58px", height: "58px", objectFit: "cover" }} /> : initials}
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span style={{ fontSize: "26px", fontWeight: 700 }}>{name}</span>

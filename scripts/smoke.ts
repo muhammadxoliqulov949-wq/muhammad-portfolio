@@ -68,9 +68,15 @@ async function main() {
   const home = await get("/");
   ok("GET / → 200", home.res.status === 200, `status=${home.res.status}`);
   ok(
-    "Hero va bo'limlar mavjud",
-    ["Kontent", "Aloqa", "display"].every((s) => home.text.includes(s)),
+    "Hero identiteti va bo'limlar mavjud",
+    ["Student", "AI Developer", "Kimman", "Aloqa", "Yutuqlar"].every((x) => home.text.includes(x)),
   );
+  ok("Ish oqimi panellari chiqdi", home.text.includes("hero-panels"));
+  ok("Portret freymi (rasm yoki monogram) chiqdi", home.text.includes('<figure class="hero-photo"'));
+  ok("Ta'lim bo'limi DB'dan keladi", home.text.includes("International OXUS University"));
+  ok("Telefon tel: havolasi bilan", /href="tel:\+998/.test(home.text));
+  ok("Soxta mijoz fikri yo'q", !home.text.includes("Mijozlar fikri"));
+  ok("Yutuqlar ro'yxati", ["CEFR B1", "DXX 2026"].every((x) => home.text.includes(x)));
   ok("Skip-link bor", home.text.includes("skip-link"));
   ok("JSON-LD bor", home.text.includes("application/ld+json"));
   ok("Tema bootstrap (FOUC oldini oladi)", home.text.includes('data-theme'));
