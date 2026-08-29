@@ -1,8 +1,14 @@
-import Image from "next/image";
 import Icon from "./ui/Icon";
 import Rotator from "./Rotator";
 import CopyButton from "./ui/CopyButton";
-import { rolesOf, safeHref, socialsOf, telegramHref, type Profile } from "@/lib/content";
+import {
+  listFrom,
+  phoneHref,
+  rolesOf,
+  safeHref,
+  socialsOf,
+  type Profile,
+} from "@/lib/content";
 
 const SOCIAL_ICON = {
   github: "github",
@@ -10,40 +16,41 @@ const SOCIAL_ICON = {
   instagram: "instagram",
   telegram: "telegram",
   email: "mail",
+  phone: "phone",
 } as const;
 
 /**
  * Hero — birinchi ekran.
  *
- * Audit tuzatishlari:
- *  - "Hi, I'm X" o'rniga qiymat taklifi (2026 portfolio konvensiyasi);
- *  - kasb satri DB'dan (P0-1);
- *  - cheksiz suzuvchi chip'lar, aylanuvchi konus-gradient va blinking kursor
- *    olib tashlandi — harakatlar funksional;
- *  - avatar `next/image` bilan: LCP + CLS (P1-13);
- *  - statistika 3 ta bir xil karta o'rniga "ledger" qatori (ritm uchun).
+ * Uslubiy qaror: sun'iy "I'm a passionate developer" kirish o'rniga
+ * to'g'ridan-to'g'ri identitet (ism + kasb) va haqiqiy raqamlar.
+ * O'ng tarafdagi suzuvchi panellar — uni aldashtiruvchi "3D grafika" emas,
+ * uning haqiqiy ish oqimi (AI-assisted workflow) vizualizatsiyasi.
  */
-export default function Hero({ profile: p }: { profile: Profile }) {
+type Props = { profile: Profile; study?: string };
+
+export default function Hero({ profile: p, study }: Props) {
   const roles = rolesOf(p);
   const socials = socialsOf(p);
-  const photo = safeHref(p.photoUrl);
+  const steps = listFrom(p.workflow);
   const resume = safeHref(p.resumeUrl);
+
   const stats = [
-    { label: "Yetkazilgan loyihalar", value: p.statProjects },
-    { label: "Amaliyot tajribasi", value: p.statExperience },
-    { label: "Hozirgi bandlik", value: p.statAvailability },
+    { label: "Amaliy tajriba", value: p.statExperience },
+    { label: "Mijozlar", value: p.statAvailability },
+    { label: "Saytlar", value: p.statProjects },
   ].filter((s) => s.value);
 
   const meta = [
     p.location ? { icon: "pin" as const, text: p.location } : null,
-    p.sinceYear ? { icon: "clock" as const, text: `${p.sinceYear}-yildan amaliyotda` } : null,
-    p.responseTime ? { icon: "zap" as const, text: p.responseTime } : null,
-  ].filter((x): x is { icon: "pin" | "clock" | "zap"; text: string } => !!x);
+    p.englishLevel ? { icon: "gauge" as const, text: `Ingliz tili: ${p.englishLevel}` } : null,
+    study ? { icon: "sparkle" as const, text: study } : null,
+  ].filter((x): x is { icon: "pin" | "gauge" | "sparkle"; text: string } => !!x);
 
   return (
-    <section id="home" className="u-hero-lines relative overflow-clip pt-32 pb-[var(--section-y)] md:pt-40">
+    <section id="home" className="u-hero-lines relative overflow-clip pt-28 pb-[var(--section-y)] md:pt-36">
       <div className="u-container">
-        <div className="grid items-end gap-12 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,0.85fr)] lg:gap-16">
+        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-16">
           <div className="reveal">
             {p.badge ? (
               <p className="label mb-7 flex flex-wrap items-center gap-2.5">
@@ -52,28 +59,31 @@ export default function Hero({ profile: p }: { profile: Profile }) {
               </p>
             ) : null}
 
-            <h1 className="display text-display-xl">
-              G&apos;oyani <span className="display-em">ishlaydigan</span> mahsulotga
-              aylantiraman.
+            <h1 className="display text-display-xl leading-[0.94]">
+              Student &amp;{" "}
+              <span className="display-em">AI Developer</span>
             </h1>
 
-            {roles.length > 0 ? (
-              <Rotator
-                items={roles}
-                className="mt-7 flex h-7 font-mono text-small uppercase tracking-[0.12em] text-ink-2"
-              />
-            ) : null}
+            <p className="mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span className="display text-[19px] font-semibold">{p.fullName || "Portfolio"}</span>
+              {roles.length > 1 ? (
+                <Rotator
+                  items={roles.slice(1)}
+                  className="flex h-6 font-mono text-micro uppercase tracking-[0.14em] text-ink-3"
+                />
+              ) : null}
+            </p>
 
             {p.bio ? <p className="mt-6 max-w-xl text-lead text-ink-2">{p.bio}</p> : null}
 
             <div className="mt-9 flex flex-wrap items-center gap-2.5">
-              <a href="#work" className="btn btn--accent btn--lg">
-                Ishlarni ko&apos;rish
+              <a href="#contact" className="btn btn--accent btn--lg">
+                Keling, birga ishlaymiz
                 <Icon name="arrow-right" size={16} />
               </a>
-              <a href="#contact" className="btn btn--lg">
-                <Icon name="mail" size={16} />
-                Bog&apos;lanish
+              <a href="#work" className="btn btn--lg">
+                <Icon name="layers" size={16} />
+                Loyihalarni ko&apos;rish
               </a>
               {resume ? (
                 <a href={resume} target="_blank" rel="noopener noreferrer" className="btn btn--ghost btn--lg">
@@ -83,12 +93,12 @@ export default function Hero({ profile: p }: { profile: Profile }) {
               ) : null}
             </div>
 
-            <div className="mt-9 flex flex-wrap items-center gap-2.5">
+            <div className="mt-8 flex flex-wrap items-center gap-2.5">
               {socials.map((s) => (
                 <a
                   key={s.key}
                   href={s.href}
-                  target={s.key === "email" ? undefined : "_blank"}
+                  target={s.key === "email" || s.key === "phone" ? undefined : "_blank"}
                   rel="noopener noreferrer"
                   aria-label={s.label}
                   className="icon-btn"
@@ -97,49 +107,56 @@ export default function Hero({ profile: p }: { profile: Profile }) {
                 </a>
               ))}
               {p.email ? <CopyButton value={p.email} label="Emailni nusxa olish" /> : null}
-              {p.telegram ? <CopyButton value={p.telegram.replace("@", "")} label="Telegramni nusxa olish" /> : null}
+              {p.telegram ? (
+                <CopyButton value={p.telegram.replace("@", "")} label="Telegramni nusxa olish" />
+              ) : null}
             </div>
           </div>
 
-          {/* Portret */}
-          <div className="reveal relative mx-auto w-full max-w-[380px] lg:max-w-none">
-            <div className="card relative overflow-hidden !rounded-4 p-0">
-              <div className="relative aspect-[4/5] w-full bg-surface-2">
-                {photo ? (
-                  <Image
-                    src={photo}
-                    alt={p.fullName ? `${p.fullName} portreti` : "Portret"}
-                    fill
-                    priority
-                    sizes="(min-width: 64rem) 34vw, 88vw"
-                    className="object-cover"
-                  />
+          {/* Ish oqimi — suzuvchi panellar (pseudo-3D, CSS) */}
+          <div className="reveal relative mx-auto w-full max-w-[440px] lg:max-w-none">
+            <div className="hero-panels" aria-hidden="true">
+              <div className="hero-panel hero-panel--back">
+                <p className="label mb-2">AI yordamchi</p>
+                <p className="text-small text-ink-2">prompt · kod · izoh</p>
+              </div>
+              <div className="hero-panel hero-panel--mid">
+                <p className="label mb-3 flex items-center justify-between">
+                  <span>muhammad / ielts.mock</span>
+                  <span className="chip chip--accent !py-0.5 text-[10px]">PWA</span>
+                </p>
+                {steps.length > 0 ? (
+                  <ol className="stack gap-2">
+                    {steps.slice(0, 4).map((step, i) => (
+                      <li key={step} className="flex items-start gap-2.5 text-small text-ink-2">
+                        <span className="u-num mt-0.5 shrink-0 font-mono text-micro text-ink-3">0{i + 1}</span>
+                        {step}
+                      </li>
+                    ))}
+                  </ol>
                 ) : (
-                  <div className="grid h-full w-full place-items-center bg-[radial-gradient(120%_100%_at_20%_0%,var(--c-accent-soft),transparent_60%)]">
-                    <span className="display text-[clamp(5rem,14vw,9rem)] leading-none text-ink-1">
-                      {p.avatarInitials || (p.fullName || "P").slice(0, 2).toUpperCase()}
-                    </span>
-                  </div>
+                  <p className="text-small text-ink-3">Ish oqimi admin panelda sozlanadi.</p>
                 )}
               </div>
-              <div className="flex items-center justify-between gap-3 border-t border-line-1 px-4 py-3">
-                <span className="label">{p.fullName || "Portfolio"}</span>
-                {telegramHref(p.telegram) ? (
-                  <a
-                    href={telegramHref(p.telegram) as string}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="link-underline text-small"
-                  >
-                    {p.telegram}
-                    <Icon name="arrow-up-right" size={13} />
-                  </a>
-                ) : null}
+              <div className="hero-panel hero-panel--front">
+                <span className="chip">
+                  <Icon name="rocket" size={12} />
+                  Vercel&apos;da jonli
+                </span>
+                <a
+                  href={safeHref(p.github) ?? "https://github.com"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="link-underline text-small"
+                >
+                  GitHub
+                  <Icon name="arrow-up-right" size={13} />
+                </a>
               </div>
             </div>
 
             {stats.length > 0 ? (
-              <dl className="hairline-x card card--flat mt-3 !rounded-3 px-4 py-1">
+              <dl className="hairline-x card card--flat mt-4 !rounded-3 px-4 py-1">
                 {stats.map((s) => (
                   <div key={s.label} className="flex items-baseline justify-between gap-4 py-2.5">
                     <dt className="text-small text-ink-2">{s.label}</dt>
@@ -159,6 +176,22 @@ export default function Hero({ profile: p }: { profile: Profile }) {
                 {m.text}
               </li>
             ))}
+            {p.email ? (
+              <li className="flex items-center gap-2 text-small text-ink-2">
+                <Icon name="mail" size={14} className="text-ink-3" />
+                <a href={`mailto:${p.email}`} className="link-underline">
+                  {p.email}
+                </a>
+              </li>
+            ) : null}
+            {phoneHref(p.phone) ? (
+              <li className="flex items-center gap-2 text-small text-ink-2">
+                <Icon name="phone" size={14} className="text-ink-3" />
+                <a href={phoneHref(p.phone) as string} className="link-underline">
+                  {p.phone}
+                </a>
+              </li>
+            ) : null}
             <li className="ml-auto hidden items-center gap-2 text-small text-ink-3 md:flex">
               <span className="animate-pulse-soft" aria-hidden>
                 <Icon name="chevron-down" size={14} />

@@ -53,6 +53,7 @@ export type IconName =
   | "code"
   | "database"
   | "shield"
+  | "phone"
   | "target"
   | "zap"
   | "pen";
@@ -146,6 +147,11 @@ const P: Record<IconName, React.ReactNode> = {
       <circle cx="15" cy="12" r="1.2" fill="currentColor" stroke="none" />
       <circle cx="9" cy="18" r="1.2" fill="currentColor" stroke="none" />
       <circle cx="15" cy="18" r="1.2" fill="currentColor" stroke="none" />
+    </>
+  ),
+  phone: (
+    <>
+      <path d="M7.5 3.5h-2A2.5 2.5 0 0 0 3 6.2C3.5 13.4 9.6 19.5 16.8 20a2.5 2.5 0 0 0 2.7-2.5v-2l-3.6-1.3-1.6 1.7a13 13 0 0 1-4.2-4.2l1.7-1.6z" />
     </>
   ),
   mail: (

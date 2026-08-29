@@ -23,6 +23,9 @@ type Props = {
  *  - backdrop-blur faqat scroll qilinganda (GPU tejamkorligi);
  *  - barcha targetlar ≥44px.
  */
+/** kenglik tor bo'lganda yashirinadigan qo'shimcha bo'limlar */
+const SECONDARY_SECTIONS = new Set(["about", "education", "achievements", "approach"]);
+
 export default function Header({ name, initials, links, ctaLabel = "Loyiha muhokamasi" }: Props) {
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState<string>(links[0]?.id ?? "home");
@@ -98,6 +101,8 @@ export default function Header({ name, initials, links, ctaLabel = "Loyiha muhok
     }
   };
 
+  const navLinks = links.filter((l) => l.id !== "home");
+
   return (
     <header
       className={`site-header fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-300 ${
@@ -121,8 +126,10 @@ export default function Header({ name, initials, links, ctaLabel = "Loyiha muhok
           <span className="display text-[15px] font-semibold tracking-tight">{name}</span>
         </a>
 
+        {/* Desktop nav: lg'da asosiy 5 bo'lim, xl'da hammasi. 9 havolani
+            1024px sig'dirish — matnni siqib yuborardi. */}
         <nav aria-label="Sahifa bo'limlari" className="hidden items-center gap-0.5 lg:flex">
-          {links.map((l, i) => (
+          {navLinks.map((l, i) => (
             <a
               key={l.id}
               href={`#${l.id}`}
@@ -131,9 +138,9 @@ export default function Header({ name, initials, links, ctaLabel = "Loyiha muhok
                 go(l.id);
               }}
               aria-current={active === l.id ? "true" : undefined}
-              className={`relative flex h-11 items-center gap-1.5 rounded-2 px-3 text-small font-medium transition-colors ${
-                active === l.id ? "text-ink-1" : "text-ink-2 hover:text-ink-1"
-              }`}
+              className={`relative h-11 items-center gap-1.5 rounded-2 px-3 text-small font-medium transition-colors ${
+                SECONDARY_SECTIONS.has(l.id) ? "hidden xl:flex" : "flex"
+              } ${active === l.id ? "text-ink-1" : "text-ink-2 hover:text-ink-1"}`}
             >
               <span className="font-mono text-micro text-ink-3">{String(i + 1).padStart(2, "0")}</span>
               {l.label}

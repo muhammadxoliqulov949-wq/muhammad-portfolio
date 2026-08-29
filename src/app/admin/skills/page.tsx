@@ -3,15 +3,18 @@ import type { FieldConfig } from "@/components/ui/Field";
 
 const fields: FieldConfig[] = [
   { name: "name", label: "Texnologiya", required: true, placeholder: "Next.js" },
-  { name: "category", label: "Guruh", placeholder: "Frontend", hint: "Toolbox bo'limida shu nom bilan guruhlanadi" },
-  { name: "years", label: "Necha yil", type: "number", min: 0, max: 60, hint: "Foiz emas — yil so'raladi" },
-  { name: "context", label: "Qayerda qo'lladingiz", placeholder: "11 ta loyihada" },
+  {
+    name: "category",
+    label: "Guruh",
+    placeholder: "Web",
+    hint: "Saytda 4 guruh: AI & Development, Web, Tools, AI tools",
+  },
+  { name: "context", label: "Nima uchun kerak", placeholder: "Server, API va skriptlar" },
 ];
 
 const columns: ColumnConfig[] = [
   { key: "name", label: "Texnologiya" },
   { key: "category", label: "Guruh" },
-  { key: "years", label: "Yil", kind: "number" },
   { key: "context", label: "Kontekst", kind: "long", clamp: true },
 ];
 
@@ -19,12 +22,12 @@ export default function AdminSkillsPage() {
   return (
     <AdminCollection
       apiPath="/api/skills"
-      title="Toolbox"
-      description="Foizli progress-barlar olib tashlandi: har bir texnologiya uchun yil va qo'llangan joyi ko'rsatiladi."
+      title="Ko'nikmalar"
+      description="Foizli progress-bar yo'q — har bir asbob uchun uni nimaga ishlatishingiz yoziladi."
       fields={fields}
       columns={columns}
       primary="name"
-      emptyForm={{ name: "", category: "Frontend", years: 0, context: "" }}
+      emptyForm={{ name: "", category: "Web", context: "" }}
     />
   );
 }

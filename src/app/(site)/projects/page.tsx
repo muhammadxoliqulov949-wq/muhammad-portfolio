@@ -9,31 +9,39 @@ import { getSiteData, safeHref, techOf } from "@/lib/content";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Barcha ishlar",
-  description: "Tanlangan loyihalar ro'yxati: rol, yil, stek va o'lchanadigan natija bilan.",
+  title: "Loyihalar",
+  description:
+    "Qilingan ishlar ro'yxati: holati, texnologiyalari, jonli demo va kodi bilan. Har bir karta case study'ga o'tadi.",
   alternates: { canonical: "/projects" },
 };
 
-/** Ishlar arxivi — bosh sahifada faqat tanlanganlar, bu yerda hammasi. */
+/** Ishlar arxivi — bosh sahifada tanlanganlar, bu yerda hammasi. */
 export default async function ProjectsIndexPage() {
   const { projects } = await getSiteData();
+
+  const heading =
+    projects.length === 1 ? (
+      <>
+        Bitta loyiha — <span className="display-em">toʻliq ochiq</span>
+      </>
+    ) : (
+      <>
+        {projects.length} ta loyiha,{" "}
+        <span className="display-em">har birida tushuntirish</span>
+      </>
+    );
 
   return (
     <div className="pt-[calc(var(--header-h)+3rem)] pb-[var(--section-y)]">
       <div className="u-container">
         <SectionHead
           index="Arxiv"
-          eyebrow="Barcha ishlar"
-          title={
-            <>
-              {projects.length} ta loyiha,{" "}
-              <span className="display-em">har birida natija</span>
-            </>
-          }
-          lead="Har bir karta case study'ga o'tadi: muammo → yechim → raqam bilan natija."
+          eyebrow="Loyihalar"
+          title={heading}
+          lead="Bu yerda ko'rsatilmagan loyiha haqida va'da ham yo'q: yangi ish tayyor bo'lgach shu ro'yxatga qo'shiladi."
           action={
             <Link href="/#contact" className="btn btn--sm">
-              Shunga o&apos;xshash ish
+              Sizning loyihangiz
               <Icon name="arrow-up-right" size={14} />
             </Link>
           }
@@ -41,7 +49,7 @@ export default async function ProjectsIndexPage() {
 
         {projects.length === 0 ? (
           <Card className="p-8 text-center" interactive={false}>
-            <p className="text-ink-2">Hozircha chop etilgan loyiha yo‘q.</p>
+            <p className="text-ink-2">Hozircha chop etilgan loyiha yoʻq.</p>
           </Card>
         ) : (
           <ul className="grid gap-3 md:grid-cols-2">
@@ -55,21 +63,30 @@ export default async function ProjectsIndexPage() {
                       {img ? (
                         <Image
                           src={img}
-                          alt=""
+                          alt={`${p.title} — loyiha koʻrinishi`}
                           fill
                           sizes="10rem"
                           className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                         />
                       ) : (
-                        <span className="display grid h-full place-items-center text-3xl text-ink-2/70" aria-hidden>
+                        <span
+                          className="display grid h-full place-items-center bg-[radial-gradient(120%_110%_at_15%_0%,var(--c-accent-soft),transparent_60%)] text-3xl text-ink-2"
+                          aria-hidden
+                        >
                           {p.title.trim().charAt(0)}
                         </span>
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="label mb-1.5 flex items-center gap-3">
+                      <p className="label mb-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
                         {p.year ? <span className="u-num">{p.year}</span> : null}
                         {p.role ? <span className="truncate">{p.role}</span> : null}
+                        {p.status ? (
+                          <span className="chip ml-auto !py-0.5 text-micro">
+                            <span className="dot" aria-hidden />
+                            {p.status}
+                          </span>
+                        ) : null}
                       </p>
                       <h2 className="display text-title font-semibold">
                         <span className="after:absolute after:inset-0 after:content-[''] transition-colors group-hover:text-accent-text">
@@ -99,6 +116,22 @@ export default async function ProjectsIndexPage() {
             })}
           </ul>
         )}
+
+        {projects.length < 3 ? (
+          <Card className="mt-4 flex flex-wrap items-center justify-between gap-4 p-6 !rounded-3" interactive={false}>
+            <p className="flex items-start gap-3 text-body text-ink-2">
+              <Icon name="info" size={16} className="mt-0.5 shrink-0 text-accent-text" />
+              <span>
+                Roʻyxat qasddan qisqa. Yana loyihalar ishlab chiqilmoqda — ular tayyor
+                boʻlganda hujjatsiz koʻrsatilmaydi.
+              </span>
+            </p>
+            <Link href="/#contact" className="btn btn--sm">
+              Gʻoyangizni yozing
+              <Icon name="arrow-right" size={14} />
+            </Link>
+          </Card>
+        ) : null}
       </div>
     </div>
   );

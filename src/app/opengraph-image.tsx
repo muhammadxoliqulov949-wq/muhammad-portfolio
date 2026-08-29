@@ -1,10 +1,25 @@
 import { ImageResponse } from "next/og";
 import { getSiteData } from "@/lib/content";
 
-export const alt = "Portfolio — full-stack dasturchi";
+export const alt = "Muhammad Xoliqulov — Student & AI Developer. AI yordamida veb-ilova qurish.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 export const revalidate = 3600;
+
+/**
+ * Satori (ImageResponse) har bir glif uchun shrift topa olmasa, uni tarmoqdan
+ * yuklashga urinadi — sandbox/offline muhitda bu "Failed to load dynamic font"
+ * bo'ladi. Shuning uchun OG matni ASCII'lashtirilgan variantdan o'tadi
+ * (oʻ/ʼ/≈ kabi belgilar ' va "≈" o'rniga lotincha belgi bilan).
+ */
+function safeGlyphs(value: string): string {
+  return value
+    .replace(/[ʻʼ‘’‛]/g, "'")
+    .replace(/[“”]/g, '"')
+    .replace(/≈/g, "~")
+    .replace(/[–—]/g, "-")
+    .replace(/·/g, "/");
+}
 
 /**
  * OG kartochka — dizayn tizimi bilan bir xil (ink + signal lime), va
@@ -12,7 +27,7 @@ export const revalidate = 3600;
  */
 export default async function OpenGraphImage() {
   let name = "Portfolio";
-  let title = "Full-stack dasturchi";
+  let title = "Student & AI Developer";
   let location = "";
   let stats: { label: string; value: string }[] = [];
 
@@ -22,15 +37,20 @@ export default async function OpenGraphImage() {
     title = profile.title || title;
     location = profile.location;
     stats = [
-      { label: "Loyihalar", value: profile.statProjects },
       { label: "Tajriba", value: profile.statExperience },
-      { label: "Javob", value: profile.responseTime },
+      { label: "Mijozlar", value: profile.statAvailability },
+      { label: "Saytlar", value: profile.statProjects },
     ].filter((s) => s.value);
   } catch {
     // DB bo'lmasa ham kartochka qaytadi
   }
 
-  const initials = name.slice(0, 2).toUpperCase();
+  name = safeGlyphs(name);
+  title = safeGlyphs(title);
+  location = safeGlyphs(location);
+  stats = stats.map((s) => ({ ...s, value: safeGlyphs(s.value) }));
+
+  const initials = name.replace(/[^A-Za-z]/g, "").slice(0, 2).toUpperCase() || "P";
 
   return new ImageResponse(
     (
@@ -104,7 +124,7 @@ export default async function OpenGraphImage() {
             {title}
           </div>
           <div style={{ display: "flex", fontSize: "26px", color: "#a8afbc" }}>
-            Veb-ilovalar · Admin panellar · Telegram botlar
+            AI-assisted web development / prototipdan deploygacha
           </div>
         </div>
 

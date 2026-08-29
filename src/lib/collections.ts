@@ -1,6 +1,14 @@
 import { createCollectionRoutes, type CollectionConfig } from "./crud";
-import { experience, projects, services, skills, testimonials } from "@/db/schema";
-import { experienceSchema, projectSchema, serviceSchema, skillSchema, testimonialSchema } from "./schemas";
+import { achievements, education, experience, projects, services, skills, testimonials } from "@/db/schema";
+import {
+  achievementSchema,
+  educationSchema,
+  experienceSchema,
+  projectSchema,
+  serviceSchema,
+  skillSchema,
+  testimonialSchema,
+} from "./schemas";
 
 /**
  * Barcha ochiq/koleksiya API'lari shu yerda konfiguratsiyalanadi.
@@ -38,6 +46,20 @@ const configs = {
     orderColumn: testimonials.order,
     revalidatePaths: HOME,
   },
+  education: {
+    label: "Ta'lim",
+    table: education,
+    schema: educationSchema,
+    orderColumn: education.order,
+    revalidatePaths: HOME,
+  },
+  achievements: {
+    label: "Yutuqlar",
+    table: achievements,
+    schema: achievementSchema,
+    orderColumn: achievements.order,
+    revalidatePaths: HOME,
+  },
   projects: {
     label: "Loyihalar",
     table: projects,
@@ -54,5 +76,7 @@ export const collections = {
   services: createCollectionRoutes(configs.services),
   experience: createCollectionRoutes(configs.experience),
   testimonials: createCollectionRoutes(configs.testimonials),
+  education: createCollectionRoutes(configs.education),
+  achievements: createCollectionRoutes(configs.achievements),
   projects: createCollectionRoutes(configs.projects),
 } as const;

@@ -9,6 +9,8 @@ export const ADMIN_LINKS = [
   { href: "/admin/services", label: "Xizmatlar" },
   { href: "/admin/experience", label: "Tajriba" },
   { href: "/admin/skills", label: "Ko'nikmalar" },
+  { href: "/admin/education", label: "Ta'lim" },
+  { href: "/admin/achievements", label: "Yutuqlar" },
   { href: "/admin/testimonials", label: "Fikrlar" },
   { href: "/admin/messages", label: "Xabarlar" },
 ];

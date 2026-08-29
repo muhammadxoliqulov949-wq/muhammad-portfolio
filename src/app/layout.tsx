@@ -46,23 +46,33 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 export async function generateMetadata(): Promise<Metadata> {
   const { profile } = await getSiteData();
   const name = profile.fullName || "Portfolio";
-  const title = profile.title || "Full-stack dasturchi";
+  const title = profile.title || "Student & AI Developer";
   const description =
-    profile.bio?.trim() ||
-    `${name} — ${title}. Zamonaviy veb-ilovalar, admin panellar va Telegram botlar.`;
+    (profile.bio?.trim() ||
+      `${name} — ${title}. AI yordamida to'liq veb-ilovalar: prototip, backend, AI API integratsiyasi va deploy.`);
 
   return {
     metadataBase: new URL(siteUrl),
     title: {
-      default: `${name} — ${title}`,
-      template: `%s — ${name}`,
+      default: `${name} | ${title}`,
+      template: `%s | ${name}`,
     },
     description,
-    keywords: ["portfolio", "dasturchi", "full-stack", "next.js", "veb-sayt", "telegram bot", "O'zbekiston"],
+    keywords: [
+      "AI-assisted development",
+      "AI web development",
+      "veb-dasturlash",
+      "freelance developer Toshkent",
+      "React",
+      "Node.js",
+      "PWA",
+      "Gemini API",
+      "Oʻzbekiston",
+    ],
     authors: [{ name }],
     creator: name,
     openGraph: {
-      title: `${name} — ${title}`,
+      title: `${name} | ${title}`,
       description,
       url: siteUrl,
       siteName: `${name} — Portfolio`,
@@ -71,7 +81,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     twitter: {
       card: "summary_large_image",
-      title: `${name} — ${title}`,
+      title: `${name} | ${title}`,
       description,
     },
     robots: {
@@ -98,8 +108,30 @@ export const viewport: Viewport = {
 const THEME_BOOTSTRAP = `(function(){try{var d=document.documentElement;var s=localStorage.getItem('theme');if(s==='light'||s==='dark'){d.setAttribute('data-theme',s);}else if(window.matchMedia('(prefers-color-scheme: dark)').matches){d.setAttribute('data-theme','dark');}else{d.setAttribute('data-theme','light');}d.style.colorScheme=s==='light'?'light':(s==='dark'?'dark':'light dark');}catch(e){}})();`;
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const { profile } = await getSiteData();
-  const sameAs = [profile.github, profile.linkedin, profile.instagram].filter(Boolean);
+  const { profile, skills, services } = await getSiteData();
+  const sameAs = [profile.github, profile.linkedin, profile.instagram, profile.telegram].filter(Boolean);
+
+  /** JSON-LD — faqat to'ldirilgan maydonlar bilan (bo'sh "https://github.com" kabi
+   *  qiymatlar strukturali ma'lumotga chiqmaydi). */
+  const person: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: profile.fullName || "Portfolio",
+    jobTitle: profile.title || "Student & AI Developer",
+    description: profile.bio || undefined,
+    url: siteUrl,
+    email: profile.email ? `mailto:${profile.email}` : undefined,
+    telephone: profile.phone || undefined,
+    address: profile.location
+      ? { "@type": "PostalAddress", addressLocality: profile.location.split(",")[0]?.trim() }
+      : undefined,
+    knowsAbout: skills.slice(0, 12).map((x) => x.name),
+    makesOffer: services.slice(0, 8).map((x) => ({
+      "@type": "Offer",
+      itemOffered: { "@type": "Service", name: x.title, description: x.description },
+    })),
+    sameAs,
+  };
 
   return (
     <html
@@ -118,24 +150,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           Asosiy kontentga o&apos;tish
         </a>
         {children}
-        {sameAs.length > 0 ? (
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify({
-                "@context": "https://schema.org",
-                "@type": "Person",
-                name: profile.fullName || "Portfolio",
-                jobTitle: profile.title || "Full-stack dasturchi",
-                url: siteUrl,
-                email: profile.email ? `mailto:${profile.email}` : undefined,
-                // Faqat haqiqiy, to'ldirilgan profillar (audit: "https://github.com/" kabi
-                // bo'sh havolalar JSON-LD'da qolgan edi)
-                sameAs,
-              }),
-            }}
-          />
-        ) : null}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(person) }} />
       </body>
     </html>
   );

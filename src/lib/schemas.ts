@@ -51,6 +51,15 @@ export const profileSchema = z.object({
   instagram: str(120),
   location: str(120),
   resumeUrl: safeUrl(1000),
+  phone: z.string().trim().max(40).default(""),
+  englishLevel: str(40),
+  story: str(3000),
+  strengths: str(1200),
+  interests: str(600),
+  principleWork: str(400),
+  principleDelivery: str(400),
+  workflow: str(1200),
+  goals: str(2000),
   responseTime: str(60),
   sinceYear: z.string().trim().max(9).default(""),
   statProjects: str(40),
@@ -72,6 +81,8 @@ export const projectSchema = z.object({
   approach: str(2000),
   outcome: str(2000),
   gallery: str(4000),
+  status: str(80),
+  features: str(2000),
   featured: z.boolean().default(false),
   order: z.number().int().min(0).max(999).default(0),
   published: z.boolean().default(true),
@@ -129,7 +140,31 @@ export const contactSchema = z.object({
   website: z.string().max(500).optional(),
 });
 
+export const educationSchema = z.object({
+  institution: str(160, true),
+  credential: str(120),
+  field: str(160),
+  period: str(60),
+  status: str(80),
+  features: str(2000),
+  detail: str(1200),
+  current: z.boolean().default(false),
+  order: z.number().int().min(0).max(999).default(0),
+});
+
+export const achievementSchema = z.object({
+  title: str(200, true),
+  issuer: str(120),
+  kind: z.enum(["cert", "academic", "sport"]).default("cert"),
+  year: z.string().trim().max(9).default(""),
+  detail: str(600),
+  url: safeUrl(500),
+  order: z.number().int().min(0).max(999).default(0),
+});
+
 export type ProfileInput = z.infer<typeof profileSchema>;
+export type EducationInput = z.infer<typeof educationSchema>;
+export type AchievementInput = z.infer<typeof achievementSchema>;
 export type ProjectInput = z.infer<typeof projectSchema>;
 export type SkillInput = z.infer<typeof skillSchema>;
 export type ServiceInput = z.infer<typeof serviceSchema>;

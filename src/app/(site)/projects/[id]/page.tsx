@@ -4,7 +4,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Icon from "@/components/ui/Icon";
 import Card from "@/components/ui/Card";
-import { getProjectById, getPublishedProjectIds, getSiteData, safeHref, techOf, galleryOf } from "@/lib/content";
+import {
+  featuresOf,
+  galleryOf,
+  getProjectById,
+  getPublishedProjectIds,
+  getSiteData,
+  safeHref,
+  techOf,
+} from "@/lib/content";
 
 /**
  * Case study sahifasi (audit P1-10: loyihalar faqat bir qatorli tavsif edi).
@@ -67,10 +75,11 @@ export default async function ProjectPage({ params }: Props) {
   const demo = safeHref(project.link);
   const code = safeHref(project.github);
 
+  const features = featuresOf(project.features);
   const blocks = [
     { title: "Muammo", body: project.problem, icon: "alert" as const },
-    { title: "Yechim", body: project.approach, icon: "code" as const },
-    { title: "Natija", body: project.outcome, icon: "target" as const },
+    { title: "Yechim", body: project.approach, icon: "layers" as const },
+    { title: "Natija va hozirgi holat", body: project.outcome, icon: "target" as const },
   ].filter((b) => b.body?.trim());
 
   return (
@@ -92,6 +101,12 @@ export default async function ProjectPage({ params }: Props) {
           <p className="label mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
             {project.year ? <span className="u-num">{project.year}</span> : null}
             {project.role ? <span>{project.role}</span> : null}
+            {project.status ? (
+              <span className="chip chip--accent !py-0.5 text-micro">
+                <span className="dot" aria-hidden />
+                {project.status}
+              </span>
+            ) : null}
           </p>
           <h1 className="display text-display-l">{project.title}</h1>
           <p className="mt-5 max-w-prose text-lead text-ink-2">{project.description}</p>
@@ -168,9 +183,26 @@ export default async function ProjectPage({ params }: Props) {
           </div>
         ) : null}
 
+        {features.length > 0 ? (
+          <section className="mt-12">
+            <h2 className="label mb-4 flex items-center gap-2.5 border-b border-line-1 pb-3">
+              <span className="label-accent">Platforma nima qiladi</span>
+              <span className="u-num ml-auto text-ink-3">{features.length}</span>
+            </h2>
+            <ul className="grid gap-2 sm:grid-cols-2">
+              {features.map((f) => (
+                <li key={f} className="flex items-start gap-2.5 rounded-2 border border-line-1 bg-surface-1 px-3.5 py-2.5 text-body">
+                  <Icon name="check" size={14} className="mt-1.5 shrink-0 text-accent-text" />
+                  {f}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+
         {tech.length > 0 ? (
           <section className="mt-12 border-t border-line-1 pt-6">
-            <h2 className="label mb-3.5">Stek</h2>
+            <h2 className="label mb-3.5">Texnologiya</h2>
             <ul className="flex flex-wrap gap-1.5">
               {tech.map((t) => (
                 <li key={t}>
@@ -185,7 +217,8 @@ export default async function ProjectPage({ params }: Props) {
           <div>
             <h2 className="display text-title font-semibold">Shunga o&apos;xshash ish kerakmi?</h2>
             <p className="mt-1 text-small text-ink-2">
-              {profile.responseTime || "Bog'laning — 1 ish kunida javob beraman."}
+              {profile.responseTime ||
+                `Xabar qoldiring — ${profile.telegram ? "Telegramda (" + profile.telegram + ")" : "email orqali"} javob beraman.`}
             </p>
           </div>
           <Link href="/#contact" className="btn btn--accent">

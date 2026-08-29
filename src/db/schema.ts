@@ -11,6 +11,9 @@ import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
  *  - services: narx/oraliq va muddat (konversiya uchun raqam)
  *  - testimonials: haqiqiy rating + manba havolasi
  *  - experience: `current` va `highlights`
+ *  - profile: phone/story/strengths/interests/principles/workflow (real kontent)
+ *  - projects: `status` — tayyor mahsulotni davom etayotgan ishdan ajratadi
+ *  - education / achievements jadvallari
  */
 
 // Admin foydalanuvchi (auth uchun)
@@ -50,6 +53,23 @@ export const profile = sqliteTable("profile", {
   resumeUrl: text("resume_url").notNull().default(""),
   responseTime: text("response_time").notNull().default(""),
   sinceYear: text("since_year").notNull().default(""),
+  /** Telefon — `tel:` havolasi uchun (+998... ko'rinishida saqlanadi). */
+  phone: text("phone").notNull().default(""),
+  /** Ingliz tili darajasi (masalan "B2") — sertifikat emas, o'z bahosi. */
+  englishLevel: text("english_level").notNull().default(""),
+  /** About bo'limi uchun uzunroq hikoya (bio — qisqa versiya). */
+  story: text("story").notNull().default(""),
+  /** Kuchli tomonlar (CSV) — "Fast learner, ..." kabi. */
+  strengths: text("strengths").notNull().default(""),
+  /** Qiziqishlar (CSV) — kasbiy da'vo emas, shunchaki kishi haqida. */
+  interests: text("interests").notNull().default(""),
+  /** Ish tamoyillari (2 ta) — iqtibos sifatida emas, matn ichida ishlatiladi. */
+  principleWork: text("principle_work").notNull().default(""),
+  principleDelivery: text("principle_delivery").notNull().default(""),
+  /** Ish oqimi qadamlari (CSV) — "AI-assisted" workflow. */
+  workflow: text("workflow").notNull().default(""),
+  /** Rejalar (CSV) — KELASI 1-2 yil. Ehtiyot: bu natija emas, maqsad. */
+  goals: text("goals").notNull().default(""),
   statProjects: text("stat_projects").notNull().default(""),
   statExperience: text("stat_experience").notNull().default(""),
   statAvailability: text("stat_availability").notNull().default(""),
@@ -72,6 +92,10 @@ export const projects = sqliteTable("projects", {
   approach: text("approach").notNull().default(""),
   outcome: text("outcome").notNull().default(""),
   gallery: text("gallery").notNull().default(""),
+  /** "Ishlab chiqilmoqda" kabi holat — tayyor mahsulotni jarayondan ajratadi. */
+  status: text("status").notNull().default(""),
+  /** Asosiy imkoniyatlar (CSV) — case study'dagi "nima qiladi" ro'yxati. */
+  features: text("features").notNull().default(""),
   featured: integer("featured", { mode: "boolean" }).notNull().default(false),
   order: integer("order").notNull().default(0),
   published: integer("published", { mode: "boolean" }).notNull().default(true),
@@ -122,6 +146,32 @@ export const testimonials = sqliteTable("testimonials", {
   avatarInitials: text("avatar_initials").notNull().default(""),
   rating: integer("rating").notNull().default(5),
   sourceUrl: text("source_url").notNull().default(""),
+  order: integer("order").notNull().default(0),
+});
+
+// Ta'lim
+export const education = sqliteTable("education", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  institution: text("institution").notNull(),
+  credential: text("credential").notNull().default(""),
+  field: text("field").notNull().default(""),
+  period: text("period").notNull().default(""),
+  status: text("status").notNull().default(""),
+  detail: text("detail").notNull().default(""),
+  current: integer("current", { mode: "boolean" }).notNull().default(false),
+  order: integer("order").notNull().default(0),
+});
+
+// Yutuqlar va sertifikatlar (tasdiqlangan — e'lon qilingan manba bilan)
+export const achievements = sqliteTable("achievements", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  title: text("title").notNull(),
+  issuer: text("issuer").notNull().default(""),
+  /** cert | academic | sport — UI guruhlash uchun. */
+  kind: text("kind").notNull().default("cert"),
+  year: text("year").notNull().default(""),
+  detail: text("detail").notNull().default(""),
+  url: text("url").notNull().default(""),
   order: integer("order").notNull().default(0),
 });
 

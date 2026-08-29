@@ -16,7 +16,21 @@ const fields: FieldConfig[] = [
   },
   { name: "problem", label: "Muammo", type: "textarea", rows: 3, hint: "Case study: 01" },
   { name: "approach", label: "Yechim", type: "textarea", rows: 3, hint: "Case study: 02" },
-  { name: "outcome", label: "Natija tafsiloti", type: "textarea", rows: 3, hint: "Case study: 03" },
+  { name: "outcome", label: "Natija va hozirgi holat", type: "textarea", rows: 3, hint: "Case study: 03 — raqam yo'q bo'lsa, qo'ymang" },
+  {
+    name: "status",
+    label: "Loyiha holati",
+    placeholder: "Ishlab chiqilmoqda",
+    hint: "Kartada chip bo'lib chiqadi (masalan: tayyor, yangilanmoqda)",
+  },
+  {
+    name: "features",
+    label: "Imkoniyatlar",
+    type: "textarea",
+    rows: 2,
+    placeholder: "Listening amaliyoti, Natija tahlili, AI bilan javobni yaxshilash",
+    hint: "Vergul yoki | bilan ajrating",
+  },
   { name: "tech", label: "Stek", placeholder: "Next.js, TypeScript, Turso", hint: "Vergul bilan ajrating" },
   { name: "image", label: "Muqova rasmi (URL)", type: "url", placeholder: "https://…/cover.jpg", hint: "Bo'sh bo'lsa monogram ko'rsatiladi" },
   { name: "gallery", label: "Galereya (URL lar)", type: "textarea", rows: 2, placeholder: "https://…/1.jpg, https://…/2.jpg" },
@@ -30,6 +44,7 @@ const columns: ColumnConfig[] = [
   { key: "title", label: "Loyiha" },
   { key: "year", label: "Yil", kind: "number" },
   { key: "image", label: "Muqova", kind: "image" },
+  { key: "status", label: "Holat" },
   { key: "impact", label: "Natija", kind: "long", clamp: true },
   { key: "published", label: "Chop etilgan", kind: "bool" },
 ];
@@ -39,7 +54,7 @@ export default function AdminProjectsPage() {
     <AdminCollection
       apiPath="/api/projects"
       title="Loyihalar"
-      description="Har bir loyiha case study sifatida to'ldirilsa — ish beruvchi birinchi qatordan raqam ko'radi."
+      description="Case study to'ldirilsa — ish beruvchi kartada nima qilinganini, qanday qilinganini va hozirgi holatni ko'radi."
       fields={fields}
       columns={columns}
       primary="title"
@@ -58,6 +73,8 @@ export default function AdminProjectsPage() {
         approach: "",
         outcome: "",
         gallery: "",
+        status: "",
+        features: "",
         featured: false,
         published: true,
       }}

@@ -1,0 +1,1 @@
+ALTER TABLE `projects` ADD `features` text DEFAULT '' NOT NULL;

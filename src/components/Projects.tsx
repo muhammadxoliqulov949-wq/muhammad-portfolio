@@ -3,16 +3,16 @@ import Link from "next/link";
 import SectionHead from "./ui/Section";
 import Card from "./ui/Card";
 import Icon from "./ui/Icon";
-import { safeHref, techOf, type Project } from "@/lib/content";
+import { featuresOf, safeHref, techOf, type Project } from "@/lib/content";
 
-/** Loyiha rasmi yoki monogram fallback (buzuk rasm ko'rsatmaslik uchun). */
+/** Loyiha rasmi yoki monogram panel (buzuk yoki soxta rasm ko'rsatmaslik uchun). */
 function Cover({ project, priority = false }: { project: Project; priority?: boolean }) {
   const img = safeHref(project.image);
   if (img) {
     return (
       <Image
         src={img}
-        alt={`${project.title} — loyiha ko'rinishi`}
+        alt={`${project.title} — loyiha koʻrinishi`}
         fill
         priority={priority}
         sizes="(min-width: 64rem) 50vw, 100vw"
@@ -21,22 +21,22 @@ function Cover({ project, priority = false }: { project: Project; priority?: boo
     );
   }
   return (
-    <div
-      className="grid h-full w-full place-items-center bg-[radial-gradient(130%_110%_at_15%_0%,var(--c-accent-soft),transparent_55%),linear-gradient(160deg,var(--c-surface-2),var(--c-surface-1))]"
-      aria-hidden
-    >
-      <span className="display text-[clamp(3.5rem,8vw,6.5rem)] leading-none text-ink-2/60">
+    <div className="grid h-full w-full place-content-center gap-3 bg-[radial-gradient(130%_110%_at_15%_0%,var(--c-accent-soft),transparent_55%),linear-gradient(160deg,var(--c-surface-2),var(--c-surface-1))] px-6 py-8">
+      <span className="display text-[clamp(2.5rem,6vw,4.5rem)] leading-none text-ink-1">
         {(project.title || "P").trim().charAt(0)}
+      </span>
+      <span className="font-mono text-micro uppercase tracking-[0.16em] text-ink-3">
+        {project.link ? new URL(project.link).host.replace(/^www\./, "") : project.title}
       </span>
     </div>
   );
 }
 
-function Tags({ tech }: { tech: string | null }) {
-  const items = techOf(tech).slice(0, 5);
+function TechChips({ tech, limit = 6 }: { tech: string | null; limit?: number }) {
+  const items = techOf(tech).slice(0, limit);
   if (items.length === 0) return null;
   return (
-    <ul className="mt-4 flex flex-wrap gap-1.5">
+    <ul className="flex flex-wrap gap-1.5">
       {items.map((t) => (
         <li key={t}>
           <span className="chip">{t}</span>
@@ -47,46 +47,52 @@ function Tags({ tech }: { tech: string | null }) {
 }
 
 /**
- * Loyihalar — bento (katta featured + qolganlari), har birida rol, yil va
- * **o'lchanadigan natija**. Kartalar case study sahifasiga o'tadi.
+ * Loyihalar — bitta ham bo'lsa, halol ko'rsatiladi.
  *
- * Audit tuzatishlari: butun kartani `<a>` ichiga olish o'rniga "stretched
- * link" (ichida yana havolalar bo'lgani uchun invalid HTML va "yolg'on
- * affordance" yuzaga kelardi — P1-10), hamda `next/image` + `sizes`.
+ * Auditdan keyingi pozitsiya: "20 ta loyiha" ro'yxatini yig'ish o'rniga bitta
+ * haqiqiy mahsulot to'liq ochib beriladi (holati, texnologiyasi, demo va kodi
+ * bilan). Boshqa loyihalar haqida va'da yozilmagan — ular tayyor bo'lganda
+ * DB'dan chiqadi.
  */
-export default function Projects({ projects }: { projects: Project[] }) {
+export default function Projects({ projects, index = "04" }: { projects: Project[]; index?: string }) {
   if (projects.length === 0) {
     return (
-      <section id="work" className="u-section">
+      <section id="work" className="u-section u-cv">
         <div className="u-container">
-          <SectionHead index="01" eyebrow="Ishlar" title="Hali ochiq holatda" lead="Birinchi buyurtma uchun tayyorman — pastdagi forma orqali yozing." />
+          <SectionHead
+            index={index}
+            eyebrow="Loyihalar"
+            title={
+              <>
+                Hozircha <span className="display-em">ochiq</span> loyiha yoʻq
+              </>
+            }
+            lead="Yangi ishlar tayyor bo'lishi bilan shu bo'limga qo'shiladi."
+          />
         </div>
       </section>
     );
   }
 
   const [featured, ...rest] = projects;
-  const links: { href: string; label: string }[] = [];
   const demoHref = safeHref(featured.link);
   const codeHref = safeHref(featured.github);
-  if (demoHref) links.push({ href: demoHref, label: "Jonli demo" });
-  if (codeHref) links.push({ href: codeHref, label: "Kod" });
 
   return (
     <section id="work" className="u-section u-cv">
       <div className="u-container">
         <SectionHead
-          index="01"
-          eyebrow="Tanlangan ishlar"
+          index={index}
+          eyebrow="Loyihalar"
           title={
             <>
-              Uch yilda <span className="display-em">eng muhim</span> to&apos;rt tasi
+              Bitta mahsulot, <span className="display-em">toʻliq ochiq</span>
             </>
           }
-          lead="Har bir loyihada muammo, texnik yechim va raqam bilan natija ko'rsatilgan — kartani bosing."
+          lead="Bu yerda chiroyli maketlar to'plami yo'q — bitta haqiqiy platforma bor: u ishlaydi, rivojlantirilmoqda va uni qanday qurganim ochiq ko'rsatilgan."
           action={
             <Link href="/projects" className="btn btn--sm">
-              Barcha ishlar
+              Barcha loyihalar
               <Icon name="arrow-up-right" size={14} />
             </Link>
           }
@@ -94,8 +100,11 @@ export default function Projects({ projects }: { projects: Project[] }) {
 
         <div className="bento">
           <div data-span="full" className="reveal">
-            <Card href={`/projects/${featured.id}`} className="group grid overflow-hidden !rounded-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
-              <div className="relative min-h-[240px] overflow-hidden border-b border-line-1 bg-surface-2 lg:border-b-0 lg:border-r">
+            <Card
+              href={`/projects/${featured.id}`}
+              className="group grid overflow-hidden !rounded-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]"
+            >
+              <div className="relative min-h-[260px] overflow-hidden border-b border-line-1 bg-surface-2 lg:border-b-0 lg:border-r">
                 <Cover project={featured} priority />
                 <span className="chip chip--accent absolute left-4 top-4 backdrop-blur-sm">
                   <Icon name="star" size={11} />
@@ -108,10 +117,16 @@ export default function Projects({ projects }: { projects: Project[] }) {
                   <div className="label mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
                     {featured.year ? <span className="u-num">{featured.year}</span> : null}
                     {featured.role ? <span>{featured.role}</span> : null}
+                    {featured.status ? (
+                      <span className="chip ml-auto !py-0.5 text-micro">
+                        <span className="dot" aria-hidden />
+                        {featured.status}
+                      </span>
+                    ) : null}
                   </div>
                   <h3 className="display text-display-m">
                     {/* Stretched link: butun karta bosiladigan, lekin HTML valid */}
-                    <span className="after:absolute after:inset-0 after:content-[''] group-hover:text-accent-text transition-colors">
+                    <span className="after:absolute after:inset-0 after:content-[''] transition-colors group-hover:text-accent-text">
                       {featured.title}
                     </span>
                   </h3>
@@ -121,27 +136,48 @@ export default function Projects({ projects }: { projects: Project[] }) {
                 {featured.impact ? (
                   <p className="flex items-start gap-2.5 border-t border-line-1 pt-4 text-body">
                     <Icon name="target" size={16} className="mt-0.5 shrink-0 text-accent-text" />
-                    <span>
-                      <span className="font-semibold">{featured.impact}</span>
-                    </span>
+                    <span className="font-semibold">{featured.impact}</span>
                   </p>
                 ) : null}
 
+                {featuresOf(featured.features).length > 0 ? (
+                  <ul className="grid gap-x-5 gap-y-1.5 border-t border-line-1 pt-4 sm:grid-cols-2">
+                    {featuresOf(featured.features)
+                      .slice(0, 6)
+                      .map((f) => (
+                        <li key={f} className="flex items-start gap-2 text-small text-ink-2">
+                          <Icon name="check" size={13} className="mt-0.5 shrink-0 text-accent-text" />
+                          {f}
+                        </li>
+                      ))}
+                  </ul>
+                ) : null}
+
                 <div className="flex flex-wrap items-end justify-between gap-4">
-                  <Tags tech={featured.tech} />
-                  <span className="flex items-center gap-3">
-                    {links.map((l) => (
+                  <TechChips tech={featured.tech} />
+                  <span className="flex flex-wrap items-center gap-2">
+                    {demoHref ? (
                       <a
-                        key={l.href}
-                        href={l.href}
+                        href={demoHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn--accent btn--sm"
+                      >
+                        Jonli demo
+                        <Icon name="external" size={13} />
+                      </a>
+                    ) : null}
+                    {codeHref ? (
+                      <a
+                        href={codeHref}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="btn btn--sm"
                       >
-                        {l.label}
-                        <Icon name="arrow-up-right" size={13} />
+                        <Icon name="github" size={13} />
+                        GitHub
                       </a>
-                    ))}
+                    ) : null}
                   </span>
                 </div>
               </div>
@@ -167,18 +203,28 @@ export default function Projects({ projects }: { projects: Project[] }) {
                     </h3>
                     <p className="mt-2 line-clamp-3 text-small text-ink-2">{p.description}</p>
                   </div>
-                  {p.impact ? (
-                    <p className="mt-auto flex items-start gap-2 border-t border-line-1 pt-3 text-small text-ink-2">
-                      <Icon name="target" size={13} className="mt-0.5 shrink-0 text-accent-text" />
-                      {p.impact}
-                    </p>
-                  ) : null}
-                  <Tags tech={p.tech} />
+                  <TechChips tech={p.tech} limit={4} />
                 </div>
               </Card>
             </div>
           ))}
         </div>
+
+        {rest.length === 0 ? (
+          <Card className="mt-4 flex flex-wrap items-center justify-between gap-4 p-6 !rounded-3" interactive={false}>
+            <p className="flex items-start gap-3 text-body text-ink-2">
+              <Icon name="info" size={16} className="mt-0.5 shrink-0 text-accent-text" />
+              <span>
+                Koʻproq loyiha yoʻq — chunki ular hali ishlab chiqilmoqda. Tayyor boʻlgach shu
+                boʻlimga qoʻshiladi; oldindan vaʼda qilinmagan sana yoʻq.
+              </span>
+            </p>
+            <a href="#contact" className="btn btn--sm">
+              Sizning gʻoyangizni muhokama qilish
+              <Icon name="arrow-right" size={14} />
+            </a>
+          </Card>
+        ) : null}
       </div>
     </section>
   );

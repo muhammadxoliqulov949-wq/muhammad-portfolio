@@ -78,17 +78,28 @@ async function main() {
 
   const projects = await get("/projects");
   ok("GET /projects → 200", projects.res.status === 200);
-  ok("Arxivda loyihalar soni ko'rsatilgan", /ta loyiha/i.test(projects.text));
+  ok("Arxiv loyihalar bilan ochiladi", /loyiha/i.test(projects.text));
+  ok("Arxivda 'ishlab chiqilmoqda' holati halol aytilgan", /ishlab chiqilmoqda/i.test(projects.text));
 
-  const case1 = await get("/projects/1");
+  const publicProjects = JSON.parse((await get("/api/projects")).text) as Row[];
+  const firstId = publicProjects[0]?.id;
+  ok("Ochiq loyiha topildi (case study testi uchun)", typeof firstId === "number");
+  const case1 = await get(`/projects/${firstId}`);
   ok("GET /projects/1 → 200", case1.res.status === 200);
-  ok("Case study bo'limlari", ["Muammo", "Yechim", "Natija"].every((s) => case1.text.includes(s)));
+  ok(
+    "Case study bo'limlari",
+    ["Muammo", "Yechim", "Platforma nima qiladi", "Texnologiya"].every((x) => case1.text.includes(x)),
+  );
+  ok("Case study'da jonli demo va GitHub havolasi", case1.text.includes("ielts-mock-v2.vercel.app") && case1.text.includes("github.com/muhammadxoliqulov949-wq"));
   ok("Canonical qo'yilgan", case1.text.includes('rel="canonical"'));
 
   const meta = await get("/robots.txt");
   ok("GET /robots.txt → 200", meta.res.status === 200);
   const sitemap = await get("/sitemap.xml");
-  ok("sitemap'da /projects/1 bor", sitemap.text.includes("/projects/1"));
+  ok(
+    "sitemap'da case study URL'i bor",
+    typeof firstId === "number" && sitemap.text.includes(`/projects/${firstId}`),
+  );
   const og = await get("/opengraph-image");
   ok("GET /opengraph-image → image/png", (og.res.headers.get("content-type") || "").includes("image/"));
   const icon = await get("/icon");
@@ -98,8 +109,19 @@ async function main() {
 
   /* ─── 2. Ochiq API ───────────────────────────────────────────────────── */
   console.log("\n2) Ochiq API");
+  for (const path of ["/api/education", "/api/achievements"]) {
+    const r = await get(path);
+    ok(`GET ${path} → massiv`, r.res.status === 200 && Array.isArray(JSON.parse(r.text)), `status=${r.res.status}`);
+  }
+  {
+    const ed = JSON.parse((await get("/api/education")).text) as { institution?: string }[];
+    ok("Ta'lim ma'lumoti to'ldirilgan", ed.length > 0 && !!ed[0]?.institution);
+    const prof = JSON.parse((await get("/api/profile")).text) as { phone?: string; goals?: string };
+    ok("Profielda telefon va rejalar bor", !!prof.phone && !!prof.goals);
+  }
   const list = await get("/api/projects");
   const arr = JSON.parse(list.text) as Row[];
+
   ok("GET /api/projects → massiv", Array.isArray(arr));
   ok("Faqat publish qilinganlar", arr.every((p: Row) => p.published === true));
   const all = await get("/api/projects?all=1");

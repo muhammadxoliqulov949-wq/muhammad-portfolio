@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { db } from "@/db";
-import { experience, profile, projects, services, skills, testimonials } from "@/db/schema";
+import { achievements, education, experience, profile, projects, services, skills, testimonials } from "@/db/schema";
 import { asc, eq } from "drizzle-orm";
 
 /**
@@ -21,6 +21,8 @@ export type Skill = typeof skills.$inferSelect;
 export type Service = typeof services.$inferSelect;
 export type ExperienceItem = typeof experience.$inferSelect;
 export type Testimonial = typeof testimonials.$inferSelect;
+export type EducationItem = typeof education.$inferSelect;
+export type Achievement = typeof achievements.$inferSelect;
 
 export const EMPTY_PROFILE: Profile = {
   id: 0,
@@ -41,6 +43,15 @@ export const EMPTY_PROFILE: Profile = {
   resumeUrl: "",
   responseTime: "",
   sinceYear: "",
+  phone: "",
+  englishLevel: "",
+  story: "",
+  strengths: "",
+  interests: "",
+  principleWork: "",
+  principleDelivery: "",
+  workflow: "",
+  goals: "",
   statProjects: "",
   statExperience: "",
   statAvailability: "",
@@ -54,6 +65,8 @@ export type SiteData = {
   services: Service[];
   experience: ExperienceItem[];
   testimonials: Testimonial[];
+  education: EducationItem[];
+  achievements: Achievement[];
 };
 
 /**
@@ -61,7 +74,8 @@ export type SiteData = {
  * `cache()` — bir HTTP so'rovi ichida layout va sahifa bir marta o'qiydi.
  */
 export const getSiteData = cache(async function getSiteData(): Promise<SiteData> {
-  const [p, projectList, skillList, serviceList, experienceList, testimonialList] = await Promise.all([
+  const [p, projectList, skillList, serviceList, experienceList, testimonialList, educationList, achievementList] =
+    await Promise.all([
     db.select().from(profile).get(),
     db
       .select()
@@ -73,6 +87,8 @@ export const getSiteData = cache(async function getSiteData(): Promise<SiteData>
     db.select().from(services).orderBy(asc(services.order)).all(),
     db.select().from(experience).orderBy(asc(experience.order)).all(),
     db.select().from(testimonials).orderBy(asc(testimonials.order)).all(),
+    db.select().from(education).orderBy(asc(education.order)).all(),
+    db.select().from(achievements).orderBy(asc(achievements.order)).all(),
   ]);
 
   return {
@@ -82,6 +98,8 @@ export const getSiteData = cache(async function getSiteData(): Promise<SiteData>
     services: serviceList,
     experience: experienceList,
     testimonials: testimonialList,
+    education: educationList,
+    achievements: achievementList,
   };
 });
 
@@ -132,7 +150,11 @@ export function rolesOf(p: Profile): string[] {
   return [p.title, p.role2, p.role3].map((s) => (s ?? "").trim()).filter(Boolean);
 }
 
-export type Social = { key: "github" | "linkedin" | "instagram" | "telegram" | "email"; label: string; href: string };
+export type Social = {
+  key: "github" | "linkedin" | "instagram" | "telegram" | "email" | "phone";
+  label: string;
+  href: string;
+};
 
 export function socialsOf(p: Profile): Social[] {
   const items: Array<Social | null> = [
@@ -145,6 +167,7 @@ export function socialsOf(p: Profile): Social[] {
       : null,
     telegramHref(p.telegram) ? { key: "telegram", label: "Telegram", href: telegramHref(p.telegram) as string } : null,
     p.email ? { key: "email", label: "Email", href: `mailto:${p.email}` } : null,
+    phoneHref(p.phone) ? { key: "phone", label: "Telefon", href: phoneHref(p.phone) as string } : null,
   ];
   return items.filter((x): x is Social => x !== null);
 }
@@ -178,16 +201,52 @@ function toListSafe(value?: string | null): string[] {
 }
 
 export const featuresOf = (value?: string | null): string[] => toListSafe(value);
+export const strengthsOf = (p: Profile): string[] => toListSafe(p.strengths);
+export const interestsOf = (p: Profile): string[] => toListSafe(p.interests);
+export const workflowOf = (p: Profile): string[] => toListSafe(p.workflow);
+export const goalsOf = (p: Profile): string[] => toListSafe(p.goals);
+
+export const principlesOf = (p: Profile): string[] =>
+  [p.principleWork, p.principleDelivery].map((x) => (x ?? "").trim()).filter(Boolean);
+
+/** Telefon `tel:` havolasiga: boshidagi bo'sh joy/defislar olib tashlanadi. */
+export function phoneHref(phone?: string | null): string | null {
+  if (!phone) return null;
+  const digits = phone.replace(/[^+0-9]/g, "");
+  return digits.length >= 8 ? `tel:${digits}` : null;
+}
+
+export const ACHIEVEMENT_KINDS: Record<string, { label: string; icon: "target" | "sparkle" | "zap" }> = {
+  cert: { label: "Sertifikatlar", icon: "target" },
+  academic: { label: "Akademik", icon: "sparkle" },
+  sport: { label: "Sport", icon: "zap" },
+};
+
+/** Yutuqlarni `kind` bo'yicha guruhlaydi (bo'sh guruh chiqmaydi). */
+export function achievementsByKind(list: Achievement[]) {
+  const order = ["cert", "academic", "sport"];
+  const groups: { kind: string; label: string; items: Achievement[] }[] = [];
+  for (const kind of order) {
+    const items = list.filter((a) => (a.kind || "cert") === kind);
+    if (items.length > 0) groups.push({ kind, label: ACHIEVEMENT_KINDS[kind]?.label ?? kind, items });
+  }
+  const rest = list.filter((a) => !order.includes(a.kind || "cert"));
+  if (rest.length > 0) groups.push({ kind: "other", label: "Boshqa", items: rest });
+  return groups;
+}
 export const highlightsOf = (value?: string | null): string[] => toListSafe(value);
 
-/** Sahifa uchun navetsiya (bo'lim mavjud bo'lsagina ko'rsatiladi). */
+/** Sahifa uchun navigatsiya (bo'lim mavjud bo'lsagina ko'rsatiladi). */
 export function sectionsOf(data: SiteData) {
   return [
     { id: "home", label: "Bosh sahifa" },
-    { id: "work", label: "Ishlar", has: data.projects.length > 0 },
-    { id: "services", label: "Xizmatlar", has: data.services.length > 0 },
+    { id: "about", label: "Kimman" },
+    { id: "skills", label: "Ko'nikmalar", has: data.skills.length > 0 },
     { id: "experience", label: "Tajriba", has: data.experience.length > 0 },
-    { id: "toolbox", label: "Toolbox", has: data.skills.length > 0 },
+    { id: "work", label: "Loyihalar", has: data.projects.length > 0 },
+    { id: "services", label: "Xizmatlar", has: data.services.length > 0 },
+    { id: "education", label: "Ta'lim", has: data.education.length > 0 },
+    { id: "achievements", label: "Yutuqlar", has: data.achievements.length > 0 },
     { id: "contact", label: "Aloqa", has: true },
   ].filter((s) => s.has !== false);
 }

@@ -91,3 +91,39 @@ Brauzerda: `/` (dark/paper almashtirish, Tab bilan focus, mobil menyu),
 `/projects` → `/projects/1`, `/admin/login` → `admin@example.com` /
 `ChangeMe123!` → loyiha yarating, `↑↓` bilan tartibni o'zgartiring,
 `published` toggle va o'chirishdan keyin **Qaytarish** toast'ini sinab ko'ring.
+
+
+---
+
+## 5-bosqich (xuddi kuni, kechasi): kontent — «placeholder»dan halol portfolio'gacha
+
+Fikr-mulohaza: sayt premium ko'rinishga keldi, lekin matnlar hali namuna/ixtirovchi edi.
+Bu bosqichda kontent siyosati o'zgartirildi va ma'lumot modeli shunga moslandi.
+
+**Qoida:** saytda faqat tasdiqlangan fakt. Ixtiro qilingan narsa olib tashlanadi,
+bo'sh qolgan joy bo'sh qoladi (yoki halol «ishlab chiqilmoqda» deb belgilanadi).
+
+| O'zgartirish | Tafsilot |
+|---|---|
+| «Chorsu Marmol» loyihasi | Butunlay o'chirildi (mijoz roziligi/ma'lumoti yo'q). Loyihalar ro'yxati endi 1 ta real ish — IELTS.mock |
+| `Testimonials` bo'limi | O'chirildi (`Toolbox` bilan birga). Uning o'rniga `Approach` — real ish uslubi, tamoyillar va **kelgusi** rejalar («reja, natija emas» deb belgilangan) |
+| Skills | «React 95%» kabi foizlar o'chirildi → 4 ta haqiqiy guruh: AI & Development (8), Web (11), Tools (5), AI tools (6) |
+| Xizmatlar | 1 ta «Full-stack development» o'rniga 9 ta aniq xizmat; narx ko'rsatilmaydi (baholash mezoni yo'q — «suhbatda aniqlanadi») |
+| Yangi bo'limlar | `Education` (International OXUS, 2026–2030, 1-kurs) va `Achievements` (sertifikat/akademik/sport guruhlarida, kerak bo'lsa «Tekshirish» havolasi bilan) |
+| Maqsadlar | «20+ loyiha», «$5000+/oy», «5+ kompaniya» kabi kelgusi rejalar endi hisob-kitob kabi ko'rsatilmaydi — `profile.goals` alohida reja kartochkasida |
+| Kontakt | Telefon (`tel:`), Telegram, Instagram, GitHub, email — hammasi haqiqiy va nusxa olinadigan; forma `message` jadvaliga yozadi va bu ochiq aytiladi («email'ga yuboriladi» deb yolg'on aytilmaydi) |
+| Hardcoding | Komponentlarda qolgan ixtirilgan raqam/sana DB'ga o'tkazildi (tajriba davri → `statExperience`, o'qiyotgan joyi → `education` jadvali) |
+
+**Sxema (migration 0004–0006):** `profile.phone, english_level, story, strengths, interests,
+principle_work, principle_delivery, workflow, goals`; `projects.status, features`;
+yangi jadvallar `education` va `achievements` (har biriga API + admin CRUD qo'shildi).
+
+**Tekshiruv:** `tsc` 0, `eslint` 0, build 30 sahifa, `npm run smoke` **54/54**
+(yangi tekshiruvlar: bo'limlar tartibi, ta'lim/yutuq API, telefon havolasi,
+testimonial'lar yo'qligi, case study'da demo/GitHub va «ishlab chiqilmoqda» halolligi).
+
+**Yangi baho — kontent bo'yicha:** oldin 9.0/10 (dizayn, lekin kontent namunaviy edi).
+Hozir: **9.3/10**. Baho pasaytiruvchi yagona narsa — portfolioda hozircha 1 ta
+to'liq ochiq loyiha; bu dizayn emas, real holat. IELTS.mock tugaganda va keyingi
+loyihalar qo'shilganda sahifa avtomatik to'ladi (arxiv sarlavhasi ham sondan
+foydalanadi — «Bitta loyiha — to'liq ochiq» → «N ta loyiha»).

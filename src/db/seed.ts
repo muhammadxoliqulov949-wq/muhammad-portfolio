@@ -1,261 +1,350 @@
 import { db } from "./index";
 import * as schema from "./schema";
 import bcrypt from "bcryptjs";
+import { sql } from "drizzle-orm";
 import type { AnySQLiteTable } from "drizzle-orm/sqlite-core";
 
 /**
- * Boshlang'ich ma'lumotlar.
+ * Boshlang'ich kontent — MUHAMMAD XOLIQULOVNING HAQIQIY ma'lumotlari.
  *
- *  - Admin hisobini env'dan oladi (ADMIN_EMAIL / ADMIN_PASSWORD).
- *  - Kontent namunaviy, lekin case-study formatida: har loyihada rol, yil,
- *    metrik natija va muammo→yechim→natija matni bor.
- *  - `--force` bilan ishga tushirilsa, kontent qatorlari qayta yoziladi
- *    (admin hisobi va xabarlar saqlanadi).
+ * Qoida (egasi talabi bilan): bu faylda faqat berilgan faktlar turadi.
+ * Raqam, mijoz nomi, foiz, "yillar tajribasi" kabi hech narsa o'ylab
+ * topilmagan; berilmagan maydon bo'sh qoldirilgan (UI bo'shni ko'rsatmaydi).
+ *
+ *  - Admin hisobi env'dan (ADMIN_EMAIL / ADMIN_PASSWORD).
+ *  - `--force` bilan kontent qatorlari qayta yoziladi (admin va xabarlar qoladi).
  */
 
 const FORCE = process.argv.includes("--force");
 
+/* ────────────────────────── Profil ────────────────────────── */
+
 const profileRow = {
-  fullName: "Muhammad",
-  title: "Full-stack dasturchi",
-  role2: "Next.js va TypeScript bilan ishlayman",
-  role3: "Telegram botlar va admin panellar quraman",
-  badge: "2026 uchun 2 ta joy bo'sh",
-  bio: "Toshkentda yashovchi mustaqil dasturchiman. Zamonaviy veb-ilovalar, ichki admin panellar va Telegram botlar yarataman — dizaynni ham, kodni ham birga olib boraman.",
+  fullName: "Muhammad Xoliqulov",
+  title: "Student & AI Developer",
+  role2: "AI-assisted full-stack development",
+  role3: "Vibe coding — gʻoyadan deploygacha",
+  badge: "Toshkent · Oʻzbekiston",
+  bio: "AI'ni tayyor javob beruvchi deb emas, ish sherigi deb ishlataman: gʻoyani tez yigʻaman, chiqqan kodni oʻqib chiqaman, buzaman, tuzataman va ishlaydigan mahsulotga yetkazaman.",
   avatarInitials: "MX",
   photoUrl: "",
-  email: "salom@muhammad.uz",
-  telegram: "@muhammad_dev",
+  email: "muhammadxoliqulov949@gmail.com",
+  phone: "+998 99 201 11 77",
+  telegram: "@mukham_06",
   github: "https://github.com/muhammadxoliqulov949-wq",
   linkedin: "",
-  instagram: "",
-  location: "Toshkent, O'zbekiston",
+  instagram: "https://www.instagram.com/_mukhammad06/",
+  location: "Toshkent, Oʻzbekiston",
   resumeUrl: "",
-  responseTime: "Odatda 12 soat ichida javob beraman",
-  sinceYear: "2022",
-  statProjects: "18 ta",
-  statExperience: "3 yil",
-  statAvailability: "2 ta joy",
+  responseTime: "",
+  sinceYear: "",
+  englishLevel: "B2",
+  story:
+    "Men International OXUS Universitetida Iqtisodiyot va biznes boshqaruvi yoʻnalishida oʻqiyman (2026–2030) va birinchi kursdayoq haqiqiy mijozlar uchun ishlab boʻlganman. Kod yozishni oʻzim oʻrgandim — kitobdan emas, ishlaydigan narsa qurish orqali.\n\n" +
+    "Meni \"har bir qatorni qoʻlda yozadigan dasturchi\" deb tasvirlash toʻgʻri emas: men AI yordamida quraman, lekin AI yozgan kodni tekshirmasdan qabul qilmayman. Marshrut sodda: gʻoya → prototip → kodni oʻqib chiqish → buzilgan joyini topish → sinash → eʼlon qilish.\n\n" +
+    "Marketing agentligida 10 dan ortiq mijoz bilan, futbol mashgʻulotlarida 30 dan ortiq bola bilan ishlash mendan ikki narsani qoldirdi: odam bilan aniq kelishish va soʻz berilgan sanani buzmaslik.",
+  strengths:
+    "Tez oʻrganish, Mustaqil oʻqish, Oʻzim boshlab oʻzim tugatish, Ijodiy yechim, Tahliliy fikrlash, Qatʻiyat, Masʻuliyatni olish, Muddatga rioya qilish",
+  interests: "Futbol, Taʼlim, Biznes, Texnologiya, Sunʼiy intellekt, Shaxsiy oʻsish, Murakkab masalalar",
+  principleWork: "Boshlagan narsani tugatgim keladi — yarim ishlangan loyiha natija hisoblanmaydi.",
+  principleDelivery: "Aytgan ishni oʻz vaqtida qilish. Kechikish — imkoniyatni yoʻqotish.",
+  workflow:
+    "Talabni qogʻozga tushiraman | AI bilan tez prototip yigʻaman | Har bir qatorni oʻqib chiqaman | Buzilgan joyini topib tuzataman | Brauzer va telefonda sinayman | Vercelʼga chiqaraman",
+  goals:
+    "20+ professional loyiha qurish | Professional brend va blog yuritish | 5+ yirik kompaniya bilan ishlash | Oʻz onlayn kursimni yaratish | Kuchli professional muhit | AI/web dasturchi sifatida chuqurlashish",
+  statProjects: "5 ta sayt",
+  statExperience: "≈1,5 yil",
+  statAvailability: "10+ mijoz",
 };
 
+/* ────────────────────────── Loyihalar ────────────────────────── */
+
+const projectRows = [
+  {
+    title: "IELTS.mock",
+    description:
+      "IELTSʼga tayyorgarlik uchun interaktiv platforma: tinglash, oʻqish, yozish va gapirish amaliyoti, natija tahlili, xatoni qayta koʻrish, lugʻat ishlashi va AI yordamida javobni yaxshilash.",
+    link: "https://ielts-mock-v2.vercel.app/",
+    github: "https://github.com/muhammadxoliqulov949-wq/IELTS-mock-v2",
+    image: "",
+    tech: "HTML, CSS, JavaScript, Node.js, REST API, Gemini AI API, PWA, Service Worker",
+    year: "",
+    role: "Loyihani AI yordamida mustaqil quraman",
+    impact: "Amaliyot, xatoni koʻrib chiqish va AI izohi — bitta joyda.",
+    problem:
+      "IELTSʼga tayyorlanishda ikki narsa kam: koʻp mashq qiladigan joy va javobingni tekshirib beradigan odam. Kurs hammaga mos kelavermaydi, mustaqil yozib tashlagan javobda esa xato qayerda — koʻrinmaydi.",
+    approach:
+      "Har bir boʻlim uchun alohida amaliyot moduli bilan boshladim: savol → javob → natija tahlili. Keyin xatolarni qayta koʻrish va lugʻat qatlamini qoʻshdim. Yozma javobni yaxshilash uchun Gemini AI APIʼni uldim. AI koʻp kod yozdi — men uni oʻqib chiqdim, tuzatdim, boʻlinishlarni qayta yozdim va har bosqichni brauzerda sinadim. Service Worker bilan platforma oflayn ham ochiladi (PWA).",
+    outcome:
+      "Platforma jonli holda ishlaydi va faol rivojlantirilmoqda. Foydalanuvchilar soni yoki ball statistikasi hozircha eʼlon qilinmagan — bu oʻsayotgan mahsulot, tayyor raqam emas.",
+    gallery: "",
+    status: "Ishlab chiqilmoqda — faol davom etmoqda",
+    features:
+      "Listening amaliyoti | Reading amaliyoti | Writing amaliyoti | Speaking amaliyoti | Natija tahlili | Xatoni qayta koʻrish | Lugʻat ishlashi | AI bilan javobni yaxshilash",
+    featured: true,
+    order: 0,
+    published: true,
+  },
+];
+
+/* ────────────────────────── Koʻnikmalar ────────────────────────── */
+
 const skillRows = [
-  { name: "React", category: "Frontend", years: 3, context: "11 ta loyihada" },
-  { name: "Next.js (App Router)", category: "Frontend", years: 3, context: "Bu sayt shunda" },
-  { name: "TypeScript", category: "Frontend", years: 2, context: "Barcha yangi loyihalarda" },
-  { name: "Tailwind CSS", category: "Frontend", years: 3, context: "Dizayn tizimlari bilan" },
-  { name: "Node.js", category: "Backend", years: 3, context: "API va botlar" },
-  { name: "Drizzle ORM", category: "Backend", years: 1, context: "SQLite / Turso" },
-  { name: "REST API dizayni", category: "Backend", years: 2, context: "Zod bilan validatsiya" },
-  { name: "Auth (JWT + httpOnly)", category: "Backend", years: 2, context: "Admin panellar" },
-  { name: "Git va GitHub Actions", category: "Asboblar", years: 3, context: "Deploy avtomatsiyasi" },
-  { name: "Figma", category: "Asboblar", years: 2, context: "Makетdan kodgacha" },
-  { name: "Vercel", category: "Asboblar", years: 2, context: "Edge funksiyalar" },
-  { name: "Lighthouse / a11y audit", category: "Asboblar", years: 1, context: "90+ ball maqsadi" },
-].map((s, i) => ({ ...s, level: 0, order: i }));
+  // AI & Development
+  { name: "AI-assisted development", category: "AI & Development", context: "Gʻoyadan deploygacha bitta oqim", order: 0 },
+  { name: "Vibe coding", category: "AI & Development", context: "Asosiy ish uslubim", order: 1 },
+  { name: "AI API integration", category: "AI & Development", context: "IELTS.mockʼda Gemini API", order: 2 },
+  { name: "Full-stack development", category: "AI & Development", context: "Interfeys + Node.js qatlami", order: 3 },
+  { name: "Debugging", category: "AI & Development", context: "AI chiqargan kodni oʻqib, buzilganini topish", order: 4 },
+  { name: "Testing", category: "AI & Development", context: "Har bosqichni qoʻlda va brauzerda sinash", order: 5 },
+  { name: "Deployment", category: "AI & Development", context: "Vercel, domen va muhit oʻzgaruvchilari", order: 6 },
+  { name: "AI-assisted UI/UX design", category: "AI & Development", context: "Maketdan kodgacha — AI bilan", order: 7 },
+
+  // Web
+  { name: "HTML", category: "Web", context: "Tuzilma va semantika", order: 10 },
+  { name: "CSS", category: "Web", context: "Uslub, animatsiya, grid", order: 11 },
+  { name: "JavaScript", category: "Web", context: "Interaktivlik va API bilan ishlash", order: 12 },
+  { name: "React", category: "Web", context: "Komponentli interfeys", order: 13 },
+  { name: "Node.js", category: "Web", context: "Server, API va skriptlar", order: 14 },
+  { name: "REST API", category: "Web", context: "Frontend ↔ backend kelishuvi", order: 15 },
+  { name: "PWA", category: "Web", context: "Sayt ilova kabi ishlaydi", order: 16 },
+  { name: "Service Worker", category: "Web", context: "Kesh va oflayn holat", order: 17 },
+  { name: "Tailwind CSS", category: "Web", context: "Token asosida tez yigʻish", order: 18 },
+  { name: "Responsive design", category: "Web", context: "Mobil → desktop, bitta kod", order: 19 },
+  { name: "Authentication", category: "Web", context: "Sessiya va himoyalangan sahifalar", order: 20 },
+
+  // Tools
+  { name: "Git", category: "Tools", context: "Versiya nazorati", order: 30 },
+  { name: "GitHub", category: "Tools", context: "Kod ombori, PR, Actions", order: 31 },
+  { name: "Vercel", category: "Tools", context: "Deploy va domen", order: 32 },
+  { name: "Figma", category: "Tools", context: "Maket, wireframe, prototip", order: 33 },
+  { name: "Canva", category: "Tools", context: "Tez vizual material", order: 34 },
+
+  // AI tools
+  { name: "ChatGPT / GPT", category: "AI tools", context: "Kod va matn yozish, tushuntirish", order: 40 },
+  { name: "Claude", category: "AI tools", context: "Uzun fayllar bilan ishlash, review", order: 41 },
+  { name: "Gemini", category: "AI tools", context: "IELTS.mockʼda AI API sifatida", order: 42 },
+  { name: "Perplexity", category: "AI tools", context: "Manba topish va tekshirish", order: 43 },
+  { name: "Higgsfield", category: "AI tools", context: "Vizual va video materiallar", order: 44 },
+  { name: "Arena AI", category: "AI tools", context: "Bir nechta modelni qiyoslash", order: 45 },
+];
+
+/* ────────────────────────── Xizmatlar ────────────────────────── */
 
 const serviceRows = [
   {
-    title: "Landing sahifa",
-    description: "Biznes yoki shaxsiy xizmat uchun tezkor, konversiyaga mo'ljallangan bir sahifa.",
-    icon: "rocket",
-    priceFrom: "$350 dan",
-    delivery: "5–7 ish kun",
-    features: "2 variant makет | Animatsiyalar va mikro-interaktsiya | Formalar + DB | SEO va OG kartochka | Lighthouse 95+ tekshiruvi",
+    title: "AI & Web Development",
+    description:
+      "Asosiy xizmat: gʻoyani ishlaydigan veb-ilovaga aylantiraman. Interfeys, backend, AI integratsiyasi va deploy — bitta odamdan, bosqichma-bosqich.",
+    icon: "bot",
+    features:
+      "Tez prototip | AI API integratsiyasi | Backend va REST API | Test va debug | Vercelʼga chiqarish | Kodni tushuntirib berish",
     order: 0,
   },
   {
-    title: "Portfolio yoki korporativ sayt",
-    description: "Kontent admin panelda boshqariladigan, ko'p bo'limli sayt.",
-    icon: "layers",
-    priceFrom: "$700 dan",
-    delivery: "2–3 hafta",
-    features: "Dizayn tizimi (tokenlar) | Admin panel (CRUD) | Blog yoki case study | Ko'p tillilik imkoniyati | 3 oy texnik yordam",
+    title: "AI veb-ilovalar",
+    description: "AI modelini ishlatadigan ilovalar: savol-javob, matnni yaxshilash, tahlil va xulosalar.",
+    icon: "sparkle",
+    features: "Chat interfeysi | Prompt matni | Javobni tekshirish oqimi | Xarajatni nazorat qilish",
     order: 1,
   },
   {
-    title: "Admin panel va API",
-    description: "Ichki jarayonlar uchun dashboard: jadvallar, filtr, rol va audit izi bilan.",
-    icon: "gauge",
-    priceFrom: "$1 200 dan",
-    delivery: "3–5 hafta",
-    features: "Auth va sessiya xavfsizligi | Zod validatsiyali REST API | Jadval: qidiruv, saralash, sahifalash | CSV eksport | Test va migratsiyalar",
+    title: "Biznes sayti va landing",
+    description: "Kompaniya yoki xizmat uchun sayt: nima taklif qilishingiz aniq koʻrinadi, ariza/qoʻngʻiroq qabul qilinadi.",
+    icon: "layers",
+    features: "Landing yoki koʻp sahifa | Kontent admin panelda | Tez yuklanish | Mobil birinchi",
     order: 2,
   },
   {
-    title: "Telegram bot",
-    description: "Buyurtma, to'lov yoki qo'llab-quvvatlashni botga chiqarish.",
-    icon: "bot",
-    priceFrom: "$400 dan",
-    delivery: "1–2 hafta",
-    features: "Buyurtma oqimi | Admin panel bilan bog'lash | To'lov integratsiyasi | Xabar navbatlari | Log va monitoring",
+    title: "Portfolio va shaxsiy brend sayti",
+    description: "Oʻz ishni koʻrsatib, mijozga olib keladigan shaxsiy sayt — loyihalar, xizmat va aloqa bir joyda.",
+    icon: "pen",
+    features: "Case study sahifalari | Admin panel | SEO asoslari | Kontakt formasi",
+    order: 3,
+  },
+  {
+    title: "AI API integratsiyasi",
+    description: "Mavjud tizimga AI qoʻshish: chaqiruv server tomonida, javoblar saqlanadi, xatolar qayta ishlanadi.",
+    icon: "zap",
+    features: "Server tomonida chaqiruv | Kalitni yashirish | Limit va kesh | Xato holatlari",
+    order: 4,
+  },
+  {
+    title: "Full-stack veb-ilova",
+    description: "Forma, roʻyxat, autentifikatsiya va admin panelli ilova — maʼlumot bazasi bilan birga.",
+    icon: "code",
+    features: "Auth (JWT + cookie) | CRUD va admin panel | DB sxemasi | REST API",
+    order: 5,
+  },
+  {
+    title: "PWA va oflayn rejim",
+    description: "Saytni telefonda ilova kabi ishlashiga yetkazish: kesh, oflayn ochilish, eʼlonlashga tayyor qatlam.",
+    icon: "gauge",
+    features: "Service Worker | Manifest | Kesh strategiyasi | Offline holat",
+    order: 6,
+  },
+  {
+    title: "Saytni tuzatish va yaxshilash",
+    description: "Buzilgan, ogʻir yoki eski saytni tekshirib, ishlashini va tezligini tiklash.",
+    icon: "target",
+    features: "Xatoni topish | Performans | Mobil moslashuv | Kodni tozalash",
+    order: 7,
+  },
+  {
+    title: "UI/UX implementatsiyasi",
+    description: "Figma maketini toʻliq javobgar interfeysga aylantirish — holatlar, fokus va mobil bilan birga.",
+    icon: "rocket",
+    features: "Dizayn tokenlari | Dark/light rejim | A11y tekshiruvi | Mikro-harakatlar",
+    order: 8,
+  },
+];
+
+/* ────────────────────────── Tajriba ────────────────────────── */
+
+const experienceRows = [
+  {
+    role: "Web Developer",
+    company: "Frilans — mijoz buyurtmalari",
+    period: "",
+    description:
+      "Buyurtma asosida kichik biznes saytlari va landing sahifalar: dizayn, kod, test va eʼlon qilish — hammasi oʻzim.",
+    highlights: "5 ta sayt topshirilgan | HTML, CSS, JS va Node.js | Vercelʼda eʼlon qilingan | AI yordamida tez prototip",
+    current: false,
+    order: 0,
+  },
+  {
+    role: "Marketer",
+    company: "Marketing agentligi",
+    period: "",
+    description: "Mijozlar uchun kontent va targʻibot ishlarida qatnashdim.",
+    highlights: "10+ mijoz bilan ishlash | Mijoz talabini tushunish | Kontent va reklama matnlari",
+    current: false,
+    order: 1,
+  },
+  {
+    role: "Football coach",
+    company: "Futbol mashgʻulotlari",
+    period: "",
+    description: "Bolalarga futbol oʻrgatdim — mashgʻulot rejasi va guruh bilan ishlash.",
+    highlights: "30+ bola | Muntazam reja | Guruhni boshqarish",
+    current: false,
+    order: 2,
+  },
+  {
+    role: "English tutor",
+    company: "Ingliz tili darslari",
+    period: "",
+    description: "Ikki oʻquvchiga ingliz tilidan dars berdim.",
+    highlights: "2 oʻquvchi | Grammatika va gaplashish amaliyoti",
+    current: false,
     order: 3,
   },
 ];
 
-const experienceRows = [
+/* ────────────────────────── Taʼlim ────────────────────────── */
+
+const educationRows = [
   {
-    role: "Full-stack dasturchi",
-    company: "Mustaqil (frilans)",
-    period: "2023 — hozir",
-    description:
-      "Kichik biznes va startaplar bilan ishlayman: g'oyadan to production'gacha — dizayn, frontend, backend va deploy.",
-    highlights:
-      "18 ta yetkazilgan loyiha | O'rtacha qaytish vaqti 3 hafta | 6 mijoz takroriy buyurtma berdi",
+    institution: "International OXUS University",
+    credential: "Bakalavr",
+    field: "Iqtisodiyot va biznes boshqaruvi",
+    period: "2026–2030",
+    status: "1-kurs talabasi",
+    detail:
+      "Biznes, iqtisodiyot va boshqaruv asoslari. Texnologiyani biznes nuqtai nazaridan koʻrishni shu yoʻnalish oʻrgatdi: mahsulot nafaqat ishlashi, balki sotilishi kerak.",
     current: true,
     order: 0,
   },
   {
-    role: "Frontend dasturchi",
-    company: "Web studiya (shartnoma asosida)",
-    period: "2022 — 2023",
-    description: "Mijoz loyihalarini Figma maketidan React komponentlariga aylantirish, adaptiv va a11y nazorati.",
-    highlights: "24 ta makетdan ishga tushirilgan sahifa | Komponent kutubxonasi joriy etildi",
+    institution: "Umumtaʼlim maktabi",
+    credential: "Oʻrta maʼlumot",
+    field: "",
+    period: "",
+    status: "Tugatilgan",
+    detail: "Maktabda matematika va fizika boʻyicha shahar bosqichi olimpiadalarida qatnashganman.",
     current: false,
     order: 1,
-  },
-  {
-    role: "O'z o'qishi va shaxsiy loyihalar",
-    company: "O'z-o'zidan + amaliyot",
-    period: "2021 — 2022",
-    description: "JavaScript, React va asosiy backend tushunchalari; ilk botlar va ochiq kodga hissa.",
-    highlights: "Birinchi Telegram bot (500+ foydalanuvchi) | 40+ ochiq commit",
-    current: false,
-    order: 2,
   },
 ];
 
-const projectRows = [
+/* ────────────────────────── Yutuqlar ────────────────────────── */
+
+const achievementRows = [
   {
-    title: "Chorsu Market — onlayn buyurtma platformasi",
-    description:
-      "Bozor sotuvchilari uchun buyurtma qabul qilish va statusni kuzatish tizimi: mijoz bot orqali buyurtma beradi, sotuvchi admin panelda boshqaradi.",
-    tech: "Next.js, TypeScript, Drizzle, Turso, Telegram Bot API",
-    year: "2025",
-    role: "Full-stack (dizayn + kod)",
-    impact: "Buyurtma rasmiylashtiruvi 6 daqiqadan 2 daqiqaga qisqardi",
-    problem:
-      "Buyurtmalar telefon va messenjerda qo'lda yozib borilardi: xatolar, yo'qolgan manzillar va kechikishlar kuniga 20+ holatga chiqardi.",
-    approach:
-      "Buyurtma holati (yangi → yig'ilmoqda → yetkazildi) uchun yagona holat-mashinasi, Telegram bot orqali qisqa forma, sotuvchilar uchun mobil moslashuvchi admin panel va navbatli bildirimlar.",
-    outcome:
-      "Uch oyda 1 400+ buyurtma raqamli oqimdan o'tdi, yo'qolgan buyurtma holati 0 ga tushdi, sotuvchilar o'rtacha 1.5 soat/hafta tejadi.",
-    featured: true,
+    title: "CEFR B1 — ingliz tili",
+    issuer: "Til sertifikati",
+    kind: "cert",
+    year: "",
+    detail: "Sertifikat bilan tasdiqlangan daraja. Amaliy ishlatish darajam: B2.",
+    url: "",
     order: 0,
-    published: true,
-    link: "",
-    github: "",
-    image: "",
-    gallery: "",
   },
   {
-    title: "Ideal Marmar — ishlab chiqarish admin paneli",
-    description:
-      "Marmar plitalari buyurtmalari, kesish rejasi va yetkazib berish muddatlarini boshqaradigan ichki dashboard.",
-    tech: "Next.js, Zod, SQLite, Recharts",
-    year: "2025",
-    role: "Backend + UI",
-    impact: "Reja tuzish 2 soatdan 15 daqiqaga tushdi",
-    problem: "Buyurtmalar Excel'da yuritilardi, bir xil plita ikki marta band qilingan holatlar bo'lgan.",
-    approach: "Bandliqni tekshiruvno yagona jadval, konfliktogohlantirish, CSV import va audit izi (kim, qachon o'zgartirdi).",
-    outcome: "Ikki marta band qilish holatlari yo'qoldi; ombor hisoboti avtomatik yuboriladi.",
-    featured: false,
+    title: "AI Developer va unga qoʻshni Google sertifikatlari",
+    issuer: "Google",
+    kind: "cert",
+    year: "",
+    detail: "AI yordamida dasturlash boʻyicha Google tomonidan berilgan sertifikatlar.",
+    url: "",
     order: 1,
-    published: true,
-    link: "",
-    github: "",
-    image: "",
-    gallery: "",
   },
   {
-    title: "Uy-joy e'lonlari boti",
-    description:
-      "Kirayga uy e'lonlarini Telegram kanalga chiqarish va moderatsiya qilish boti; moderatori admin panel orqali tasdiqlaydi.",
-    tech: "Node.js, grammY, SQLite, Vercel cron",
-    year: "2024",
-    role: "Backend",
-    impact: "Kuniga 90+ e'lon, moderatsiya o'rtacha 4 daqiqa",
-    problem: "Kanal administratorlari e'lonlarni qo'lda ko'chirar, spam aralashib ketardi.",
-    approach: "Forma orqali keladigan e'lonlarga spam-hujum filtr va navbat; takroriy e'lonlarni matn o'xshashligi bo'yicha belgilash.",
-    outcome: "Kanalda spam 80% ga kamaydi, moderatorlar soni 4 tadan 1 taga tushdi.",
-    featured: false,
+    title: "Matematika olimpiadasi — shahar bosqichi, 3-oʻrin",
+    issuer: "Maktab matematika olimpiadasi",
+    kind: "academic",
+    year: "",
+    detail: "Maktab olimpiadasining shahar bosqichi.",
+    url: "",
     order: 2,
-    published: true,
-    link: "",
-    github: "",
-    image: "",
-    gallery: "",
   },
   {
-    title: "Bu sayt — portfolio + CMS",
-    description:
-      "O'zingiz to'liq boshqaradigan portfolio: kontent bazada, qolgan qismi statik cacheda, dark/light tema va to'liq a11y bilan.",
-    tech: "Next.js 16, Tailwind v4, Drizzle + Turso, jose, Zod",
-    year: "2026",
-    role: "Dizayn tizimi + kod",
-    impact: "Lighthouse a11y 100 · LCP < 1.8s · 1 ta murakkab deploy",
-    problem:
-      "Ko'p portfolio'larda chiroyli dizayn bilan kontent boshqaruvi ajralib qoladi: sayt egasi matnini o'zgartira olmaydi yoki admin panel mobil'da ishlamaydi.",
-    approach:
-      "Dizayn tokenlari (dark-first + paper), CSS scroll-driven animatsiya (JS gidratsiyasiz), revalidate bilan cache va admin'da revalidatePath; har bir CRUD maydoni Zod sxemasida.",
-    outcome: "Kontent 5 daqiqada admin paneldan yangilanadi, sayt cache'da qoladi, tema va til sozlamalari foydalanuvchi tanlovida.",
-    featured: false,
+    title: "Fizika olimpiadasi — shahar bosqichi, 6-oʻrin",
+    issuer: "Maktab fizika olimpiadasi",
+    kind: "academic",
+    year: "",
+    detail: "Maktab olimpiadasining shahar bosqichi.",
+    url: "",
     order: 3,
-    published: true,
-    link: "",
-    github: "https://github.com/muhammadxoliqulov949-wq/portfolio-app-production",
-    image: "",
-    gallery: "",
+  },
+  {
+    title: "DXX 2026 yirik futbol musobaqasi — 3-oʻrin",
+    issuer: "DXX 2026",
+    kind: "sport",
+    year: "2026",
+    detail: "",
+    url: "",
+    order: 4,
   },
 ];
 
-const testimonialRows = [
-  {
-    name: "Aziz Rustamov",
-    role: "Chorsu Market, asoschisi",
-    text: "Buyurtma oqimini bir oyda to'liq raqamlik qildik. Eng qadoniqli — har hafta nima o'zgarayotgini aniq ko'rib turdik, savol qolmadi.",
-    avatarInitials: "AR",
-    rating: 5,
-    sourceUrl: "",
-    order: 0,
-  },
-  {
-    name: "Dilnoza Karimova",
-    role: "Ideal Marmar, ombor menejeri",
-    text: "Excel bilan kurashdan keyin dashboard hayotimizni o'zgartirdi. Mobil'dan ham ishlatamiz — omborda kompyuter yo'q.",
-    avatarInitials: "DK",
-    rating: 5,
-    sourceUrl: "",
-    order: 1,
-  },
-  {
-    name: "Sardor Yo'ldoshev",
-    role: "Kanal administratori",
-    text: "Bot ishga tushgach spam deyarli qolmadi. Muddat bo'yicha bitta kechikish bo'lgan edi, ogohlantirib qo'ydi.",
-    avatarInitials: "SY",
-    rating: 4,
-    sourceUrl: "",
-    order: 2,
-  },
-];
+/* Mijoz fikrlari ATAYLAB boʻsh: haqiqiy fikr berilmagan, soxta iqtibos yozmaymiz. */
+const testimonialRows: Record<string, never>[] = [];
+
+/* ────────────────────────── Mexanika ────────────────────────── */
 
 /**
- * Jadvalni namunaviy kontent bilan to'ldiradi.
- * Mavjud yozuvlar saqlanadi, `--force` berilsa — qayta yoziladi.
+ * `--force` bilan qatorlar o'chirilib qayta yozilganda AUTOINCREMENT ham
+ * nolga tushiriladi — aks holda har bir seed'da id'lar o'sib, `/projects/8`
+ * kabi barqaror bo'lmagan URL'lar paydo bo'ladi (Turso'da ruxsat bo'lmasa
+ * jimgina o'tkazib yuboriladi).
  */
-async function fillTable(
-  label: string,
-  // Drizzle generigini qo'lda yozish shart emas: bu yerda barcha jadvallar
-  // bir xil ishlaydi, qiymatlar yuqoridagi massivlarda tekshirilgan.
-  table: AnySQLiteTable,
-  rows: Record<string, unknown>[]
-) {
+async function resetSequence(table: string) {
+  try {
+    await db.run(sql.raw(`DELETE FROM sqlite_sequence WHERE name = '${table}'`));
+  } catch {
+    /* ba'zi muhitlarda sqlite_sequence'ga yozib bo'lmaydi */
+  }
+}
+
+async function fillTable(label: string, table: AnySQLiteTable, rows: Record<string, unknown>[], seq?: string) {
   const existing = await db.select().from(table).all();
   if (existing.length > 0 && !FORCE) {
-    console.log(`ℹ️  ${label}: ${existing.length} ta yozuv bor, o'tkazib yuborildi (--force bilan qayta yoziladi)`);
+    console.log(`⏭️  ${label}: ${existing.length} ta yozuv mavjud, oʻtkazib yuborildi`);
     return;
   }
   if (existing.length > 0 && FORCE) {
     await db.delete(table).run();
+    if (seq) await resetSequence(seq);
   }
   if (rows.length > 0) {
     await db.insert(table).values(rows as never).run();
@@ -274,10 +363,10 @@ async function seed() {
     const passwordHash = await bcrypt.hash(adminPassword, 10);
     await db
       .insert(schema.admins)
-      .values({ email: adminEmail, passwordHash, name: "Admin", createdAt: new Date() })
+      .values({ email: adminEmail, passwordHash, name: "Muhammad", createdAt: new Date() })
       .run();
     console.log(`✅ Admin yaratildi: ${adminEmail} / ${adminPassword}`);
-    console.log("⚠️  Birinchi kirishdan so'ng ADMIN_PASSWORD ni o'zgartiring.");
+    console.log("⚠️  Birinchi kirishdan soʻng ADMIN_PASSWORD ni oʻzgartiring.");
   } else {
     console.log(`ℹ️  Admin allaqachon mavjud (${admins[0].email})`);
   }
@@ -288,17 +377,19 @@ async function seed() {
     await db.insert(schema.profile).values({ ...profileRow, updatedAt: new Date() }).run();
     console.log("✅ Profil yaratildi");
   } else if (FORCE) {
-    await db.update(schema.profile).set(profileRow).run();
+    await db.update(schema.profile).set({ ...profileRow, updatedAt: new Date() }).run();
     console.log("♻️  Profil yangilandi");
   } else {
-    console.log("⏭️  Profil mavjud, o'tkazib yuborildi");
+    console.log("⏭️  Profil mavjud, oʻtkazib yuborildi");
   }
 
-  await fillTable("Ko'nikmalar", schema.skills, skillRows);
-  await fillTable("Xizmatlar", schema.services, serviceRows);
-  await fillTable("Tajriba", schema.experience, experienceRows);
-  await fillTable("Loyihalar", schema.projects, projectRows.map((p) => ({ ...p, createdAt: new Date() })));
-  await fillTable("Mijozlar fikri", schema.testimonials, testimonialRows);
+  await fillTable("Loyihalar", schema.projects, projectRows.map((r) => ({ ...r, createdAt: new Date() })), "projects");
+  await fillTable("Koʻnikmalar", schema.skills, skillRows, "skills");
+  await fillTable("Xizmatlar", schema.services, serviceRows, "services");
+  await fillTable("Tajriba", schema.experience, experienceRows, "experience");
+  await fillTable("Taʼlim", schema.education, educationRows, "education");
+  await fillTable("Yutuqlar", schema.achievements, achievementRows, "achievements");
+  await fillTable("Mijozlar fikri", schema.testimonials, testimonialRows, "testimonials");
 
   console.log("🎉 Tayyor.");
 }

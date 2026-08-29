@@ -1,50 +1,60 @@
 import Hero from "@/components/Hero";
-import SectionHead, { Section } from "@/components/ui/Section";
-import Services from "@/components/Services";
+import About from "@/components/About";
+import Skills from "@/components/Skills";
 import Experience from "@/components/Experience";
 import Projects from "@/components/Projects";
-import Toolbox from "@/components/Toolbox";
-import Testimonials from "@/components/Testimonials";
+import SectionHead, { Section } from "@/components/ui/Section";
+import Services from "@/components/Services";
+import Education from "@/components/Education";
+import Achievements from "@/components/Achievements";
+import Approach from "@/components/Approach";
 import Contact from "@/components/Contact";
 import { getSiteData } from "@/lib/content";
 
 /**
- * Bosh sahifa.
+ * Bosh sahifa — 10 bo'limli struktura (Identitet → Ishonch → Dalil → Harakat).
  *
- * Audit P0-6: avval `force-dynamic` bilan har bir so'rov 6 ta DB so'rovini
- * ketma-ket bajarardi. Endi: ma'lumot parallell + sahifa ISR cache'da
- * (1 soat). Admin'dagi har bir mutatsiya `revalidatePath` bilan darhol
- * yangilaydi — ya'ni "kechikkan kontent" muammosi yo'q.
+ * Kontent siyosati: bu sahifada faqat DB'dagi haqiqiy ma'lumot chiqadi.
+ * Bo'lim ma'lumoti bo'sh bo'lsa (masalan hozircha mijoz fikri yo'q), blok
+ * umuman render bo'lmaydi — "te"lashtirilgan placeholder qo'ymaymiz.
  */
 export const revalidate = 3600;
 
 export default async function HomePage() {
-  const { profile, projects, services, experience, skills, testimonials } = await getSiteData();
+  const { profile, projects, services, experience, skills, education, achievements } = await getSiteData();
+  const study = education.find((e) => e.current);
 
   return (
     <>
-      <Hero profile={profile} />
+      <Hero
+        profile={profile}
+        study={study ? `${study.status || "Talaba"} · ${study.institution}` : undefined}
+      />
+
+      <About profile={profile} />
+      <Skills skills={skills} />
+      <Experience items={experience} profile={profile} />
+      <Projects projects={projects} />
 
       {services.length > 0 ? (
         <Section id="services" sunken>
           <SectionHead
-            index="02"
+            index="05"
             eyebrow="Xizmatlar"
             title={
               <>
-                G&apos;oyadan <span className="display-em">tayyor mahsulotgacha</span>
+                Bitta odam, lekin <span className="display-em">toʻliq sikl</span>
               </>
             }
-            lead="Guruh yoki frilans — ish hajmini bosqichlarga bo'lib, aniq narx va sana bilan olaman."
+            lead="Agentlik emasman — shuning uchun narx shabloni yoʻq: hajm, muddat va qiymat har loyihada suhbatda aniqlanadi. Evaziga har bosqichda ishlaydigan versiyani koʻrasiz."
           />
           <Services services={services} />
         </Section>
       ) : null}
 
-      <Projects projects={projects} />
-      <Experience items={experience} />
-      <Toolbox skills={skills} />
-      <Testimonials items={testimonials} />
+      <Education items={education} />
+      <Achievements items={achievements} />
+      <Approach profile={profile} />
       <Contact profile={profile} />
     </>
   );

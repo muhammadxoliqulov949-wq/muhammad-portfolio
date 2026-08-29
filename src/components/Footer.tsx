@@ -7,7 +7,14 @@ type Props = {
   links: { id: string; label: string }[];
 };
 
-const ICON = { github: "github", linkedin: "linkedin", instagram: "instagram", telegram: "telegram", email: "mail" } as const;
+const ICON = {
+  github: "github",
+  linkedin: "linkedin",
+  instagram: "instagram",
+  telegram: "telegram",
+  email: "mail",
+  phone: "phone",
+} as const;
 
 export default function Footer({ profile: p, links }: Props) {
   const socials = socialsOf(p);
@@ -37,7 +44,7 @@ export default function Footer({ profile: p, links }: Props) {
               <a
                 key={s.key}
                 href={s.href}
-                target={s.key === "email" ? undefined : "_blank"}
+                target={s.key === "email" || s.key === "phone" ? undefined : "_blank"}
                 rel="noopener noreferrer"
                 aria-label={s.label}
                 className="icon-btn"
