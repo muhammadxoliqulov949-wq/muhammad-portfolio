@@ -72,7 +72,7 @@ export default function Approach({ profile: p, experience = [] }: { profile: Pro
           <Card className="flex flex-col p-6" interactive={false}>
             <p className="label label-accent mb-1">Kelgusi 1–2 yil</p>
             <p className="mb-5 text-small text-ink-3">
-              Bu — <span className="font-medium text-ink-2">reja</span>, bajarilgan ish emas. $5,000+ ham shu yerda:
+              Bu — <span className="font-medium text-ink-2">reja</span>, bajarilgan ish emas. 5000$ ham shu yerda:
               hozirgi daromad emas.
             </p>
             <ul className="hairline-x stack -my-1">

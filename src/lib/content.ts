@@ -220,10 +220,11 @@ export const galleryOf = (value?: string | null): string[] =>
 export const techOf = (value?: string | null): string[] => toListSafe(value);
 
 function toListSafe(value?: string | null): string[] {
-  return (value ?? "")
-    .split(/[,\n|]/)
-    .map((s) => s.trim())
-    .filter(Boolean);
+  const raw = (value ?? "").trim();
+  if (!raw) return [];
+  // `|` yoki yangi qator bo'lsa — vergul raqam ichida (`$5,000`) va gap ichida qoladi.
+  const parts = /[|\n]/.test(raw) ? raw.split(/[\n|]/) : raw.split(",");
+  return parts.map((s) => s.trim()).filter(Boolean);
 }
 
 export const featuresOf = (value?: string | null): string[] => toListSafe(value);

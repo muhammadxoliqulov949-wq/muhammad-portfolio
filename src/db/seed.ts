@@ -53,7 +53,7 @@ const profileRow = {
   workflow:
     "Talabni qogʻozga tushiraman | AI bilan tez prototip yigʻaman | Har bir qatorni oʻqib chiqaman | Buzilgan joyini topib tuzataman | Brauzer va telefonda sinayman | Vercelʼga chiqaraman",
   goals:
-    "20+ professional loyiha qurish | Professional brend va blog | 5+ yirik kompaniya bilan ishlash | Oʻz onlayn kurslarim | Kuchli professional tarmoq | AI/web dasturchi sifatida chuqurlashish | Oʻrtacha oylik daromad $5,000+ (maqsad, hozirgi holat emas)",
+    "20+ professional loyiha qurish | Professional brend va blog | 5+ yirik kompaniya bilan ishlash | Oʻz onlayn kurslarim | Kuchli professional tarmoq | AI/web dasturchi sifatida chuqurlashish | Oʻrtacha oylik daromad 5000$ (maqsad — hozirgi holat emas)",
   statProjects: "5 ta sayt",
   statExperience: "≈1,5 yil",
   statAvailability: "10+ mijoz",
