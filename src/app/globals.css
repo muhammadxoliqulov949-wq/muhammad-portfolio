@@ -1305,6 +1305,41 @@ textarea.input {
   letter-spacing: -0.02em;
 }
 
+
+.hero-product {
+  position: relative;
+  border-radius: var(--radius-4);
+  border: 1px solid var(--c-line-1);
+  overflow: hidden;
+  background: var(--c-surface-1);
+  box-shadow: var(--sh-3);
+  transform: perspective(1200px) rotateY(-6deg) rotateX(2deg);
+  transform-origin: left center;
+}
+@media (max-width: 63.99rem) {
+  .hero-product {
+    transform: none;
+  }
+}
+.hero-product .device {
+  min-height: 0;
+}
+.hero-product__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  padding: 0.9rem 1rem 1rem;
+  border-top: 1px solid var(--c-line-1);
+  background: var(--c-surface-1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-product {
+    transform: none;
+  }
+}
+
 .hero-meta {
   display: flex;
   flex-wrap: wrap;

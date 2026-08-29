@@ -1,5 +1,6 @@
 import SectionHead, { Section } from "./ui/Section";
 import Icon, { type IconName } from "./ui/Icon";
+import Card from "./ui/Card";
 import { skillsByCategory, type Skill } from "@/lib/content";
 import { t, tx, type Locale } from "@/lib/i18n-core";
 
@@ -12,13 +13,10 @@ const GROUP_ICON: Record<string, IconName> = {
   Practice: "target",
 };
 
-/**
- * Ko'nikmalar — 6 ta teng karta o'rniga ixcham taxta: guruh + nom + kontekst.
- */
+/** Ko'nikmalar — guruhlangan kartalar + badge. Foiz yo'q. */
 export default function Skills({ skills, locale = "uz" }: { skills: Skill[]; locale?: Locale }) {
   if (skills.length === 0) return null;
   const groups = skillsByCategory(skills);
-  const names = skills.map((s) => s.name).filter(Boolean);
 
   return (
     <Section id="skills">
@@ -33,34 +31,28 @@ export default function Skills({ skills, locale = "uz" }: { skills: Skill[]; loc
         lead={t(locale, "skills.lead")}
       />
 
-      {names.length > 0 ? (
-        <p className="skills-strip label mb-8">
-          <span className="skills-strip__label">{t(locale, "strip.label")}</span>
-          <span className="skills-strip__list">{names.join("  ·  ")}</span>
-        </p>
-      ) : null}
-
       <div className="skills-board">
         {groups.map((g) => (
-          <section key={g.category} className="skills-board__group reveal">
-            <h3 className="label mb-3 flex items-center gap-2">
-              <Icon name={GROUP_ICON[g.category] ?? "target"} size={13} className="text-accent-text" />
-              {tx(locale, g.category)}
-              <span className="u-num ml-auto text-ink-3">{g.items.length}</span>
-            </h3>
-            <ul className="hairline-x stack">
-              {g.items.map((s) => (
-                <li key={s.id} className="flex items-baseline justify-between gap-4 py-2.5">
-                  <span className="min-w-0">
-                    <span className="block text-body font-medium">{s.name}</span>
-                    {s.context ? (
-                      <span className="mt-0.5 block text-small text-ink-3">{tx(locale, s.context)}</span>
-                    ) : null}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </section>
+          <div key={g.category} className="reveal">
+            <Card className="flex h-full flex-col p-5" interactive={false}>
+              <h3 className="label mb-4 flex items-center gap-2.5">
+                <span className="grid size-7 place-items-center rounded-2 border border-line-1 bg-surface-2 text-accent-text">
+                  <Icon name={GROUP_ICON[g.category] ?? "target"} size={14} />
+                </span>
+                {tx(locale, g.category)}
+                <span className="u-num ml-auto text-ink-3">{g.items.length}</span>
+              </h3>
+              <ul className="flex flex-wrap gap-1.5">
+                {g.items.map((s) => (
+                  <li key={s.id}>
+                    <span className="chip" title={s.context ? tx(locale, s.context) : undefined}>
+                      {s.name}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          </div>
         ))}
       </div>
 
