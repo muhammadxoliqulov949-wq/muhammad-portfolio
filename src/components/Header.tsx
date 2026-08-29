@@ -1,7 +1,8 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Icon from "./ui/Icon";
 import ThemeToggle from "./ThemeToggle";
@@ -13,7 +14,7 @@ export type NavLink = { id: string; label: string };
 type Props = {
   name: string;
   initials: string;
-  links: NavLink[];
+  links?: NavLink[] | null;
   ctaLabel?: string;
   locale?: Locale;
   portrait?: string | null;
@@ -25,10 +26,24 @@ type Props = {
  */
 const PRIMARY = new Set(["about", "work", "services", "contact"]);
 
-export default function Header({ name, initials, links, ctaLabel, locale = "uz", portrait }: Props) {
+export default function Header({
+  name,
+  initials,
+  links = [],
+  ctaLabel,
+  locale = "uz",
+  portrait,
+}: Props) {
+  const items = useMemo(
+    () =>
+      (Array.isArray(links) ? links : []).filter(
+        (l): l is NavLink => !!l && typeof l.id === "string" && l.id.length > 0,
+      ),
+    [links],
+  );
   const cta = ctaLabel ?? t(locale, "hero.cta");
   const [scrolled, setScrolled] = useState(false);
-  const [active, setActive] = useState<string>(links[0]?.id ?? "home");
+  const [active, setActive] = useState<string>(items[0]?.id ?? "home");
   const [open, setOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const router = useRouter();
@@ -54,7 +69,7 @@ export default function Header({ name, initials, links, ctaLabel, locale = "uz",
   }, []);
 
   useEffect(() => {
-    const nodes = links
+    const nodes = items
       .map((l) => document.getElementById(l.id))
       .filter((el): el is HTMLElement => !!el);
     if (nodes.length === 0) return;
@@ -70,7 +85,7 @@ export default function Header({ name, initials, links, ctaLabel, locale = "uz",
     );
     nodes.forEach((n) => io.observe(n));
     return () => io.disconnect();
-  }, [links]);
+  }, [items]);
 
   useEffect(() => {
     if (!open) return;
@@ -120,18 +135,18 @@ export default function Header({ name, initials, links, ctaLabel, locale = "uz",
     }
   };
 
-  const navLinks = links.filter((l) => l.id !== "home");
+  const navLinks = items.filter((l) => l.id !== "home");
   const primary = navLinks.filter((l) => PRIMARY.has(l.id));
   const extra = navLinks.filter((l) => !PRIMARY.has(l.id));
 
   return (
     <header className={`site-header${scrolled || open ? " is-solid" : ""}${open ? " is-open" : ""}`}>
       <div className="site-header__bar">
-        <a
+        <Link
           href="/#home"
           onClick={(e) => {
             e.preventDefault();
-            go(links[0]?.id ?? "home");
+            go(items[0]?.id ?? "home");
           }}
           className="site-header__brand"
           aria-current={active === "home" ? "page" : undefined}
@@ -149,10 +164,14 @@ export default function Header({ name, initials, links, ctaLabel, locale = "uz",
               />
             </span>
           ) : (
-            <span className="site-header__mono">{initials || name.slice(0, 2).toUpperCase()}</span>
+            <span className="site-header__mono">
+              {initials || (typeof name === "string" && name ? name.slice(0, 2) : "MX").toUpperCase()}
+            </span>
           )}
-          <span className="display site-header__name">{name}</span>
-        </a>
+          <span className="display site-header__name">
+            {typeof name === "string" && name ? name : "Portfolio"}
+          </span>
+        </Link>
 
         <nav aria-label={t(locale, "nav.sections")} className="site-header__nav">
           {primary.map((l) => (
@@ -207,7 +226,7 @@ export default function Header({ name, initials, links, ctaLabel, locale = "uz",
         <div className="site-header__tools">
           <LangSwitch locale={locale} />
           <ThemeToggle locale={locale} />
-          <a
+          <Link
             href="/#contact"
             onClick={(e) => {
               e.preventDefault();
@@ -216,7 +235,7 @@ export default function Header({ name, initials, links, ctaLabel, locale = "uz",
             className="btn btn--accent btn--sm site-header__cta"
           >
             {cta}
-          </a>
+          </Link>
           <button
             ref={toggleRef}
             type="button"
@@ -240,7 +259,7 @@ export default function Header({ name, initials, links, ctaLabel, locale = "uz",
             className="site-header__sheet"
           >
             <nav className="site-header__sheet-nav">
-              {links.map((l) => (
+              {items.map((l) => (
                 <a
                   key={l.id}
                   href={`/#${l.id}`}
@@ -257,7 +276,7 @@ export default function Header({ name, initials, links, ctaLabel, locale = "uz",
               ))}
             </nav>
             <div className="site-header__sheet-foot">
-              <a
+              <Link
                 href="/#contact"
                 onClick={(e) => {
                   e.preventDefault();
@@ -266,7 +285,7 @@ export default function Header({ name, initials, links, ctaLabel, locale = "uz",
                 className="btn btn--accent btn--lg min-w-0 flex-1"
               >
                 {cta}
-              </a>
+              </Link>
             </div>
           </div>
         ) : null}
