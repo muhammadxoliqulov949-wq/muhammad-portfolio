@@ -16,7 +16,7 @@ import type { AnySQLiteTable } from "drizzle-orm/sqlite-core";
  *  - Portret (`photoUrl` + media) force'da saqlanadi — egasi yuklagan rasm o'chmaydi.
  */
 
-const FORCE = process.argv.includes("--force");
+const CLI_FORCE = process.argv.includes("--force");
 
 /* ────────────────────────── Profil ────────────────────────── */
 
@@ -331,13 +331,13 @@ async function resetSequence(table: string) {
   }
 }
 
-async function fillTable(label: string, table: AnySQLiteTable, rows: Record<string, unknown>[], seq?: string) {
+async function fillTable(label: string, table: AnySQLiteTable, rows: Record<string, unknown>[], seq?: string, force = CLI_FORCE) {
   const existing = await db.select().from(table).all();
-  if (existing.length > 0 && !FORCE) {
+  if (existing.length > 0 && !force) {
     console.log(`⏭️  ${label}: ${existing.length} ta yozuv mavjud, oʻtkazib yuborildi`);
     return;
   }
-  if (existing.length > 0 && FORCE) {
+  if (existing.length > 0 && force) {
     await db.delete(table).run();
     if (seq) await resetSequence(seq);
   }
@@ -347,8 +347,8 @@ async function fillTable(label: string, table: AnySQLiteTable, rows: Record<stri
   console.log(`✅ ${label}: ${rows.length} ta yozuv`);
 }
 
-async function seed() {
-  console.log(FORCE ? "🌱 Seed (--force: kontent qayta yoziladi)" : "🌱 Seed");
+export async function seed(force = CLI_FORCE) {
+  console.log(force ? "🌱 Seed (--force: kontent qayta yoziladi)" : "🌱 Seed");
 
   const adminEmail = process.env.ADMIN_EMAIL || "admin@example.com";
   const adminPassword = process.env.ADMIN_PASSWORD || "ChangeMe123!";
@@ -369,7 +369,7 @@ async function seed() {
   if (profiles.length === 0) {
     await db.insert(schema.profile).values({ ...profileRow, updatedAt: new Date() }).run();
     console.log("✅ Profil yaratildi");
-  } else if (FORCE) {
+  } else if (force) {
     const keepPhoto = profiles[0]?.photoUrl ?? "";
     await db
       .update(schema.profile)
@@ -380,20 +380,22 @@ async function seed() {
     console.log("⏭️  Profil mavjud, oʻtkazib yuborildi");
   }
 
-  await fillTable("Loyihalar", schema.projects, projectRows.map((r) => ({ ...r, createdAt: new Date() })), "projects");
-  await fillTable("Koʻnikmalar", schema.skills, skillRows, "skills");
-  await fillTable("Xizmatlar", schema.services, serviceRows, "services");
-  await fillTable("Tajriba", schema.experience, experienceRows, "experience");
-  await fillTable("Taʼlim", schema.education, educationRows, "education");
-  await fillTable("Yutuqlar", schema.achievements, achievementRows, "achievements");
-  await fillTable("Mijozlar fikri", schema.testimonials, testimonialRows, "testimonials");
+  await fillTable("Loyihalar", schema.projects, projectRows.map((r) => ({ ...r, createdAt: new Date() })), "projects", force);
+  await fillTable("Koʻnikmalar", schema.skills, skillRows, "skills", force);
+  await fillTable("Xizmatlar", schema.services, serviceRows, "services", force);
+  await fillTable("Tajriba", schema.experience, experienceRows, "experience", force);
+  await fillTable("Taʼlim", schema.education, educationRows, "education", force);
+  await fillTable("Yutuqlar", schema.achievements, achievementRows, "achievements", force);
+  await fillTable("Mijozlar fikri", schema.testimonials, testimonialRows, "testimonials", force);
 
   console.log("🎉 Tayyor.");
 }
 
-seed()
-  .then(() => process.exit(0))
-  .catch((err) => {
-    console.error("❌ Seed xatosi:", err);
-    process.exit(1);
-  });
+if (process.argv[1]?.endsWith("src/db/seed.ts") || process.argv[1]?.endsWith("seed.ts")) {
+  seed()
+    .then(() => process.exit(0))
+    .catch((err) => {
+      console.error("❌ Seed xatosi:", err);
+      process.exit(1);
+    });
+}
