@@ -1,10 +1,8 @@
 import Image from "next/image";
 import Icon from "./ui/Icon";
 import PortraitSlot from "./PortraitSlot";
-import Rotator from "./Rotator";
 import CopyButton from "./ui/CopyButton";
 import {
-  listFrom,
   phoneHref,
   portraitOf,
   rolesOf,
@@ -25,26 +23,19 @@ const SOCIAL_ICON = {
 } as const;
 
 /**
- * Hero — editorial spread, not an agency splash.
- * Identity first (student name), craft second (frame, type, one process card).
+ * Hero — identitet. Ish oqimi Approach'da; KPI lenta yo'q.
+ * Bitta asosiy CTA, portret ustida karta yo'q.
  */
 type Props = { profile: Profile; study?: string; locale?: Locale };
 
 export default function Hero({ profile: p, study, locale = "uz" }: Props) {
   const roles = txEach(locale, rolesOf(p));
   const socials = socialsOf(p, locale);
-  const steps = txEach(locale, listFrom(p.workflow));
   const resume = safeHref(p.resumeUrl);
   const portrait = portraitOf(p);
   const names = (p.fullName || "Muhammad").trim().split(/\s+/).filter(Boolean);
   const firstName = names[0] || "Muhammad";
   const lastName = names.slice(1).join(" ");
-
-  const stats = [
-    { label: t(locale, "hero.exp"), value: tx(locale, p.statExperience) },
-    { label: t(locale, "hero.clients"), value: tx(locale, p.statAvailability) },
-    { label: t(locale, "hero.sites"), value: tx(locale, p.statProjects) },
-  ].filter((s) => s.value);
 
   const meta = [
     p.location ? { icon: "pin" as const, text: tx(locale, p.location) } : null,
@@ -55,10 +46,10 @@ export default function Hero({ profile: p, study, locale = "uz" }: Props) {
   return (
     <section id="home" className="u-hero-lines relative overflow-clip pt-28 pb-[var(--section-y)] md:pt-36">
       <div className="u-container">
-        <div className="grid items-end gap-12 lg:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)] lg:gap-16 xl:gap-20">
-          <div className="reveal">
+        <div className="grid items-end gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(18rem,22rem)] lg:gap-16 xl:gap-24">
+          <div className="reveal min-w-0">
             {p.badge ? (
-              <p className="label mb-8 flex flex-wrap items-center gap-2.5">
+              <p className="label mb-7 flex flex-wrap items-center gap-2.5">
                 <span className="dot" aria-hidden />
                 <span className="label-accent">{tx(locale, p.badge)}</span>
               </p>
@@ -66,35 +57,25 @@ export default function Hero({ profile: p, study, locale = "uz" }: Props) {
 
             <h1 className="hero-name">
               <span className="display hero-name__first">{firstName}</span>
-              {lastName ? <span className="display-em hero-name__last">{lastName}</span> : null}
+              {lastName ? <span className="display hero-name__last">{lastName}</span> : null}
             </h1>
 
-            <p className="mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="display text-[clamp(1.2rem,2vw,1.65rem)] font-semibold tracking-tight">
-                <TitleMark title={p.title || roles[0] || "Student & AI Developer"} />
-              </span>
-              {roles.length > 1 ? (
-                <Rotator
-                  items={roles.slice(1)}
-                  className="flex h-6 font-mono text-micro uppercase tracking-[0.14em] text-ink-3"
-                />
-              ) : null}
-            </p>
+            {roles.length > 0 ? (
+              <p className="hero-roles mt-6">{roles.join(" · ")}</p>
+            ) : null}
 
-            {p.bio ? <p className="mt-7 max-w-[36rem] text-lead text-ink-2">{tx(locale, p.bio)}</p> : null}
+            {p.bio ? <p className="mt-7 max-w-[34rem] text-lead text-ink-2">{tx(locale, p.bio)}</p> : null}
 
-            <div className="hero-actions mt-10 flex flex-wrap items-center gap-2.5">
+            <div className="hero-actions mt-9 flex flex-wrap items-center gap-x-5 gap-y-3">
               <a href={sectionHref("contact")} className="btn btn--accent btn--lg">
                 {t(locale, "hero.cta")}
                 <Icon name="arrow-right" size={16} />
               </a>
-              <a href={sectionHref("work")} className="btn btn--lg">
-                <Icon name="layers" size={16} />
+              <a href={sectionHref("work")} className="link-underline text-body">
                 {t(locale, "hero.projects")}
               </a>
               {resume ? (
-                <a href={resume} target="_blank" rel="noopener noreferrer" className="btn btn--ghost btn--lg">
-                  <Icon name="download" size={16} />
+                <a href={resume} target="_blank" rel="noopener noreferrer" className="link-underline text-body">
                   {t(locale, "hero.cv")}
                 </a>
               ) : null}
@@ -120,7 +101,7 @@ export default function Hero({ profile: p, study, locale = "uz" }: Props) {
             </div>
           </div>
 
-          <div className="reveal relative mx-auto w-full max-w-[420px] lg:max-w-none lg:justify-self-end">
+          <div className="reveal relative mx-auto w-full max-w-[22rem] lg:max-w-none lg:justify-self-end">
             <figure className="hero-photo">
               {portrait ? (
                 <Image
@@ -129,7 +110,7 @@ export default function Hero({ profile: p, study, locale = "uz" }: Props) {
                   fill
                   priority
                   unoptimized={portrait.startsWith("/api/media/")}
-                  sizes="(max-width: 1024px) 90vw, 420px"
+                  sizes="(max-width: 1024px) 90vw, 352px"
                   className="hero-photo__img"
                 />
               ) : (
@@ -151,31 +132,6 @@ export default function Hero({ profile: p, study, locale = "uz" }: Props) {
                 ) : null}
               </figcaption>
             </figure>
-
-            {steps.length > 0 ? (
-              <aside className="hero-process" aria-label={t(locale, "hero.ai")}>
-                <p className="label label-accent mb-3">{t(locale, "hero.ai")}</p>
-                <ol className="hero-process__list">
-                  {steps.slice(0, 4).map((step, i) => (
-                    <li key={step}>
-                      <span className="u-num font-mono text-micro text-ink-3">{String(i + 1).padStart(2, "0")}</span>
-                      <span>{step}</span>
-                    </li>
-                  ))}
-                </ol>
-              </aside>
-            ) : null}
-
-            {stats.length > 0 ? (
-              <dl className="hero-stats">
-                {stats.map((s) => (
-                  <div key={s.label}>
-                    <dt>{s.label}</dt>
-                    <dd className="display u-num">{s.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            ) : null}
           </div>
         </div>
 
@@ -187,42 +143,9 @@ export default function Hero({ profile: p, study, locale = "uz" }: Props) {
                 {m.text}
               </li>
             ))}
-            {p.email ? (
-              <li>
-                <Icon name="mail" size={14} className="text-ink-3" />
-                <a href={`mailto:${p.email}`} className="link-underline">
-                  {p.email}
-                </a>
-              </li>
-            ) : null}
-            {phoneHref(p.phone) ? (
-              <li>
-                <Icon name="phone" size={14} className="text-ink-3" />
-                <a href={phoneHref(p.phone) as string} className="link-underline">
-                  {p.phone}
-                </a>
-              </li>
-            ) : null}
-            <li className="hero-meta__scroll">
-              <span className="animate-pulse-soft" aria-hidden>
-                <Icon name="chevron-down" size={14} />
-              </span>
-              {t(locale, "hero.scroll")}
-            </li>
           </ul>
         ) : null}
       </div>
     </section>
-  );
-}
-
-function TitleMark({ title }: { title: string }) {
-  const parts = title.split(/\s*&\s*/).map((s) => s.trim()).filter(Boolean);
-  if (parts.length < 2) return <>{title}</>;
-  return (
-    <>
-      {parts[0]} &{" "}
-      <span className="display-em">{parts.slice(1).join(" & ")}</span>
-    </>
   );
 }

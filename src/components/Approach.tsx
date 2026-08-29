@@ -36,7 +36,7 @@ export default function Approach({
         eyebrow={t(locale, "approach.eyebrow")}
         title={
           <>
-            {t(locale, "approach.titleBefore")} <span className="display-em">{t(locale, "approach.titleEm")}</span>
+            {t(locale, "approach.titleBefore")} {t(locale, "approach.titleEm")}
           </>
         }
         lead={t(locale, "approach.lead")}

@@ -1,8 +1,9 @@
 "use client";
 
 import { useRef, useState, type FormEvent } from "react";
+import { useSearchParams } from "next/navigation";
 import Icon from "./ui/Icon";
-import { t, type Locale } from "@/lib/i18n-core";
+import { t, tx, type Locale } from "@/lib/i18n-core";
 
 type Status = "idle" | "loading" | "success" | "error";
 type Errors = Partial<Record<"name" | "email" | "message", string>>;
@@ -28,6 +29,8 @@ export default function ContactForm({
   const [status, setStatus] = useState<Status>("idle");
   const [errors, setErrors] = useState<Errors>({});
   const [general, setGeneral] = useState("");
+  const topicRaw = useSearchParams().get("topic")?.trim() || "";
+  const topic = topicRaw ? tx(locale, topicRaw) : "";
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -35,17 +38,18 @@ export default function ContactForm({
 
     const form = e.currentTarget;
     const fd = new FormData(form);
+    const rawMessage = String(fd.get("message") ?? "").trim();
     const payload = {
       name: String(fd.get("name") ?? "").trim(),
       email: String(fd.get("email") ?? "").trim(),
-      message: String(fd.get("message") ?? "").trim(),
+      message: topic ? `[${topic}]\n\n${rawMessage}` : rawMessage,
       website: String(fd.get("website") ?? ""),
     };
 
     const next: Errors = {};
     if (payload.name.length < 2) next.name = t(locale, "form.nameErr");
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(payload.email)) next.email = t(locale, "form.emailErr");
-    if (payload.message.length < 12) next.message = t(locale, "form.messageErr");
+    if (rawMessage.length < 12) next.message = t(locale, "form.messageErr");
     setErrors(next);
 
     if (Object.keys(next).length > 0) {
@@ -97,6 +101,11 @@ export default function ContactForm({
 
   return (
     <form ref={formRef} onSubmit={onSubmit} noValidate className="stack gap-4">
+      {topic ? (
+        <p className="chip chip--accent w-fit">
+          {t(locale, "form.topic")}: {topic}
+        </p>
+      ) : null}
       <div className="grid gap-4 sm:grid-cols-2">
         <Field
           id="cf-name"

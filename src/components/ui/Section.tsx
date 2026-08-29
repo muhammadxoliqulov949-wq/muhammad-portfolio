@@ -19,12 +19,7 @@ type Props = {
 export default function SectionHead({ index, eyebrow, title, lead, action, className = "" }: Props) {
   return (
     <header className={`section-head mb-10 flex flex-wrap items-end justify-between gap-6 md:mb-14 ${className}`}>
-      <div className="relative max-w-2xl">
-        {index ? (
-          <span className="section-head__index u-num" aria-hidden>
-            {index}
-          </span>
-        ) : null}
+      <div className="max-w-2xl">
         <div className="label mb-4 flex items-center gap-3">
           {index ? <span className="text-ink-3 u-num">{index}</span> : null}
           <span className="h-px w-8 bg-line-2" aria-hidden />

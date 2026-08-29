@@ -22,8 +22,7 @@ export default function Achievements({ items, locale = "uz" }: { items: Achievem
         eyebrow={t(locale, "achievements.eyebrow")}
         title={
           <>
-            {t(locale, "achievements.titleBefore")}{" "}
-            <span className="display-em">{t(locale, "achievements.titleEm")}</span>{" "}
+            {t(locale, "achievements.titleBefore")} {t(locale, "achievements.titleEm")}{" "}
             {t(locale, "achievements.titleAfter")}
           </>
         }

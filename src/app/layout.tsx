@@ -19,7 +19,17 @@ const display = localFont({
       style: "normal",
     },
     {
+      path: "../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-ext-full-normal.woff2",
+      weight: "100 900",
+      style: "normal",
+    },
+    {
       path: "../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-full-italic.woff2",
+      weight: "100 900",
+      style: "italic",
+    },
+    {
+      path: "../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-ext-full-italic.woff2",
       weight: "100 900",
       style: "italic",
     },
@@ -29,8 +39,23 @@ const display = localFont({
 });
 
 const sans = localFont({
-  src: "../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2",
-  weight: "100 900",
+  src: [
+    {
+      path: "../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2",
+      weight: "100 900",
+      style: "normal",
+    },
+    {
+      path: "../../node_modules/@fontsource-variable/inter/files/inter-latin-ext-wght-normal.woff2",
+      weight: "100 900",
+      style: "normal",
+    },
+    {
+      path: "../../node_modules/@fontsource-variable/inter/files/inter-cyrillic-wght-normal.woff2",
+      weight: "100 900",
+      style: "normal",
+    },
+  ],
   variable: "--font-inter",
   display: "swap",
 });

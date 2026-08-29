@@ -40,7 +40,7 @@ export default function MobileCTA({ label = "Let's Work Together" }: { label?: s
       aria-hidden={!visible}
     >
       <a href="/#contact" tabIndex={visible ? 0 : -1} className="btn btn--accent btn--lg w-full">
-        <Icon name="mail" size={16} />
+        <Icon name="arrow-right" size={16} />
         {label}
       </a>
     </div>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Icon from "@/components/ui/Icon";
 import Card from "@/components/ui/Card";
+import Device from "@/components/ui/Device";
 import {
   featuresOf,
   galleryOf,
@@ -76,6 +77,16 @@ export default async function ProjectPage({ params }: Props) {
   const demo = safeHref(project.link);
   const code = safeHref(project.github);
 
+  function hostOf(link: string | null | undefined): string | null {
+    const href = safeHref(link);
+    if (!href) return null;
+    try {
+      return new URL(href).host.replace(/^www\./, "");
+    } catch {
+      return null;
+    }
+  }
+
   const features = txEach(locale, featuresOf(project.features));
   const blocks = [
     { title: t(locale, "case.problem"), body: tx(locale, project.problem), icon: "alert" as const },
@@ -88,7 +99,7 @@ export default async function ProjectPage({ params }: Props) {
       <div className="u-container max-w-[62rem]">
         <nav aria-label={t(locale, "case.crumbs")} className="label mb-8 flex items-center gap-2">
           <Link href="/" className="u-link-quiet">
-            Portfolio
+            {t(locale, "case.home")}
           </Link>
           <span className="text-ink-3">/</span>
           <Link href="/projects" className="u-link-quiet">
@@ -137,26 +148,28 @@ export default async function ProjectPage({ params }: Props) {
           )}
         </header>
 
-        <div className="relative mt-10 aspect-16/9 overflow-hidden rounded-4 border border-line-1 bg-surface-1">
-          {cover ? (
-            <Image
-              src={cover}
-              alt={`${project.title} — ${t(locale, "case.cover")}`}
-              fill
-              priority
-              sizes="(min-width: 64rem) 62rem, 100vw"
-              className="object-cover object-top"
-            />
-          ) : (
-            <div
-              className="grid h-full w-full place-items-center bg-[radial-gradient(120%_100%_at_10%_0%,var(--c-accent-soft),transparent_60%)]"
-              aria-hidden
-            >
-              <span className="display text-[clamp(4rem,12vw,8rem)] leading-none text-ink-2/60">
-                {project.title.trim().charAt(0)}
-              </span>
+        <div className="relative mt-10 overflow-hidden rounded-4 border border-line-1 bg-surface-1">
+          <Device label={hostOf(project.link) || project.title}>
+            <div className="relative aspect-16/9">
+              {cover ? (
+                <Image
+                  src={cover}
+                  alt={`${project.title} — ${t(locale, "case.cover")}`}
+                  fill
+                  priority
+                  sizes="(min-width: 64rem) 62rem, 100vw"
+                  className="object-cover object-top"
+                />
+              ) : (
+                <div
+                  className="grid h-full w-full place-items-center bg-[radial-gradient(120%_100%_at_10%_0%,var(--c-accent-soft),transparent_60%)]"
+                  aria-hidden
+                >
+                  <span className="font-mono text-small text-ink-2">{hostOf(project.link) || project.title}</span>
+                </div>
+              )}
             </div>
-          )}
+          </Device>
         </div>
 
         {blocks.length > 0 ? (
@@ -233,28 +246,30 @@ export default async function ProjectPage({ params }: Props) {
           </Link>
         </Card>
 
-        <nav aria-label={t(locale, "case.other")} className="mt-12 grid gap-3 border-t border-line-1 pt-6 sm:grid-cols-2">
-          {prev ? (
-            <Link href={`/projects/${prev.id}`} className="card card--hover group flex items-center gap-3 p-4">
-              <Icon name="arrow-right" size={16} className="rotate-180 text-ink-3" />
-              <span className="min-w-0">
-                <span className="label block">{t(locale, "case.prev")}</span>
-                <span className="block truncate text-body font-medium group-hover:text-accent-text">{prev.title}</span>
-              </span>
-            </Link>
-          ) : (
-            <span />
-          )}
-          {next ? (
-            <Link href={`/projects/${next.id}`} className="card card--hover group flex items-center justify-end gap-3 p-4 text-right">
-              <span className="min-w-0">
-                <span className="label block">{t(locale, "case.next")}</span>
-                <span className="block truncate text-body font-medium group-hover:text-accent-text">{next.title}</span>
-              </span>
-              <Icon name="arrow-right" size={16} className="text-ink-3" />
-            </Link>
-          ) : null}
-        </nav>
+        {prev || next ? (
+          <nav aria-label={t(locale, "case.other")} className="mt-12 grid gap-3 border-t border-line-1 pt-6 sm:grid-cols-2">
+            {prev ? (
+              <Link href={`/projects/${prev.id}`} className="card card--hover group flex items-center gap-3 p-4">
+                <Icon name="arrow-right" size={16} className="rotate-180 text-ink-3" />
+                <span className="min-w-0">
+                  <span className="label block">{t(locale, "case.prev")}</span>
+                  <span className="block truncate text-body font-medium group-hover:text-accent-text">{prev.title}</span>
+                </span>
+              </Link>
+            ) : (
+              <span />
+            )}
+            {next ? (
+              <Link href={`/projects/${next.id}`} className="card card--hover group flex items-center justify-end gap-3 p-4 text-right">
+                <span className="min-w-0">
+                  <span className="label block">{t(locale, "case.next")}</span>
+                  <span className="block truncate text-body font-medium group-hover:text-accent-text">{next.title}</span>
+                </span>
+                <Icon name="arrow-right" size={16} className="text-ink-3" />
+              </Link>
+            ) : null}
+          </nav>
+        ) : null}
       </div>
     </article>
   );

@@ -33,8 +33,7 @@ export default function Experience({
           title={
             span ? (
               <>
-                {span} — {items.length} {t(locale, "experience.titleMid")}{" "}
-                <span className="display-em">{t(locale, "experience.titleEm")}</span>
+                {span} — {items.length} {t(locale, "experience.titleMid")} {t(locale, "experience.titleEm")}
               </>
             ) : (
               <>

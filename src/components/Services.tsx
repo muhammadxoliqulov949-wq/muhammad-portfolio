@@ -63,7 +63,10 @@ export default function Services({ services, locale = "uz" }: { services: Servic
                 </ul>
               ) : null}
 
-              <a href="/#contact" className="link-underline mt-6 inline-flex text-small">
+              <a
+                href={`/?topic=${encodeURIComponent(s.title)}#contact`}
+                className="link-underline mt-6 inline-flex text-small"
+              >
                 {t(locale, "services.talk")}
                 <Icon name="arrow-up-right" size={13} />
               </a>

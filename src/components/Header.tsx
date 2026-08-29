@@ -16,30 +16,34 @@ type Props = {
   links: NavLink[];
   ctaLabel?: string;
   locale?: Locale;
-  /** `profile.photoUrl` yoki `public/media/portrait.*` — bo'lsa avatar chiqadi */
   portrait?: string | null;
 };
 
 /**
- * Sticky header — suzuvchi tab (island).
- * Yozuvlar va shriftlar o'zgarmaydi; faqat yuqori tabning tuzilishi.
+ * Sticky header — suzuvchi tab.
+ * Asosiy 4 havola + «Yana» — 80rem da yo'qolmaydi.
  */
-const SECONDARY_SECTIONS = new Set(["experience", "education", "achievements", "approach"]);
+const PRIMARY = new Set(["about", "work", "services", "contact"]);
 
 export default function Header({ name, initials, links, ctaLabel, locale = "uz", portrait }: Props) {
   const cta = ctaLabel ?? t(locale, "hero.cta");
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState<string>(links[0]?.id ?? "home");
   const [open, setOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const router = useRouter();
   const toggleRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const moreRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let raf = 0;
     const onScroll = () => {
       cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => setScrolled(window.scrollY > 12));
+      raf = requestAnimationFrame(() => {
+        setScrolled(window.scrollY > 12);
+        setMoreOpen(false);
+      });
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -89,8 +93,25 @@ export default function Header({ name, initials, links, ctaLabel, locale = "uz",
     };
   }, [open]);
 
+  useEffect(() => {
+    if (!moreOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      if (!moreRef.current?.contains(e.target as Node)) setMoreOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMoreOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [moreOpen]);
+
   const go = (id: string) => {
     setOpen(false);
+    setMoreOpen(false);
     const el = document.getElementById(id);
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -100,6 +121,8 @@ export default function Header({ name, initials, links, ctaLabel, locale = "uz",
   };
 
   const navLinks = links.filter((l) => l.id !== "home");
+  const primary = navLinks.filter((l) => PRIMARY.has(l.id));
+  const extra = navLinks.filter((l) => !PRIMARY.has(l.id));
 
   return (
     <header className={`site-header${scrolled || open ? " is-solid" : ""}${open ? " is-open" : ""}`}>
@@ -111,6 +134,7 @@ export default function Header({ name, initials, links, ctaLabel, locale = "uz",
             go(links[0]?.id ?? "home");
           }}
           className="site-header__brand"
+          aria-current={active === "home" ? "page" : undefined}
         >
           {portrait ? (
             <span className="site-header__avatar">
@@ -125,15 +149,13 @@ export default function Header({ name, initials, links, ctaLabel, locale = "uz",
               />
             </span>
           ) : (
-            <span className="site-header__mono">
-              {initials || name.slice(0, 2).toUpperCase()}
-            </span>
+            <span className="site-header__mono">{initials || name.slice(0, 2).toUpperCase()}</span>
           )}
           <span className="display site-header__name">{name}</span>
         </a>
 
         <nav aria-label={t(locale, "nav.sections")} className="site-header__nav">
-          {navLinks.map((l) => (
+          {primary.map((l) => (
             <a
               key={l.id}
               href={`/#${l.id}`}
@@ -142,11 +164,44 @@ export default function Header({ name, initials, links, ctaLabel, locale = "uz",
                 go(l.id);
               }}
               aria-current={active === l.id ? "page" : undefined}
-              className={`site-header__link${SECONDARY_SECTIONS.has(l.id) ? " site-header__link--more" : ""}`}
+              className="site-header__link"
             >
               {l.label}
             </a>
           ))}
+          {extra.length > 0 ? (
+            <div className="site-header__more" ref={moreRef}>
+              <button
+                type="button"
+                className="site-header__link site-header__more-btn"
+                aria-expanded={moreOpen}
+                aria-haspopup="true"
+                onClick={() => setMoreOpen((v) => !v)}
+              >
+                {t(locale, "nav.more")}
+                <Icon name="chevron-down" size={12} />
+              </button>
+              {moreOpen ? (
+                <div className="site-header__more-panel" role="menu">
+                  {extra.map((l) => (
+                    <a
+                      key={l.id}
+                      href={`/#${l.id}`}
+                      role="menuitem"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        go(l.id);
+                      }}
+                      aria-current={active === l.id ? "page" : undefined}
+                      className="site-header__more-item"
+                    >
+                      {l.label}
+                    </a>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
         </nav>
 
         <div className="site-header__tools">

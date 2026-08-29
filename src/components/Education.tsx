@@ -18,7 +18,7 @@ export default function Education({ items, locale = "uz" }: { items: EducationIt
         eyebrow={t(locale, "education.eyebrow")}
         title={
           <>
-            {t(locale, "education.titleBefore")} <span className="display-em">{t(locale, "education.titleEm")}</span>
+            {t(locale, "education.titleBefore")} {t(locale, "education.titleEm")}
             {t(locale, "education.titleAfter")}
           </>
         }

@@ -52,8 +52,7 @@ export default async function HomePage() {
             eyebrow={t(locale, "services.eyebrow")}
             title={
               <>
-                {t(locale, "services.titleBefore")}{" "}
-                <span className="display-em">{t(locale, "services.titleEm")}</span>
+                {t(locale, "services.titleBefore")} {t(locale, "services.titleEm")}
               </>
             }
             lead={t(locale, "services.lead")}

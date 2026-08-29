@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import SectionHead from "./ui/Section";
 import Icon, { type IconName } from "./ui/Icon";
 import CopyButton from "./ui/CopyButton";
@@ -181,7 +182,9 @@ export default function Contact({ profile: p, locale = "uz" }: { profile: Profil
             <Card className="p-6 md:p-8" interactive={false}>
               <h3 className="display text-title mb-1 font-semibold">{t(locale, "contact.formTitle")}</h3>
               <p className="mb-6 text-small text-ink-2">{t(locale, "contact.formLead")}</p>
-              <ContactForm locale={locale} successNote={t(locale, "contact.success")} />
+              <Suspense fallback={null}>
+                <ContactForm locale={locale} successNote={t(locale, "contact.success")} />
+              </Suspense>
             </Card>
           </div>
         </div>

@@ -3,33 +3,31 @@ import Link from "next/link";
 import SectionHead from "./ui/Section";
 import Card from "./ui/Card";
 import Icon from "./ui/Icon";
+import Device from "./ui/Device";
 import { featuresOf, safeHref, techOf, type Project } from "@/lib/content";
 import { t, tx, txEach, type Locale } from "@/lib/i18n-core";
 
-/** Loyiha rasmi yoki monogram panel (buzuk yoki soxta rasm ko'rsatmaslik uchun). */
+/** Loyiha rasmi brauzer-ramkada; rasm bo'lmasa — host, harf emas. */
 function Cover({ project, locale, priority = false }: { project: Project; locale: Locale; priority?: boolean }) {
   const img = safeHref(project.image);
-  if (img) {
-    return (
-      <Image
-        src={img}
-        alt={`${project.title} — ${t(locale, "work.cover")}`}
-        fill
-        priority={priority}
-        sizes="(min-width: 64rem) 50vw, 100vw"
-        className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.015]"
-      />
-    );
-  }
+  const host = hostOf(project.link);
   return (
-    <div className="grid h-full w-full place-content-center gap-3 bg-[radial-gradient(130%_110%_at_15%_0%,var(--c-accent-soft),transparent_55%),linear-gradient(160deg,var(--c-surface-2),var(--c-surface-1))] px-6 py-8">
-      <span className="display text-[clamp(2.5rem,6vw,4.5rem)] leading-none text-ink-1">
-        {(project.title || "P").trim().charAt(0)}
-      </span>
-      <span className="font-mono text-micro uppercase tracking-[0.16em] text-ink-3">
-        {hostOf(project.link) || project.title}
-      </span>
-    </div>
+    <Device label={host || project.title} className="absolute inset-0">
+      {img ? (
+        <Image
+          src={img}
+          alt={`${project.title} — ${t(locale, "work.cover")}`}
+          fill
+          priority={priority}
+          sizes="(min-width: 64rem) 50vw, 100vw"
+          className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.015]"
+        />
+      ) : (
+        <div className="grid h-full min-h-[220px] w-full place-content-center gap-2 bg-[radial-gradient(130%_110%_at_15%_0%,var(--c-accent-soft),transparent_55%),linear-gradient(160deg,var(--c-surface-2),var(--c-surface-1))] px-6">
+          <span className="font-mono text-small text-ink-2">{host || project.title}</span>
+        </div>
+      )}
+    </Device>
   );
 }
 

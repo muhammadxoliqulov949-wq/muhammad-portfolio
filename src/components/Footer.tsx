@@ -59,8 +59,7 @@ export default function Footer({ profile: p, links, locale = "uz" }: Props) {
 
         <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-line-1 pt-6">
           <p className="text-small text-ink-3">
-            © {new Date().getFullYear()} {p.fullName || "Portfolio"} · {t(locale, "footer.made")} ·{" "}
-            <span className="font-mono">Next.js 16 + Turso</span>
+            © {new Date().getFullYear()} {p.fullName || "Portfolio"} · {t(locale, "footer.made")}
           </p>
           <BackToTop locale={locale} />
         </div>

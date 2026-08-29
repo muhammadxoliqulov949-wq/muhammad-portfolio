@@ -98,7 +98,7 @@
 
   --c-ink-1: #f3f1ea;
   --c-ink-2: #a8afbc;
-  --c-ink-3: #767e8d;
+  --c-ink-3: #9098a6;
   --c-inverse-ink: #0a0c10;
 
   --c-line-1: rgba(243, 241, 234, 0.11);
@@ -135,7 +135,7 @@
 
   --c-ink-1: #14161b;
   --c-ink-2: #4c5460;
-  --c-ink-3: #6d7482;
+  --c-ink-3: #5a6270;
   --c-inverse-ink: #f8f6f0;
 
   --c-line-1: rgba(20, 22, 27, 0.12);
@@ -143,7 +143,7 @@
 
   --c-accent: #c3e236;
   --c-accent-strong: #a9cd17;
-  --c-accent-text: #47580a;
+  --c-accent-text: #3f4e0c;
   --c-accent-soft: rgba(169, 205, 23, 0.18);
   --c-accent-ink: #101408;
 
@@ -171,13 +171,13 @@
     --c-surface-3: #ece7db;
     --c-ink-1: #14161b;
     --c-ink-2: #4c5460;
-    --c-ink-3: #6d7482;
+    --c-ink-3: #5a6270;
     --c-inverse-ink: #f8f6f0;
     --c-line-1: rgba(20, 22, 27, 0.12);
     --c-line-2: rgba(20, 22, 27, 0.22);
     --c-accent: #c3e236;
     --c-accent-strong: #a9cd17;
-    --c-accent-text: #47580a;
+    --c-accent-text: #3f4e0c;
     --c-accent-soft: rgba(169, 205, 23, 0.18);
     --c-accent-ink: #101408;
     --c-success: #14785a;
@@ -568,7 +568,7 @@ select {
 .theme-switch {
   display: inline-flex;
   align-items: center;
-  min-height: 32px;
+  min-height: 36px;
   padding: 2px;
   gap: 1px;
   border-radius: 999px;
@@ -581,9 +581,9 @@ select {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 28px;
-  min-width: 28px;
-  padding: 0 0.4rem;
+  min-height: 32px;
+  min-width: 32px;
+  padding: 0 0.45rem;
   border-radius: 999px;
   font-family: var(--font-mono);
   font-size: 0.625rem;
@@ -741,13 +741,43 @@ select {
   box-shadow: var(--sh-1);
   font-weight: 600;
 }
-.site-header__link--more {
-  display: none;
+.site-header__more {
+  position: relative;
 }
-@media (min-width: 80rem) {
-  .site-header__link--more {
-    display: inline-flex;
+.site-header__more-btn {
+  gap: 0.2rem;
+}
+.site-header__more-panel {
+  position: absolute;
+  top: calc(100% + 0.55rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  min-width: 13rem;
+  padding: 0.35rem;
+  border-radius: 16px;
+  border: 1px solid var(--c-line-1);
+  background: color-mix(in srgb, var(--c-canvas) 90%, transparent);
+  box-shadow: var(--sh-2);
+}
+@supports (backdrop-filter: blur(8px)) {
+  .site-header__more-panel {
+    backdrop-filter: blur(18px) saturate(1.2);
   }
+}
+.site-header__more-item {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 0.8rem;
+  border-radius: 10px;
+  font-size: 0.8125rem;
+  color: var(--c-ink-2);
+}
+.site-header__more-item:hover,
+.site-header__more-item[aria-current="page"] {
+  color: var(--c-ink-1);
+  background: var(--c-surface-2);
 }
 
 .site-header__tools {
@@ -1142,13 +1172,22 @@ textarea.input {
 .hero-name__last {
   font-size: clamp(2rem, 1.1rem + 4vw, 4.25rem);
   line-height: 0.92;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  color: var(--c-ink-2);
+}
+.hero-roles {
+  max-width: 36rem;
+  color: var(--c-ink-2);
+  font-size: var(--text-body);
+  line-height: 1.55;
 }
 
 .hero-photo {
   position: relative;
   isolation: isolate;
   aspect-ratio: 4 / 5;
-  border-radius: 28px;
+  border-radius: 24px;
   border: 1px solid var(--c-line-1);
   background:
     radial-gradient(120% 90% at 80% 0%, var(--c-accent-soft), transparent 58%),
@@ -1381,6 +1420,86 @@ textarea.input {
   .hero-process {
     margin-inline: 0;
   }
+}
+
+
+.skills-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.65rem 1rem;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--c-line-1);
+  text-transform: none;
+  letter-spacing: 0;
+  line-height: 1.65;
+}
+.skills-strip__label {
+  flex: none;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-accent-text);
+}
+.skills-strip__list {
+  font-weight: 500;
+  color: var(--c-ink-3);
+}
+.skills-board {
+  display: grid;
+  gap: 1.75rem 2.25rem;
+}
+@media (min-width: 48rem) {
+  .skills-board {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 80rem) {
+  .skills-board {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.device {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--c-surface-2);
+}
+.device__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  height: 2rem;
+  padding: 0 0.7rem;
+  border-bottom: 1px solid var(--c-line-1);
+  background: color-mix(in srgb, var(--c-surface-1) 88%, transparent);
+  flex: none;
+}
+.device__dots {
+  display: flex;
+  gap: 0.28rem;
+}
+.device__dots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 99px;
+  background: var(--c-line-2);
+}
+.device__url {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--c-ink-3);
+}
+.device__screen {
+  position: relative;
+  flex: 1;
+  min-height: 0;
 }
 
 /* Timeline (tajriba) */
