@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export const ADMIN_LINKS = [
+  { href: "/admin/portrait", label: "Portret" },
   { href: "/admin", label: "Profil" },
   { href: "/admin/projects", label: "Loyihalar" },
   { href: "/admin/services", label: "Xizmatlar" },

@@ -114,9 +114,9 @@ export default function Header({ name, initials, links, ctaLabel = "Loyiha muhok
           : "border-b border-transparent"
       }`}
     >
-      <div className="u-container flex items-center justify-between gap-4" style={{ minHeight: "var(--header-h)" }}>
+      <div className="u-container flex items-center justify-between gap-2 sm:gap-4" style={{ minHeight: "var(--header-h)" }}>
         <a
-          href="#home"
+          href="/#home"
           onClick={(e) => {
             e.preventDefault();
             go(links[0]?.id ?? "home");
@@ -125,14 +125,16 @@ export default function Header({ name, initials, links, ctaLabel = "Loyiha muhok
         >
           {portrait ? (
             <span className="relative size-9 overflow-hidden rounded-2 ring-1 ring-line-2">
-              <Image src={portrait} alt="" fill sizes="36px" className="object-cover object-top" priority />
+              <Image src={portrait} alt="" fill sizes="36px" className="object-cover object-top" priority unoptimized={portrait.startsWith("/api/media/")} />
             </span>
           ) : (
             <span className="grid size-9 place-items-center rounded-2 bg-accent font-mono text-[11px] font-bold tracking-tight text-accent-ink">
               {initials || name.slice(0, 2).toUpperCase()}
             </span>
           )}
-          <span className="display text-[15px] font-semibold tracking-tight">{name}</span>
+          <span className="display max-w-[42vw] truncate text-[15px] font-semibold tracking-tight sm:max-w-[14rem] lg:max-w-none">
+            {name}
+          </span>
         </a>
 
         {/* Desktop nav: lg'da asosiy 5 bo'lim, xl'da hammasi. 9 havolani
@@ -141,7 +143,7 @@ export default function Header({ name, initials, links, ctaLabel = "Loyiha muhok
           {navLinks.map((l, i) => (
             <a
               key={l.id}
-              href={`#${l.id}`}
+              href={`/#${l.id}`}
               onClick={(e) => {
                 e.preventDefault();
                 go(l.id);
@@ -162,7 +164,7 @@ export default function Header({ name, initials, links, ctaLabel = "Loyiha muhok
 
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <a href="#contact" onClick={(e) => { e.preventDefault(); go("contact"); }} className="btn btn--accent btn--sm hidden sm:inline-flex">
+          <a href="/#contact" onClick={(e) => { e.preventDefault(); go("contact"); }} className="btn btn--accent btn--sm hidden sm:inline-flex">
             {ctaLabel}
             <Icon name="arrow-right" size={15} />
           </a>
@@ -193,7 +195,7 @@ export default function Header({ name, initials, links, ctaLabel = "Loyiha muhok
             {links.map((l, i) => (
               <a
                 key={l.id}
-                href={`#${l.id}`}
+                href={`/#${l.id}`}
                 onClick={(e) => {
                   e.preventDefault();
                   go(l.id);
@@ -209,14 +211,15 @@ export default function Header({ name, initials, links, ctaLabel = "Loyiha muhok
               </a>
             ))}
           </nav>
-          <div className="flex gap-2 border-t border-line-1 px-[var(--gutter)] py-4">
+          <div className="flex flex-wrap items-center gap-2 border-t border-line-1 px-[var(--gutter)] py-4">
+            <ThemeToggle />
             <a
-              href="#contact"
+              href="/#contact"
               onClick={(e) => {
                 e.preventDefault();
                 go("contact");
               }}
-              className="btn btn--accent btn--lg flex-1"
+              className="btn btn--accent btn--lg min-w-0 flex-1"
             >
               {ctaLabel}
             </a>

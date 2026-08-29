@@ -1,6 +1,6 @@
 import Icon from "./ui/Icon";
 import BackToTop from "./BackToTop";
-import { socialsOf, type Profile } from "@/lib/content";
+import { sectionHref, socialsOf, type Profile } from "@/lib/content";
 
 type Props = {
   profile: Profile;
@@ -33,7 +33,7 @@ export default function Footer({ profile: p, links }: Props) {
 
           <nav aria-label="Sahifa bo'limlari" className="grid grid-cols-2 gap-x-6 gap-y-1.5 md:justify-items-end">
             {links.map((l) => (
-              <a key={l.id} href={`#${l.id}`} className="u-link-quiet justify-self-start py-1 text-small text-ink-2 hover:text-ink-1 md:justify-self-end">
+              <a key={l.id} href={sectionHref(l.id)} className="u-link-quiet justify-self-start py-1 text-small text-ink-2 hover:text-ink-1 md:justify-self-end">
                 {l.label}
               </a>
             ))}

@@ -27,7 +27,7 @@ export default function Rotator({ items, className = "" }: { items: string[]; cl
   if (items.length === 0) return null;
 
   return (
-    <p className={`relative ${className}`}>
+    <span className={`relative ${className}`}>
       <span className="sr-only">{items.join(" · ")}</span>
       <span aria-hidden className="inline-grid">
         {items.map((text, i) => (
@@ -40,6 +40,6 @@ export default function Rotator({ items, className = "" }: { items: string[]; cl
           </span>
         ))}
       </span>
-    </p>
+    </span>
   );
 }

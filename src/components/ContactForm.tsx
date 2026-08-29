@@ -42,7 +42,8 @@ export default function ContactForm({ successNote }: { successNote?: string }) {
     setErrors(next);
 
     if (Object.keys(next).length > 0) {
-      form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+      const firstId = next.name ? "cf-name" : next.email ? "cf-email" : "cf-message";
+      requestAnimationFrame(() => document.getElementById(firstId)?.focus());
       return;
     }
 

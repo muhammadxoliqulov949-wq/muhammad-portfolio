@@ -16,7 +16,14 @@ export function isSameOrigin(req: NextRequest): boolean {
   const origin = req.headers.get("origin");
   if (!origin) return true; // curl/server-side va sans-origin formalar
   try {
-    return new URL(origin).host === req.headers.get("host");
+    const originHost = new URL(origin).host.toLowerCase();
+    const hosts = [
+      req.headers.get("host"),
+      req.headers.get("x-forwarded-host")?.split(",")[0]?.trim(),
+    ]
+      .filter((h): h is string => Boolean(h))
+      .map((h) => h.toLowerCase());
+    return hosts.includes(originHost);
   } catch {
     return false;
   }

@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import Script from "next/script";
 import "./globals.css";
-import { getSiteData } from "@/lib/content";
+import { getSiteData, phoneHref, socialsOf } from "@/lib/content";
 
 /**
  * Shriftlar — audit P1-9: 9 ta static woff2 o'rniga 3 ta VARIABLE fayl.
@@ -96,7 +96,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  // Tema rangi ikkala rejim uchun (audit: faqat bitta qorong'i themeColor edi)
+  maximumScale: 5,
+  viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: dark)", color: "#0a0c10" },
     { media: "(prefers-color-scheme: light)", color: "#f8f6f0" },
@@ -109,7 +110,9 @@ const THEME_BOOTSTRAP = `(function(){try{var d=document.documentElement;var s=lo
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { profile, skills, services } = await getSiteData();
-  const sameAs = [profile.github, profile.linkedin, profile.instagram, profile.telegram].filter(Boolean);
+  const sameAs = socialsOf(profile)
+    .filter((s) => s.key !== "email" && s.key !== "phone")
+    .map((s) => s.href);
 
   /** JSON-LD — faqat to'ldirilgan maydonlar bilan (bo'sh "https://github.com" kabi
    *  qiymatlar strukturali ma'lumotga chiqmaydi). */
@@ -121,7 +124,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     description: profile.bio || undefined,
     url: siteUrl,
     email: profile.email ? `mailto:${profile.email}` : undefined,
-    telephone: profile.phone || undefined,
+    telephone: phoneHref(profile.phone)?.replace(/^tel:/, "") || undefined,
     address: profile.location
       ? { "@type": "PostalAddress", addressLocality: profile.location.split(",")[0]?.trim() }
       : undefined,

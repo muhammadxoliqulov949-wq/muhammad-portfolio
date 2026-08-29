@@ -5,51 +5,74 @@ import Icon from "./ui/Icon";
 
 type Theme = "dark" | "light";
 
+const COLORS: Record<Theme, string> = { dark: "#0a0c10", light: "#f8f6f0" };
+
+function applyTheme(next: Theme) {
+  const root = document.documentElement;
+  root.setAttribute("data-theme", next);
+  root.style.colorScheme = next;
+  try {
+    localStorage.setItem("theme", next);
+  } catch {
+    /* private rejim */
+  }
+  document.querySelectorAll('meta[name="theme-color"]').forEach((el) => {
+    el.setAttribute("content", COLORS[next]);
+    el.removeAttribute("media");
+  });
+  window.dispatchEvent(new CustomEvent("themechange", { detail: next }));
+}
+
 /**
- * Tema almashtirgich (audit P1-8: sayt dark-only edi).
- * Qiymat localStorage'da saqlanadi, `layout.tsx` dagi bootstrap skripti
- * uni bo'yashdan oldin o'qiydi → FOUC yo'q.
+ * Tun / Kun almashtirgich.
+ * localStorage + data-theme; iOS status bar rangi ham yangilanadi.
  */
 export default function ThemeToggle() {
   const [theme, setTheme] = useState<Theme | null>(null);
 
   useEffect(() => {
-    const read = () => {
+    const read = (): Theme => {
       const attr = document.documentElement.getAttribute("data-theme");
-      if (attr === "light" || attr === "dark") return setTheme(attr);
-      return setTheme(window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      if (attr === "light" || attr === "dark") return attr;
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
     };
-    read();
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    mq.addEventListener("change", read);
-    return () => mq.removeEventListener("change", read);
+    setTheme(read());
+    const onChange = (e: Event) => setTheme((e as CustomEvent<Theme>).detail);
+    window.addEventListener("themechange", onChange);
+    return () => window.removeEventListener("themechange", onChange);
   }, []);
 
-  function toggle() {
-    const next: Theme = theme === "light" ? "dark" : "light";
-    document.documentElement.setAttribute("data-theme", next);
-    document.documentElement.style.colorScheme = next;
-    try {
-      localStorage.setItem("theme", next);
-    } catch {
-      /* private rejim — e'tibor bermaymiz */
-    }
+  function choose(next: Theme) {
+    applyTheme(next);
     setTheme(next);
   }
 
   if (theme === null) {
-    return <span className="icon-btn" aria-hidden />;
+    return <span className="theme-switch" aria-hidden />;
   }
 
   return (
-    <button
-      type="button"
-      onClick={toggle}
-      className="icon-btn"
-      aria-label={theme === "dark" ? "Yorug' temaga o'tish" : "Qorong' temaga o'tish"}
-      title={theme === "dark" ? "Yorug' tema" : "Qorong' tema"}
-    >
-      <Icon name={theme === "dark" ? "sun" : "moon"} size={17} />
-    </button>
+    <div className="theme-switch" role="group" aria-label="Tun va kun">
+      <button
+        type="button"
+        className="theme-switch__btn"
+        aria-pressed={theme === "dark"}
+        aria-label="Tun (qorong'i) rejim"
+        onClick={() => choose("dark")}
+      >
+        <Icon name="moon" size={15} />
+        <span className="theme-switch__label">Tun</span>
+      </button>
+      <button
+        type="button"
+        className="theme-switch__btn"
+        aria-pressed={theme === "light"}
+        aria-label="Kun (yorug') rejim"
+        onClick={() => choose("light")}
+      >
+        <Icon name="sun" size={15} />
+        <span className="theme-switch__label">Kun</span>
+      </button>
+    </div>
   );
 }

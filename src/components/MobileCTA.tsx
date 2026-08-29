@@ -39,7 +39,7 @@ export default function MobileCTA({ label = "Loyihangizni muhokama qilish" }: { 
       }`}
       aria-hidden={!visible}
     >
-      <a href="#contact" tabIndex={visible ? 0 : -1} className="btn btn--accent btn--lg w-full">
+      <a href="/#contact" tabIndex={visible ? 0 : -1} className="btn btn--accent btn--lg w-full">
         <Icon name="mail" size={16} />
         {label}
       </a>

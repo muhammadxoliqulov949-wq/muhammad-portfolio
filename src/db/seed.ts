@@ -66,7 +66,7 @@ const projectRows = [
       "IELTSʼga tayyorgarlik uchun interaktiv platforma: tinglash, oʻqish, yozish va gapirish amaliyoti, natija tahlili, xatoni qayta koʻrish, lugʻat ishlashi va AI yordamida javobni yaxshilash.",
     link: "https://ielts-mock-v2.vercel.app/",
     github: "https://github.com/muhammadxoliqulov949-wq/IELTS-mock-v2",
-    image: "",
+    image: "/media/ielts-mock-home.jpg",
     tech: "HTML, CSS, JavaScript, Node.js, REST API, Gemini AI API, PWA, Service Worker",
     year: "",
     role: "Loyihani AI yordamida mustaqil quraman",
@@ -77,7 +77,7 @@ const projectRows = [
       "Har bir boʻlim uchun alohida amaliyot moduli bilan boshladim: savol → javob → natija tahlili. Keyin xatolarni qayta koʻrish va lugʻat qatlamini qoʻshdim. Yozma javobni yaxshilash uchun Gemini AI APIʼni uldim. AI koʻp kod yozdi — men uni oʻqib chiqdim, tuzatdim, boʻlinishlarni qayta yozdim va har bosqichni brauzerda sinadim. Service Worker bilan platforma oflayn ham ochiladi (PWA).",
     outcome:
       "Platforma jonli holda ishlaydi va faol rivojlantirilmoqda. Foydalanuvchilar soni yoki ball statistikasi hozircha eʼlon qilinmagan — bu oʻsayotgan mahsulot, tayyor raqam emas.",
-    gallery: "",
+    gallery: "/media/ielts-mock-exam.jpg | /media/ielts-mock-plans.jpg",
     status: "Ishlab chiqilmoqda — faol davom etmoqda",
     features:
       "Listening amaliyoti | Reading amaliyoti | Writing amaliyoti | Speaking amaliyoti | Natija tahlili | Xatoni qayta koʻrish | Lugʻat ishlashi | AI bilan javobni yaxshilash",

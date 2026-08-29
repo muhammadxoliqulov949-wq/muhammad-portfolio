@@ -9,6 +9,7 @@ import {
   portraitOf,
   rolesOf,
   safeHref,
+  sectionHref,
   socialsOf,
   type Profile,
 } from "@/lib/content";
@@ -40,9 +41,9 @@ export default function Hero({ profile: p, study }: Props) {
   const portrait = portraitOf(p);
 
   const stats = [
-    { label: "Amaliy tajriba", value: p.statExperience },
-    { label: "Mijozlar", value: p.statAvailability },
-    { label: "Saytlar", value: p.statProjects },
+    { label: "Amaliy tajriba", value: compactStat("tajriba", p.statExperience) },
+    { label: "Mijozlar", value: compactStat("mijoz", p.statAvailability) },
+    { label: "Saytlar", value: compactStat("sayt", p.statProjects) },
   ].filter((s) => s.value);
 
   const meta = [
@@ -64,8 +65,7 @@ export default function Hero({ profile: p, study }: Props) {
             ) : null}
 
             <h1 className="display text-display-xl leading-[0.94]">
-              Student &amp;{" "}
-              <span className="display-em">AI Developer</span>
+              <TitleMark title={p.title || roles[0] || "Portfolio"} />
             </h1>
 
             <p className="mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
@@ -80,12 +80,12 @@ export default function Hero({ profile: p, study }: Props) {
 
             {p.bio ? <p className="mt-6 max-w-xl text-lead text-ink-2">{p.bio}</p> : null}
 
-            <div className="mt-9 flex flex-wrap items-center gap-2.5">
-              <a href="#contact" className="btn btn--accent btn--lg">
+            <div className="hero-actions mt-9 flex flex-wrap items-center gap-2.5">
+              <a href={sectionHref("contact")} className="btn btn--accent btn--lg">
                 Keling, birga ishlaymiz
                 <Icon name="arrow-right" size={16} />
               </a>
-              <a href="#work" className="btn btn--lg">
+              <a href={sectionHref("work")} className="btn btn--lg">
                 <Icon name="layers" size={16} />
                 Loyihalarni ko&apos;rish
               </a>
@@ -128,6 +128,7 @@ export default function Hero({ profile: p, study }: Props) {
                   alt={`${p.fullName || "Muhammad Xoliqulov"} — portret`}
                   fill
                   priority
+                  unoptimized={portrait.startsWith("/api/media/")}
                   sizes="(max-width: 1024px) 90vw, 440px"
                   className="hero-photo__img"
                 />
@@ -149,12 +150,12 @@ export default function Hero({ profile: p, study }: Props) {
               </figcaption>
             </figure>
 
-            <div className="hero-panels" aria-hidden="true">
-              <div className="hero-panel hero-panel--back">
+            <div className="hero-panels">
+              <div className="hero-panel hero-panel--back" aria-hidden="true">
                 <p className="label mb-2">AI yordamchi</p>
                 <p className="text-small text-ink-2">prompt · kod · izoh</p>
               </div>
-              <div className="hero-panel hero-panel--mid">
+              <div className="hero-panel hero-panel--mid" aria-hidden="true">
                 <p className="label mb-3 flex items-center justify-between">
                   <span>muhammad / ielts.mock</span>
                   <span className="chip chip--accent !py-0.5 text-[10px]">PWA</span>
@@ -173,19 +174,21 @@ export default function Hero({ profile: p, study }: Props) {
                 )}
               </div>
               <div className="hero-panel hero-panel--front">
-                <span className="chip">
+                <span className="chip" aria-hidden="true">
                   <Icon name="rocket" size={12} />
                   Vercel&apos;da jonli
                 </span>
-                <a
-                  href={safeHref(p.github) ?? "https://github.com"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="link-underline text-small"
-                >
-                  GitHub
-                  <Icon name="arrow-up-right" size={13} />
-                </a>
+                {safeHref(p.github) ? (
+                  <a
+                    href={safeHref(p.github) as string}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="link-underline text-small"
+                  >
+                    GitHub
+                    <Icon name="arrow-up-right" size={13} />
+                  </a>
+                ) : null}
               </div>
             </div>
 
@@ -237,4 +240,25 @@ export default function Hero({ profile: p, study }: Props) {
       </div>
     </section>
   );
+}
+
+/** DB'dagi `title`ni H1 qiladi; `&` bo'lsa ikkinchi qism accent. Yangi matn yozilmaydi. */
+function TitleMark({ title }: { title: string }) {
+  const parts = title.split(/\s*&\s*/).map((s) => s.trim()).filter(Boolean);
+  if (parts.length < 2) return <>{title}</>;
+  return (
+    <>
+      {parts[0]} &{" "}
+      <span className="display-em">{parts.slice(1).join(" & ")}</span>
+    </>
+  );
+}
+
+/** Yorliq bilan takrorlanadigan so'zni qiymatdan olib tashlaydi (`10+ mijoz` → `10+`). */
+function compactStat(unit: string, raw: string): string {
+  const v = (raw ?? "").trim();
+  if (!v) return "";
+  const re = new RegExp(`\\s*(ta\\s+)?${unit}(lar)?\\.?$`, "i");
+  const trimmed = v.replace(re, "").trim();
+  return trimmed || v;
 }

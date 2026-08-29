@@ -60,7 +60,7 @@ export default function Services({ services }: { services: Service[] }) {
                 </ul>
               ) : null}
 
-              <a href="#contact" className="link-underline mt-6 inline-flex text-small">
+              <a href="/#contact" className="link-underline mt-6 inline-flex text-small">
                 Muhokama qilish
                 <Icon name="arrow-up-right" size={13} />
               </a>

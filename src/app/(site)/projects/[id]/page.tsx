@@ -144,7 +144,7 @@ export default async function ProjectPage({ params }: Props) {
               fill
               priority
               sizes="(min-width: 64rem) 62rem, 100vw"
-              className="object-cover"
+              className="object-cover object-top"
             />
           ) : (
             <div
@@ -176,8 +176,13 @@ export default async function ProjectPage({ params }: Props) {
           <div className="mt-12 grid gap-3 sm:grid-cols-2">
             {gallery.map((src, i) => (
               <div key={src} className="relative aspect-16/10 overflow-hidden rounded-3 border border-line-1">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt={`${project.title} — ekran ${i + 1}`} className="h-full w-full object-cover" loading="lazy" />
+                <Image
+                  src={src}
+                  alt={`${project.title} — ekran ${i + 1}`}
+                  fill
+                  sizes="(min-width: 40rem) 50vw, 100vw"
+                  className="object-cover object-top"
+                />
               </div>
             ))}
           </div>

@@ -16,7 +16,7 @@ function Cover({ project, priority = false }: { project: Project; priority?: boo
         fill
         priority={priority}
         sizes="(min-width: 64rem) 50vw, 100vw"
-        className="object-cover transition-transform duration-700 group-hover:scale-[1.015]"
+        className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.015]"
       />
     );
   }
@@ -26,10 +26,20 @@ function Cover({ project, priority = false }: { project: Project; priority?: boo
         {(project.title || "P").trim().charAt(0)}
       </span>
       <span className="font-mono text-micro uppercase tracking-[0.16em] text-ink-3">
-        {project.link ? new URL(project.link).host.replace(/^www\./, "") : project.title}
+        {hostOf(project.link) || project.title}
       </span>
     </div>
   );
+}
+
+function hostOf(link: string | null | undefined): string | null {
+  const href = safeHref(link);
+  if (!href) return null;
+  try {
+    return new URL(href).host.replace(/^www\./, "");
+  } catch {
+    return null;
+  }
 }
 
 function TechChips({ tech, limit = 6 }: { tech: string | null; limit?: number }) {
@@ -125,10 +135,7 @@ export default function Projects({ projects, index = "04" }: { projects: Project
                     ) : null}
                   </div>
                   <h3 className="display text-display-m">
-                    {/* Stretched link: butun karta bosiladigan, lekin HTML valid */}
-                    <span className="after:absolute after:inset-0 after:content-[''] transition-colors group-hover:text-accent-text">
-                      {featured.title}
-                    </span>
+                    <span className="transition-colors group-hover:text-accent-text">{featured.title}</span>
                   </h3>
                   <p className="mt-3 max-w-prose text-body text-ink-2">{featured.description}</p>
                 </div>
@@ -197,9 +204,7 @@ export default function Projects({ projects, index = "04" }: { projects: Project
                       {p.role ? <span className="truncate">{p.role}</span> : null}
                     </div>
                     <h3 className="display text-title font-semibold">
-                      <span className="after:absolute after:inset-0 after:content-[''] transition-colors group-hover:text-accent-text">
-                        {p.title}
-                      </span>
+                      <span className="transition-colors group-hover:text-accent-text">{p.title}</span>
                     </h3>
                     <p className="mt-2 line-clamp-3 text-small text-ink-2">{p.description}</p>
                   </div>
@@ -219,7 +224,7 @@ export default function Projects({ projects, index = "04" }: { projects: Project
                 boʻlimga qoʻshiladi; oldindan vaʼda qilinmagan sana yoʻq.
               </span>
             </p>
-            <a href="#contact" className="btn btn--sm">
+            <a href="/#contact" className="btn btn--sm">
               Sizning gʻoyangizni muhokama qilish
               <Icon name="arrow-right" size={14} />
             </a>

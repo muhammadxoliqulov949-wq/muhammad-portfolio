@@ -89,5 +89,5 @@ export function decodeMedia(data: string): Uint8Array {
   return new Uint8Array(Buffer.from(data, "base64"));
 }
 
-/** Brauzer/CDN uchun qisqa muddatli cache: almashtirilsa ~1 daqiqada ko'rinadi. */
-export const MEDIA_CACHE = "public, max-age=60, stale-while-revalidate=600";
+/** ETag bilan qayta tekshirish — almashtirilgan portret darhol ko'rinadi. */
+export const MEDIA_CACHE = "public, max-age=0, must-revalidate";

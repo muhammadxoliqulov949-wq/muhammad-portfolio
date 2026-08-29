@@ -205,10 +205,13 @@
 html {
   scroll-behavior: smooth;
   /* fixed header balandligi + nafas (audit: fokus/anchor header ostiga kirib qolardi) */
-  scroll-padding-top: calc(var(--header-h) + 1.25rem);
-  scroll-padding-bottom: 6rem;
+  scroll-padding-top: calc(var(--header-h) + env(safe-area-inset-top, 0px) + 1.25rem);
+  scroll-padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
   -webkit-text-size-adjust: 100%;
   interpolation-quality: high-quality;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+  max-width: 100%;
 }
 
 body {
@@ -228,6 +231,10 @@ body {
   min-height: 100dvh;
   /* audit: overflow-x: hidden o'rniga aniq cheklov + xato yashirmaslik */
   overflow-wrap: break-word;
+  overflow-x: clip;
+  max-width: 100%;
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
   transition: background-color 0.4s var(--ease-out-soft), color 0.4s var(--ease-out-soft);
 }
 
@@ -531,6 +538,64 @@ select {
   transform: translateY(1px);
 }
 
+/* Tun / Kun — barcha qurilmalarda 44px target */
+.theme-switch {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 3px;
+  gap: 2px;
+  border-radius: 999px;
+  border: 1px solid var(--c-line-1);
+  background: var(--c-surface-1);
+  flex: none;
+}
+.theme-switch__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  min-height: 38px;
+  min-width: 38px;
+  padding: 0 0.55rem;
+  border-radius: 999px;
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: var(--c-ink-3);
+  transition: background-color 0.18s var(--ease-out-soft), color 0.18s var(--ease-out-soft);
+}
+.theme-switch__btn[aria-pressed="true"] {
+  background: var(--c-accent);
+  color: var(--c-accent-ink);
+}
+@media (min-width: 30rem) {
+  .theme-switch__btn {
+    padding: 0 0.75rem;
+  }
+}
+@media (max-width: 29.99rem) {
+  .theme-switch__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+}
+
+.site-header {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+a,
+button,
+.btn,
+.icon-btn,
+.theme-switch__btn {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: color-mix(in srgb, var(--c-accent) 24%, transparent);
+}
+
 /* =========================================================================
    Kartalar va bento
    ========================================================================= */
@@ -559,6 +624,18 @@ a.card:hover,
 
 .card--flat:hover {
   transform: none;
+}
+
+/* Butun karta bosiladigan, ichidagi havolalar nested <a> emas */
+.card__hit {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+}
+.card :is(a, button):not(.card__hit) {
+  position: relative;
+  z-index: 1;
 }
 
 /* Bento: mobil'da 1 ustun, desktop'da 12-ustun to'r (2026 standarti) */
@@ -662,7 +739,8 @@ a.card:hover,
   border: 1px solid var(--c-line-1);
   background: var(--c-canvas);
   color: var(--c-ink-1);
-  font-size: var(--text-body);
+  /* 16px — iOS fokusda zoom qilmasin (Windows/macOS/Android ham bir xil) */
+  font-size: 16px;
   transition:
     border-color 0.18s,
     background-color 0.18s,
@@ -1020,6 +1098,34 @@ textarea.input {
 @media (min-width: 64rem) {
   .hero-panel--back {
     width: 76%;
+  }
+}
+
+/* Telefon: 3D panellar gorizontal scroll bermasin */
+@media (max-width: 63.99rem) {
+  .hero-panels {
+    perspective: none;
+    margin-top: 0.75rem;
+    padding: 0;
+  }
+  .hero-panel {
+    width: 100% !important;
+    margin: 0 0 0.55rem !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  .hero-panel--back {
+    display: none;
+  }
+}
+
+@media (max-width: 30rem) {
+  .hero-actions .btn--lg {
+    width: 100%;
+  }
+  .hero-photo {
+    max-width: 20rem;
+    margin-inline: auto;
   }
 }
 

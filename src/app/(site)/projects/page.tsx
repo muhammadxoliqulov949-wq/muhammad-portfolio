@@ -89,9 +89,7 @@ export default async function ProjectsIndexPage() {
                         ) : null}
                       </p>
                       <h2 className="display text-title font-semibold">
-                        <span className="after:absolute after:inset-0 after:content-[''] transition-colors group-hover:text-accent-text">
-                          {p.title}
-                        </span>
+                        <span className="transition-colors group-hover:text-accent-text">{p.title}</span>
                       </h2>
                       <p className="mt-1.5 line-clamp-2 text-small text-ink-2">{p.description}</p>
                       {p.impact ? (

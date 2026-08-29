@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { cache } from "react";
 import { db } from "@/db";
 import { achievements, education, experience, profile, projects, services, skills, testimonials } from "@/db/schema";
-import { asc, eq } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
 
 /**
  * Sayt ma'lumotlarini yuklash — bitta manba.
@@ -83,9 +83,9 @@ export const getSiteData = cache(async function getSiteData(): Promise<SiteData>
       .select()
       .from(projects)
       .where(eq(projects.published, true))
-      .orderBy(asc(projects.featured), asc(projects.order))
+      .orderBy(desc(projects.featured), asc(projects.order))
       .all(),
-    db.select().from(skills).orderBy(asc(skills.category), asc(skills.order)).all(),
+    db.select().from(skills).orderBy(asc(skills.order)).all(),
     db.select().from(services).orderBy(asc(services.order)).all(),
     db.select().from(experience).orderBy(asc(experience.order)).all(),
     db.select().from(testimonials).orderBy(asc(testimonials.order)).all(),
@@ -262,8 +262,14 @@ export function achievementsByKind(list: Achievement[]) {
 }
 export const highlightsOf = (value?: string | null): string[] => toListSafe(value);
 
+/** Ichki bo'lim havolasi — `/projects` kabi sahifadan ham bosh sahifaga olib boradi. */
+export function sectionHref(id: string): string {
+  return `/#${id}`;
+}
+
 /** Sahifa uchun navigatsiya (bo'lim mavjud bo'lsagina ko'rsatiladi). */
 export function sectionsOf(data: SiteData) {
+  const hasApproach = Boolean(data.profile.workflow?.trim() || data.profile.goals?.trim());
   return [
     { id: "home", label: "Bosh sahifa" },
     { id: "about", label: "Kimman" },
@@ -273,6 +279,7 @@ export function sectionsOf(data: SiteData) {
     { id: "services", label: "Xizmatlar", has: data.services.length > 0 },
     { id: "education", label: "Ta'lim", has: data.education.length > 0 },
     { id: "achievements", label: "Yutuqlar", has: data.achievements.length > 0 },
+    { id: "approach", label: "Uslub", has: hasApproach },
     { id: "contact", label: "Aloqa", has: true },
   ].filter((s) => s.has !== false);
 }

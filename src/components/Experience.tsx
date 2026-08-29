@@ -82,7 +82,7 @@ export default function Experience({ items, profile }: { items: ExperienceItem[]
             Hozirda: <span className="font-medium text-ink-1">IELTS.mock</span> platformasini
             rivojlantirish davom etmoqda
           </p>
-          <a href="#work" className="link-underline ml-auto text-small">
+          <a href="/#work" className="link-underline ml-auto text-small">
             Loyihani koʻrish
             <Icon name="arrow-right" size={13} />
           </a>
