@@ -9,6 +9,48 @@ type Props = {
   className?: string;
 };
 
+type PolicyDoc = Document & {
+  permissionsPolicy?: { allowsFeature: (feature: string) => boolean };
+  featurePolicy?: { allowsFeature: (feature: string) => boolean };
+};
+
+/** Preview iframe / Permissions-Policy clipboard-write ni bloklaganda writeText chaqirilmasin. */
+function clipboardApiAllowed(): boolean {
+  if (typeof navigator === "undefined" || !window.isSecureContext) return false;
+  if (typeof navigator.clipboard?.writeText !== "function") return false;
+  const doc = document as PolicyDoc;
+  try {
+    if (doc.permissionsPolicy?.allowsFeature) {
+      return doc.permissionsPolicy.allowsFeature("clipboard-write");
+    }
+    if (doc.featurePolicy?.allowsFeature) {
+      return doc.featurePolicy.allowsFeature("clipboard-write");
+    }
+  } catch {
+    return false;
+  }
+  return true;
+}
+
+function copyWithExecCommand(value: string) {
+  const ta = document.createElement("textarea");
+  ta.value = value;
+  ta.setAttribute("readonly", "");
+  ta.setAttribute("aria-hidden", "true");
+  ta.style.cssText = "position:fixed;left:-9999px;top:0;opacity:0";
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  ta.setSelectionRange(0, value.length);
+  let ok = false;
+  try {
+    ok = document.execCommand("copy");
+  } finally {
+    ta.remove();
+  }
+  if (!ok) throw new Error("copy failed");
+}
+
 /**
  * Bir bosishda nusxa olish (email / telegram username).
  * Skrinridder uchun `aria-live` e'lon beradi — clipboard API nativ
@@ -19,27 +61,28 @@ export default function CopyButton({ value, label = "Nusxa olish", className = "
   const [state, setState] = useState<"idle" | "copied" | "failed">("idle");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
+  useEffect(
+    () => () => {
+      if (timer.current) clearTimeout(timer.current);
+    },
+    [],
+  );
 
   async function copy() {
     try {
-      if (navigator.clipboard?.writeText) {
+      if (clipboardApiAllowed()) {
         await navigator.clipboard.writeText(value);
       } else {
-        // Eski/sifsiz kontekst (http) uchun zaxira yo'l
-        const ta = document.createElement("textarea");
-        ta.value = value;
-        ta.setAttribute("readonly", "");
-        ta.style.position = "fixed";
-        ta.style.opacity = "0";
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand("copy");
-        ta.remove();
+        copyWithExecCommand(value);
       }
       setState("copied");
     } catch {
-      setState("failed");
+      try {
+        copyWithExecCommand(value);
+        setState("copied");
+      } catch {
+        setState("failed");
+      }
     }
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => setState("idle"), 2000);

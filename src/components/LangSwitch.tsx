@@ -33,7 +33,7 @@ export default function LangSwitch({ locale }: { locale: Locale }) {
           key={id}
           type="button"
           className="lang-switch__btn"
-          aria-pressed={locale === id}
+          aria-pressed={locale === id ? "true" : "false"}
           aria-label={LOCALE_META[id].name}
           onClick={() => choose(id)}
         >

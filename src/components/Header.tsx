@@ -193,7 +193,7 @@ export default function Header({
               <button
                 type="button"
                 className="site-header__link site-header__more-btn"
-                aria-expanded={moreOpen}
+                aria-expanded={moreOpen ? "true" : "false"}
                 aria-haspopup="true"
                 onClick={() => setMoreOpen((v) => !v)}
               >
