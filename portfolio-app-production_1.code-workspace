@@ -1,0 +1,23 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../portfolio-app-redesign/scripts"
+		},
+		{
+			"path": "../portfolio-app-redesign/public"
+		},
+		{
+			"path": "../portfolio-app-redesign/drizzle"
+		},
+		{
+			"path": "../portfolio-app-redesign/src"
+		},
+		{
+			"path": "../portfolio-app-redesign/data"
+		}
+	],
+	"settings": {}
+}
