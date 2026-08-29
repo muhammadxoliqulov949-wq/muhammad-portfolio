@@ -241,7 +241,7 @@ export default function Header({
             type="button"
             className="icon-btn site-header__menu"
             aria-label={open ? t(locale, "nav.menuClose") : t(locale, "nav.menuOpen")}
-            aria-expanded={open}
+            aria-expanded={open ? "true" : "false"}
             aria-controls="mobile-nav"
             onClick={() => setOpen((v) => !v)}
           >

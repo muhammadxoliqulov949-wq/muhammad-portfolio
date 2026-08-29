@@ -14,19 +14,30 @@ type PolicyDoc = Document & {
   featurePolicy?: { allowsFeature: (feature: string) => boolean };
 };
 
-/** Preview iframe / Permissions-Policy clipboard-write ni bloklaganda writeText chaqirilmasin. */
+/** Preview iframe ota-sahifasi clipboard-write ni yopsachi — writeText umuman chaqirilmasin. */
+function inEmbeddedFrame(): boolean {
+  try {
+    return window.self !== window.top;
+  } catch {
+    return true;
+  }
+}
+
 function clipboardApiAllowed(): boolean {
   if (typeof navigator === "undefined" || !window.isSecureContext) return false;
   if (typeof navigator.clipboard?.writeText !== "function") return false;
-  const doc = document as PolicyDoc;
-  try {
-    if (doc.permissionsPolicy?.allowsFeature) {
-      return doc.permissionsPolicy.allowsFeature("clipboard-write");
+  if (inEmbeddedFrame()) {
+    const doc = document as PolicyDoc;
+    try {
+      if (doc.permissionsPolicy?.allowsFeature) {
+        return doc.permissionsPolicy.allowsFeature("clipboard-write");
+      }
+      if (doc.featurePolicy?.allowsFeature) {
+        return doc.featurePolicy.allowsFeature("clipboard-write");
+      }
+    } catch {
+      /* ignore */
     }
-    if (doc.featurePolicy?.allowsFeature) {
-      return doc.featurePolicy.allowsFeature("clipboard-write");
-    }
-  } catch {
     return false;
   }
   return true;
