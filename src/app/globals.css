@@ -67,7 +67,7 @@
   --text-display-l: clamp(2rem, 1.4rem + 2.7vw, 3.35rem);
   --text-display-l--line-height: 1.04;
   --text-display-l--letter-spacing: -0.028em;
-  --text-display-xl: clamp(2.6rem, 1.5rem + 5vw, 5.25rem);
+  --text-display-xl: clamp(2.85rem, 1.35rem + 6.2vw, 6.1rem);
   --text-display-xl--line-height: 0.95;
   --text-display-xl--letter-spacing: -0.035em;
 
@@ -217,8 +217,8 @@ html {
 body {
   --header-h: 84px;
   --gutter: clamp(1.15rem, 4vw, 2.5rem);
-  --container: 78rem;
-  --section-y: clamp(4.25rem, 2.4rem + 7vw, 8.5rem);
+  --container: 80rem;
+  --section-y: clamp(4.75rem, 2.6rem + 8vw, 9.75rem);
 
   margin: 0;
   background-color: var(--c-canvas);
@@ -429,6 +429,31 @@ select {
 
 .label-accent {
   color: var(--c-accent-text);
+}
+
+.section-head {
+  position: relative;
+}
+.section-head__index {
+  position: absolute;
+  left: -0.08em;
+  top: -0.55em;
+  z-index: 0;
+  font-family: var(--font-display);
+  font-size: clamp(4.5rem, 3rem + 8vw, 9rem);
+  font-weight: 600;
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+  color: var(--c-ink-1);
+  opacity: 0.045;
+  pointer-events: none;
+  user-select: none;
+}
+.section-head .label,
+.section-head h2,
+.section-head p {
+  position: relative;
+  z-index: 1;
 }
 
 /* =========================================================================
@@ -710,7 +735,7 @@ select {
 .site-header__link:hover {
   color: var(--c-ink-1);
 }
-.site-header__link[aria-current="true"] {
+.site-header__link[aria-current="page"] {
   color: var(--c-ink-1);
   background: var(--c-surface-1);
   box-shadow: var(--sh-1);
@@ -773,7 +798,7 @@ select {
   font-weight: 500;
   color: var(--c-ink-2);
 }
-.site-header__sheet-link[aria-current="true"] {
+.site-header__sheet-link[aria-current="page"] {
   color: var(--c-ink-1);
   background: var(--c-surface-2);
 }
@@ -823,7 +848,7 @@ a.card:hover,
 .card:focus-within {
   border-color: var(--c-line-2);
   background: var(--c-surface-2);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow: var(--sh-2);
 }
 
@@ -1087,38 +1112,51 @@ textarea.input {
   background: var(--c-accent-text);
 }
 
-/* Hero foni: ko'rinadigan to'r (2026 "visible grid" uslubiyati) + yuqoridan
-   xiralash. Faqat bitta statik fon — GPU uchun arzon. */
+/* Hero: tinch to'r + yumshoq fade — agentlik tozaligi, talaba ovozi. */
 .u-hero-lines {
   background-image:
-    linear-gradient(rgba(243, 241, 234, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(243, 241, 234, 0.045) 1px, transparent 1px);
-  background-size: 64px 64px;
+    radial-gradient(80% 55% at 85% 0%, var(--c-accent-soft), transparent 58%),
+    linear-gradient(rgba(243, 241, 234, 0.038) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(243, 241, 234, 0.038) 1px, transparent 1px);
+  background-size: auto, 72px 72px, 72px 72px;
   background-position: center top;
-  mask-image: linear-gradient(180deg, #000 0%, #000 42%, transparent 92%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 48%, transparent 96%);
 }
 [data-theme="light"] .u-hero-lines {
   background-image:
-    linear-gradient(rgba(20, 22, 27, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(20, 22, 27, 0.05) 1px, transparent 1px);
+    radial-gradient(80% 55% at 85% 0%, var(--c-accent-soft), transparent 58%),
+    linear-gradient(rgba(20, 22, 27, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 22, 27, 0.045) 1px, transparent 1px);
 }
 
-/* Hero: portret freymi — rasm bo'lmasa monogram, bo'sh <img> hech qachon.
-   pastki burchakdagi panellar rasm ustiga chiqib turadi (flow + negative margin). */
+.hero-name {
+  display: flex;
+  flex-direction: column;
+  gap: 0.02em;
+  line-height: 0.88;
+}
+.hero-name__first {
+  font-size: var(--text-display-xl);
+  letter-spacing: -0.04em;
+}
+.hero-name__last {
+  font-size: clamp(2rem, 1.1rem + 4vw, 4.25rem);
+  line-height: 0.92;
+}
+
 .hero-photo {
   position: relative;
   isolation: isolate;
   aspect-ratio: 4 / 5;
-  border-radius: var(--radius-4);
+  border-radius: 28px;
   border: 1px solid var(--c-line-1);
   background:
     radial-gradient(120% 90% at 80% 0%, var(--c-accent-soft), transparent 58%),
     var(--c-surface-2);
   overflow: hidden;
-  box-shadow: var(--shadow-3);
+  box-shadow: var(--sh-3);
 }
 .hero-photo::after {
-  /* ichki hairline — «print» hissi */
   content: "";
   position: absolute;
   inset: 0;
@@ -1134,7 +1172,7 @@ textarea.input {
 }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .hero-photo:hover .hero-photo__img {
-    scale: 1.03;
+    scale: 1.025;
   }
 }
 .hero-photo__mono {
@@ -1146,9 +1184,9 @@ textarea.input {
   justify-items: center;
   text-align: center;
   background-image:
-    linear-gradient(color-mix(in srgb, var(--c-ink-1) 5%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--c-ink-1) 5%, transparent) 1px, transparent 1px);
-  background-size: 28px 28px;
+    linear-gradient(color-mix(in srgb, var(--c-ink-1) 4.5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--c-ink-1) 4.5%, transparent) 1px, transparent 1px);
+  background-size: 32px 32px;
 }
 .hero-photo__caption {
   position: absolute;
@@ -1160,12 +1198,105 @@ textarea.input {
   align-items: baseline;
   justify-content: space-between;
   gap: 0.5rem 1rem;
-  padding: 2.25rem 1.1rem 0.95rem;
+  padding: 2.4rem 1.15rem 1rem;
   background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--c-canvas) 88%, transparent) 58%);
   backdrop-filter: blur(2px);
 }
-.hero-panels {
-  margin-top: -2.75rem;
+
+/* Bitta process card — 3D shablon o'rniga. */
+.hero-process {
+  position: relative;
+  z-index: 3;
+  margin-top: -2.4rem;
+  margin-inline: 1rem 0.4rem;
+  padding: 1rem 1.1rem 1.05rem;
+  border-radius: var(--radius-3);
+  border: 1px solid var(--c-line-1);
+  background: color-mix(in srgb, var(--c-surface-1) 88%, transparent);
+  box-shadow: var(--sh-2);
+}
+@supports (backdrop-filter: blur(8px)) {
+  .hero-process {
+    backdrop-filter: blur(16px) saturate(1.15);
+  }
+}
+.hero-process__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.55rem;
+}
+.hero-process__list li {
+  display: grid;
+  grid-template-columns: 1.6rem minmax(0, 1fr);
+  gap: 0.55rem;
+  align-items: start;
+  font-size: var(--text-small);
+  color: var(--c-ink-2);
+}
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  margin-top: 0.85rem;
+  padding: 0.15rem 0.2rem;
+  border: 1px solid var(--c-line-1);
+  border-radius: var(--radius-3);
+  background: var(--c-surface-1);
+}
+.hero-stats > div {
+  padding: 0.7rem 0.85rem;
+}
+.hero-stats > div + div {
+  border-inline-start: 1px solid var(--c-line-1);
+}
+.hero-stats dt {
+  font-size: var(--text-micro);
+  font-family: var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c-ink-3);
+}
+.hero-stats dd {
+  margin: 0.35rem 0 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.75rem;
+  margin-top: 3.5rem;
+  padding-top: 1.35rem;
+  border-top: 1px solid var(--c-line-1);
+  font-size: var(--text-small);
+  color: var(--c-ink-2);
+}
+.hero-meta li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.hero-meta__scroll {
+  margin-left: auto;
+  color: var(--c-ink-3);
+}
+@media (max-width: 47.99rem) {
+  .hero-meta__scroll {
+    display: none;
+  }
+  .hero-stats {
+    grid-template-columns: 1fr;
+  }
+  .hero-stats > div + div {
+    border-inline-start: 0;
+    border-top: 1px solid var(--c-line-1);
+  }
 }
 
 /* Portret ustidagi admin tugmasi («+») — faqat admin kirganda render qilinadi */
@@ -1238,91 +1369,6 @@ textarea.input {
     transition: none;
   }
 }
-/* Hero: suzuvchi ish oqimi panellari — pseudo-3D, CSS'gana (JS yo'q).
-   Maqsad: "AI-assisted workflow" ni vizual metafora bilan ko'rsatish. */
-.hero-panels {
-  position: relative;
-  padding: 2.5rem 0 3rem;
-  perspective: 1000px;
-}
-.hero-panel {
-  border: 1px solid var(--c-line-1);
-  border-radius: var(--radius-3);
-  background: color-mix(in srgb, var(--c-surface-2) 90%, transparent);
-  box-shadow: var(--shadow-2);
-  padding: 0.95rem 1.15rem;
-  will-change: transform;
-}
-@supports (backdrop-filter: blur(2px)) {
-  .hero-panel {
-    backdrop-filter: blur(12px) saturate(1.1);
-  }
-}
-.hero-panel--back {
-  width: 82%;
-  opacity: 0.66;
-  transform: translate3d(11%, -6%, 0) rotate(-3.4deg);
-  animation: hero-float 9s ease-in-out infinite;
-}
-.hero-panel--mid {
-  position: relative;
-  z-index: 2;
-  width: 92%;
-  margin-top: -1.1rem;
-  margin-left: 4%;
-  transform: rotate(1.6deg);
-  animation: hero-float 7.2s ease-in-out infinite reverse;
-}
-.hero-panel--front {
-  position: relative;
-  z-index: 3;
-  width: 74%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-top: -0.9rem;
-  margin-left: 14%;
-  transform: rotate(-2deg);
-  animation: hero-float 11s ease-in-out infinite;
-}
-@keyframes hero-float {
-  0%,
-  100% {
-    translate: 0 0;
-  }
-  50% {
-    translate: 0 -9px;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .hero-panel {
-    animation: none;
-  }
-}
-@media (min-width: 64rem) {
-  .hero-panel--back {
-    width: 76%;
-  }
-}
-
-/* Telefon: 3D panellar gorizontal scroll bermasin */
-@media (max-width: 63.99rem) {
-  .hero-panels {
-    perspective: none;
-    margin-top: 0.75rem;
-    padding: 0;
-  }
-  .hero-panel {
-    width: 100% !important;
-    margin: 0 0 0.55rem !important;
-    transform: none !important;
-    animation: none !important;
-  }
-  .hero-panel--back {
-    display: none;
-  }
-}
 
 @media (max-width: 30rem) {
   .hero-actions .btn--lg {
@@ -1331,6 +1377,9 @@ textarea.input {
   .hero-photo {
     max-width: 20rem;
     margin-inline: auto;
+  }
+  .hero-process {
+    margin-inline: 0;
   }
 }
 

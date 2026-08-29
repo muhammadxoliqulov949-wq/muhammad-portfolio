@@ -18,15 +18,20 @@ type Props = {
  */
 export default function SectionHead({ index, eyebrow, title, lead, action, className = "" }: Props) {
   return (
-    <header className={`mb-9 flex flex-wrap items-end justify-between gap-6 md:mb-12 ${className}`}>
-      <div className="max-w-2xl">
+    <header className={`section-head mb-10 flex flex-wrap items-end justify-between gap-6 md:mb-14 ${className}`}>
+      <div className="relative max-w-2xl">
+        {index ? (
+          <span className="section-head__index u-num" aria-hidden>
+            {index}
+          </span>
+        ) : null}
         <div className="label mb-4 flex items-center gap-3">
           {index ? <span className="text-ink-3 u-num">{index}</span> : null}
-          <span className="h-px w-6 bg-line-2" aria-hidden />
+          <span className="h-px w-8 bg-line-2" aria-hidden />
           <span className="label-accent">{eyebrow}</span>
         </div>
         <h2 className="display text-display-l">{title}</h2>
-        {lead ? <p className="mt-4 text-lead text-ink-2">{lead}</p> : null}
+        {lead ? <p className="mt-5 max-w-xl text-lead text-ink-2">{lead}</p> : null}
       </div>
       {action ? <div className="flex shrink-0 items-center gap-3">{action}</div> : null}
     </header>

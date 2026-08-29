@@ -82,11 +82,7 @@ export default function About({ profile: p, locale = "uz" }: { profile: Profile;
           <Card className="p-5 !rounded-3" interactive={false}>
             <p className="flex items-start gap-3 text-small text-ink-2">
               <Icon name="info" size={16} className="mt-0.5 shrink-0 text-accent-text" />
-              <span>
-                Bu saytda faqat haqiqiy maʼlumot bor: soxta mijoz iqtiboslari, oʻylab topilgan raqamlar
-                yoki „yillar davomida expert“ kabi iboralar yoʻq. Bor narsa — qilingan ish va uni halol
-                koʻrsatish.
-              </span>
+              <span>{t(locale, "about.honesty")}</span>
             </p>
           </Card>
         </div>

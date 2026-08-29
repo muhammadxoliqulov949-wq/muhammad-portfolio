@@ -25,12 +25,8 @@ const SOCIAL_ICON = {
 } as const;
 
 /**
- * Hero — birinchi ekran.
- *
- * Uslubiy qaror: sun'iy "I'm a passionate developer" kirish o'rniga
- * to'g'ridan-to'g'ri identitet (ism + kasb) va haqiqiy raqamlar.
- * O'ng tarafdagi suzuvchi panellar — uni aldashtiruvchi "3D grafika" emas,
- * uning haqiqiy ish oqimi (AI-assisted workflow) vizualizatsiyasi.
+ * Hero — editorial spread, not an agency splash.
+ * Identity first (student name), craft second (frame, type, one process card).
  */
 type Props = { profile: Profile; study?: string; locale?: Locale };
 
@@ -40,6 +36,9 @@ export default function Hero({ profile: p, study, locale = "uz" }: Props) {
   const steps = txEach(locale, listFrom(p.workflow));
   const resume = safeHref(p.resumeUrl);
   const portrait = portraitOf(p);
+  const names = (p.fullName || "Muhammad").trim().split(/\s+/).filter(Boolean);
+  const firstName = names[0] || "Muhammad";
+  const lastName = names.slice(1).join(" ");
 
   const stats = [
     { label: t(locale, "hero.exp"), value: tx(locale, p.statExperience) },
@@ -56,21 +55,22 @@ export default function Hero({ profile: p, study, locale = "uz" }: Props) {
   return (
     <section id="home" className="u-hero-lines relative overflow-clip pt-28 pb-[var(--section-y)] md:pt-36">
       <div className="u-container">
-        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-16">
+        <div className="grid items-end gap-12 lg:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)] lg:gap-16 xl:gap-20">
           <div className="reveal">
             {p.badge ? (
-              <p className="label mb-7 flex flex-wrap items-center gap-2.5">
+              <p className="label mb-8 flex flex-wrap items-center gap-2.5">
                 <span className="dot" aria-hidden />
                 <span className="label-accent">{tx(locale, p.badge)}</span>
               </p>
             ) : null}
 
-            <h1 className="display text-display-xl leading-[0.94]">
-              {(p.fullName || "Muhammad").trim().split(/\s+/)[0]}
+            <h1 className="hero-name">
+              <span className="display hero-name__first">{firstName}</span>
+              {lastName ? <span className="display-em hero-name__last">{lastName}</span> : null}
             </h1>
 
-            <p className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="display text-[clamp(1.35rem,2.4vw,1.85rem)] font-semibold tracking-tight">
+            <p className="mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span className="display text-[clamp(1.2rem,2vw,1.65rem)] font-semibold tracking-tight">
                 <TitleMark title={p.title || roles[0] || "Student & AI Developer"} />
               </span>
               {roles.length > 1 ? (
@@ -81,9 +81,9 @@ export default function Hero({ profile: p, study, locale = "uz" }: Props) {
               ) : null}
             </p>
 
-            {p.bio ? <p className="mt-6 max-w-xl text-lead text-ink-2">{tx(locale, p.bio)}</p> : null}
+            {p.bio ? <p className="mt-7 max-w-[36rem] text-lead text-ink-2">{tx(locale, p.bio)}</p> : null}
 
-            <div className="hero-actions mt-9 flex flex-wrap items-center gap-2.5">
+            <div className="hero-actions mt-10 flex flex-wrap items-center gap-2.5">
               <a href={sectionHref("contact")} className="btn btn--accent btn--lg">
                 {t(locale, "hero.cta")}
                 <Icon name="arrow-right" size={16} />
@@ -100,7 +100,7 @@ export default function Hero({ profile: p, study, locale = "uz" }: Props) {
               ) : null}
             </div>
 
-            <div className="mt-8 flex flex-wrap items-center gap-2.5">
+            <div className="mt-8 flex flex-wrap items-center gap-2">
               {socials.map((s) => (
                 <a
                   key={s.key}
@@ -120,10 +120,7 @@ export default function Hero({ profile: p, study, locale = "uz" }: Props) {
             </div>
           </div>
 
-          {/* Portret + ish oqimi panellari. Rasm DB'dan (`photoUrl`) yoki
-              `public/media/portrait.*` faylidan olinadi; ikkalasi bo'lmasa
-              monogram freym chiqadi — bo'sh/buzuq rasm ko'rsatilmaydi. */}
-          <div className="reveal relative mx-auto w-full max-w-[440px] lg:max-w-none">
+          <div className="reveal relative mx-auto w-full max-w-[420px] lg:max-w-none lg:justify-self-end">
             <figure className="hero-photo">
               {portrait ? (
                 <Image
@@ -132,7 +129,7 @@ export default function Hero({ profile: p, study, locale = "uz" }: Props) {
                   fill
                   priority
                   unoptimized={portrait.startsWith("/api/media/")}
-                  sizes="(max-width: 1024px) 90vw, 440px"
+                  sizes="(max-width: 1024px) 90vw, 420px"
                   className="hero-photo__img"
                 />
               ) : (
@@ -146,61 +143,35 @@ export default function Hero({ profile: p, study, locale = "uz" }: Props) {
 
               <figcaption className="hero-photo__caption">
                 <span className="text-body font-semibold">{p.fullName || "Portfolio"}</span>
-                {p.location ? <span className="flex items-center gap-1.5 text-small text-ink-2">
-                  <Icon name="pin" size={12} className="text-ink-3" />
-                  {tx(locale, p.location)}
-                </span> : null}
+                {p.location ? (
+                  <span className="flex items-center gap-1.5 text-small text-ink-2">
+                    <Icon name="pin" size={12} className="text-ink-3" />
+                    {tx(locale, p.location)}
+                  </span>
+                ) : null}
               </figcaption>
             </figure>
 
-            <div className="hero-panels">
-              <div className="hero-panel hero-panel--back" aria-hidden="true">
-                <p className="label mb-2">{t(locale, "hero.ai")}</p>
-                <p className="text-small text-ink-2">{t(locale, "hero.prompt")}</p>
-              </div>
-              <div className="hero-panel hero-panel--mid" aria-hidden="true">
-                <p className="label mb-3 flex items-center justify-between">
-                  <span>muhammad / ielts.mock</span>
-                  <span className="chip chip--accent !py-0.5 text-[10px]">PWA</span>
-                </p>
-                {steps.length > 0 ? (
-                  <ol className="stack gap-2">
-                    {steps.slice(0, 4).map((step, i) => (
-                      <li key={step} className="flex items-start gap-2.5 text-small text-ink-2">
-                        <span className="u-num mt-0.5 shrink-0 font-mono text-micro text-ink-3">0{i + 1}</span>
-                        {step}
-                      </li>
-                    ))}
-                  </ol>
-                ) : (
-                  <p className="text-small text-ink-3">{t(locale, "hero.workflowEmpty")}</p>
-                )}
-              </div>
-              <div className="hero-panel hero-panel--front">
-                <span className="chip" aria-hidden="true">
-                  <Icon name="rocket" size={12} />
-                  {t(locale, "hero.live")}
-                </span>
-                {safeHref(p.github) ? (
-                  <a
-                    href={safeHref(p.github) as string}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="link-underline text-small"
-                  >
-                    GitHub
-                    <Icon name="arrow-up-right" size={13} />
-                  </a>
-                ) : null}
-              </div>
-            </div>
+            {steps.length > 0 ? (
+              <aside className="hero-process" aria-label={t(locale, "hero.ai")}>
+                <p className="label label-accent mb-3">{t(locale, "hero.ai")}</p>
+                <ol className="hero-process__list">
+                  {steps.slice(0, 4).map((step, i) => (
+                    <li key={step}>
+                      <span className="u-num font-mono text-micro text-ink-3">{String(i + 1).padStart(2, "0")}</span>
+                      <span>{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              </aside>
+            ) : null}
 
             {stats.length > 0 ? (
-              <dl className="hairline-x card card--flat mt-4 !rounded-3 px-4 py-1">
+              <dl className="hero-stats">
                 {stats.map((s) => (
-                  <div key={s.label} className="flex items-baseline justify-between gap-4 py-2.5">
-                    <dt className="text-small text-ink-2">{s.label}</dt>
-                    <dd className="display u-num text-[19px] font-semibold">{s.value}</dd>
+                  <div key={s.label}>
+                    <dt>{s.label}</dt>
+                    <dd className="display u-num">{s.value}</dd>
                   </div>
                 ))}
               </dl>
@@ -209,15 +180,15 @@ export default function Hero({ profile: p, study, locale = "uz" }: Props) {
         </div>
 
         {meta.length > 0 ? (
-          <ul className="mt-14 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-line-1 pt-6">
+          <ul className="hero-meta">
             {meta.map((m) => (
-              <li key={m.text} className="flex items-center gap-2 text-small text-ink-2">
+              <li key={m.text}>
                 <Icon name={m.icon} size={14} className="text-ink-3" />
                 {m.text}
               </li>
             ))}
             {p.email ? (
-              <li className="flex items-center gap-2 text-small text-ink-2">
+              <li>
                 <Icon name="mail" size={14} className="text-ink-3" />
                 <a href={`mailto:${p.email}`} className="link-underline">
                   {p.email}
@@ -225,14 +196,14 @@ export default function Hero({ profile: p, study, locale = "uz" }: Props) {
               </li>
             ) : null}
             {phoneHref(p.phone) ? (
-              <li className="flex items-center gap-2 text-small text-ink-2">
+              <li>
                 <Icon name="phone" size={14} className="text-ink-3" />
                 <a href={phoneHref(p.phone) as string} className="link-underline">
                   {p.phone}
                 </a>
               </li>
             ) : null}
-            <li className="ml-auto hidden items-center gap-2 text-small text-ink-3 md:flex">
+            <li className="hero-meta__scroll">
               <span className="animate-pulse-soft" aria-hidden>
                 <Icon name="chevron-down" size={14} />
               </span>
@@ -245,7 +216,6 @@ export default function Hero({ profile: p, study, locale = "uz" }: Props) {
   );
 }
 
-/** DB'dagi `title`ni H1 qiladi; `&` bo'lsa ikkinchi qism accent. Yangi matn yozilmaydi. */
 function TitleMark({ title }: { title: string }) {
   const parts = title.split(/\s*&\s*/).map((s) => s.trim()).filter(Boolean);
   if (parts.length < 2) return <>{title}</>;
@@ -256,5 +226,3 @@ function TitleMark({ title }: { title: string }) {
     </>
   );
 }
-
-
