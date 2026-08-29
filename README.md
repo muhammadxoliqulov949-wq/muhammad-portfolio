@@ -25,6 +25,7 @@ Professional darajadagi portfolio sayti: editorial (dark-first) dizayn tizimi, S
 | `npm run dev` | Lokal server (`http://localhost:3000`) |
 | `npm run build` / `npm start` | Production build va server |
 | `npm run lint` / `npm run typecheck` | ESLint (0 xato) / `tsc --noEmit` |
+| `npm run portrait -- <fayl\|URL>` | Portretni qayta ishlash va joylashtirish (4:5 kesish, siqish, `photoUrl`) |
 | `npm run db:generate` | Drizzle sxemasidan SQL migratsiya fayli |
 | `npm run db:migrate:run` | `drizzle/` dagi migratsiyalarni qo'llash |
 | `npm run db:migrate` | `generate` + qo'llash birga |
@@ -111,8 +112,16 @@ Sayt portret uchun **ikki manbani** qo'llab-quvvatlaydi; ikkalasi ham bo'lmasa h
 Qayerda ko'rinadi: hero'dagi portret freymi (4:5 kadrlash, `object-position: 50% 22%`, `priority` → LCP), sticky header avatari va **OG kartochkadagi** monogram kvadrati. Tavsiya etilgan o'lcham: 1000–1200 px tomon, 200–400 KB.
 
 ```bash
-public/media/portrait.jpg        # ← fayl shu yerga tashlanadi
+# 1-variant (tavsiya): faylni qayta ishlab joylaydi
+npm run portrait -- ~/rasmlar/portrait.png        # yoki https://… URL
+npm run portrait -- ./kadr.jpg --position north   # yuz yuqorida bo'lsa
+npm run portrait -- ./kadr.jpg --no-db            # DB'ga tegmasdan faqat fayl
+
+# 2-variant: faylni o'zingiz tashlaysiz
+public/media/portrait.jpg
 ```
+
+`npm run portrait` nima qiladi: EXIF burilishini to'g'irlaydi → 4:5 (1100×1375) «cover» bilan kesadi → progressive JPEG (~86 sifat) → `public/media/portrait.jpg` → `profile.photoUrl`ni yozadi (admin panelda ham ko'rinadi). `sharp` ishlatiladi, rasmning o'zi ixtir qilinmaydi: fayl bo'lmasa yoki buzilgan bo'lsa — xato beradi.
 
 **Ma'lumot oqimi:** `DB → src/lib/content.ts (cache + Promise.all) → RSC (HTML)`. Admin'da yozuv → `src/lib/crud.ts` → `revalidatePath('/', 'layout')` va tegishli yo'llar → sayt 1 daqiqada yangilanadi (ISR). `getSiteData` bitta React `cache()` ichida — har bir request'da 6 ta so'rov parallell.
 
