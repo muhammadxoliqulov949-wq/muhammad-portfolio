@@ -1,74 +1,67 @@
+import Icon from "./ui/Icon";
+import BackToTop from "./BackToTop";
+import { socialsOf, type Profile } from "@/lib/content";
+
 type Props = {
-  fullName: string;
-  initials: string;
-  email: string;
-  telegram: string;
-  github: string;
-  linkedin: string;
-  instagram: string;
+  profile: Profile;
+  links: { id: string; label: string }[];
 };
 
-export default function Footer({ fullName, initials, email, telegram, github, linkedin, instagram }: Props) {
-  const socials = [
-    { href: github, label: "GitHub", icon: "🐙" },
-    { href: linkedin, label: "LinkedIn", icon: "💼" },
-    { href: instagram, label: "Instagram", icon: "📸" },
-  ].filter((s) => s.href);
+const ICON = {
+  github: "github",
+  linkedin: "linkedin",
+  instagram: "instagram",
+  telegram: "telegram",
+  email: "mail",
+  phone: "phone",
+} as const;
+
+export default function Footer({ profile: p, links }: Props) {
+  const socials = socialsOf(p);
 
   return (
-    <footer className="relative mt-16 border-t border-[var(--border)] bg-[rgba(4,7,18,0.6)] backdrop-blur">
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgba(0,183,255,0.5)] to-transparent" aria-hidden />
-      <div className="pf-container py-10 flex flex-col md:flex-row items-center justify-between gap-6">
-        <a href="#home" className="flex items-center gap-2.5">
-          <span className="w-9 h-9 rounded-lg grid place-items-center font-display font-extrabold text-sm text-white bg-[var(--grad)]">
-            {initials}
-          </span>
-          <span className="font-display font-bold">
-            {fullName}
-            <span className="text-[var(--blue2)]">.</span>
-          </span>
-        </a>
+    <footer className="border-t border-line-1 bg-canvas-sunken/50">
+      <div className="u-container py-12">
+        <div className="grid gap-8 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_auto] md:items-start">
+          <div>
+            <p className="display text-display-m">
+              {p.fullName ? `${p.fullName}.` : "Portfolio."}{" "}
+              <span className="display-em">davomi bor</span>
+            </p>
+            {p.title ? <p className="mt-2 text-small text-ink-2">{p.title}</p> : null}
+          </div>
 
-        <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 pf-muted text-sm">
-          <a href="#skills" className="hover:text-[var(--text)] transition-colors">Ko&apos;nikmalar</a>
-          <a href="#services" className="hover:text-[var(--text)] transition-colors">Xizmatlar</a>
-          <a href="#projects" className="hover:text-[var(--text)] transition-colors">Loyihalar</a>
-          <a href="#contact" className="hover:text-[var(--text)] transition-colors">Aloqa</a>
-        </nav>
+          <nav aria-label="Sahifa bo'limlari" className="grid grid-cols-2 gap-x-6 gap-y-1.5 md:justify-items-end">
+            {links.map((l) => (
+              <a key={l.id} href={`#${l.id}`} className="u-link-quiet justify-self-start py-1 text-small text-ink-2 hover:text-ink-1 md:justify-self-end">
+                {l.label}
+              </a>
+            ))}
+          </nav>
 
-        <div className="flex items-center gap-3">
-          <a
-            href={telegram.startsWith("@") ? `https://t.me/${telegram.slice(1)}` : telegram}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Telegram"
-            className="w-9 h-9 grid place-items-center rounded-lg border border-[var(--border)] bg-[rgba(255,255,255,0.04)] pf-muted hover:text-[var(--blue2)] hover:border-[rgba(0,183,255,0.45)] transition-all"
-          >
-            ✈️
-          </a>
-          <a
-            href={`mailto:${email}`}
-            aria-label="Email"
-            className="w-9 h-9 grid place-items-center rounded-lg border border-[var(--border)] bg-[rgba(255,255,255,0.04)] pf-muted hover:text-[var(--blue2)] hover:border-[rgba(0,183,255,0.45)] transition-all"
-          >
-            ✉️
-          </a>
-          {socials.map((s) => (
-            <a
-              key={s.label}
-              href={s.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={s.label}
-              className="w-9 h-9 grid place-items-center rounded-lg border border-[var(--border)] bg-[rgba(255,255,255,0.04)] pf-muted hover:text-[var(--blue2)] hover:border-[rgba(0,183,255,0.45)] transition-all"
-            >
-              {s.icon}
-            </a>
-          ))}
+          <div className="flex flex-wrap items-center gap-2 md:flex-col md:items-end md:gap-2.5">
+            {socials.map((s) => (
+              <a
+                key={s.key}
+                href={s.href}
+                target={s.key === "email" || s.key === "phone" ? undefined : "_blank"}
+                rel="noopener noreferrer"
+                aria-label={s.label}
+                className="icon-btn"
+              >
+                <Icon name={ICON[s.key]} size={16} />
+              </a>
+            ))}
+          </div>
         </div>
-      </div>
-      <div className="border-t border-[var(--border)] py-5 text-center pf-muted text-sm">
-        © {new Date().getFullYear()} {fullName} — Portfolio sayti. Barcha huquqlar himoyalangan.
+
+        <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-line-1 pt-6">
+          <p className="text-small text-ink-3">
+            © {new Date().getFullYear()} {p.fullName || "Portfolio"} · Toshkentda yaratilgan ·{" "}
+            <span className="font-mono">Next.js 16 + Turso</span>
+          </p>
+          <BackToTop />
+        </div>
       </div>
     </footer>
   );

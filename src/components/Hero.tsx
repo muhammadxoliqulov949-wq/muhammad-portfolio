@@ -1,228 +1,239 @@
-"use client";
+import Image from "next/image";
+import Icon from "./ui/Icon";
+import PortraitSlot from "./PortraitSlot";
+import Rotator from "./Rotator";
+import CopyButton from "./ui/CopyButton";
+import {
+  listFrom,
+  phoneHref,
+  portraitOf,
+  rolesOf,
+  safeHref,
+  socialsOf,
+  type Profile,
+} from "@/lib/content";
 
-import { useEffect, useRef, useState } from "react";
+const SOCIAL_ICON = {
+  github: "github",
+  linkedin: "linkedin",
+  instagram: "instagram",
+  telegram: "telegram",
+  email: "mail",
+  phone: "phone",
+} as const;
 
-type ProfileData = {
-  fullName: string;
-  title: string;
-  role2: string;
-  role3: string;
-  badge: string;
-  bio: string;
-  avatarInitials: string;
-  photoUrl: string;
-  email: string;
-  telegram: string;
-  github: string;
-  linkedin: string;
-  instagram: string;
-  location: string;
-  resumeUrl: string;
-  statProjects: string;
-  statExperience: string;
-  statAvailability: string;
-};
+/**
+ * Hero — birinchi ekran.
+ *
+ * Uslubiy qaror: sun'iy "I'm a passionate developer" kirish o'rniga
+ * to'g'ridan-to'g'ri identitet (ism + kasb) va haqiqiy raqamlar.
+ * O'ng tarafdagi suzuvchi panellar — uni aldashtiruvchi "3D grafika" emas,
+ * uning haqiqiy ish oqimi (AI-assisted workflow) vizualizatsiyasi.
+ */
+type Props = { profile: Profile; study?: string };
 
-const ROLES = ["Full-stack dasturchi", "Veb-saytlar yarataman", "Admin panellar quraman", "Botlar yozaman"];
+export default function Hero({ profile: p, study }: Props) {
+  const roles = rolesOf(p);
+  const socials = socialsOf(p);
+  const steps = listFrom(p.workflow);
+  const resume = safeHref(p.resumeUrl);
+  const portrait = portraitOf(p);
 
-function SocialLink({ href, label, children }: { href: string; label: string; children: React.ReactNode }) {
-  if (!href) return null;
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={label}
-      className="w-10 h-10 grid place-items-center rounded-xl border border-[var(--border)] bg-[rgba(255,255,255,0.04)] text-[var(--muted)] hover:text-[var(--blue2)] hover:border-[rgba(0,183,255,0.45)] hover:-translate-y-0.5 transition-all"
-    >
-      {children}
-    </a>
-  );
-}
+  const stats = [
+    { label: "Amaliy tajriba", value: p.statExperience },
+    { label: "Mijozlar", value: p.statAvailability },
+    { label: "Saytlar", value: p.statProjects },
+  ].filter((s) => s.value);
 
-function CountUp({ value }: { value: string }) {
-  const [display, setDisplay] = useState(() => {
-    const match = value.match(/^(\d+)(.*)$/);
-    return match ? "0" : value;
-  });
-  const ref = useRef<HTMLSpanElement>(null);
-  const started = useRef(false);
-
-  useEffect(() => {
-    const match = value.match(/^(\d+)(.*)$/);
-    if (!match) return;
-    const target = Number(match[1]);
-    const suffix = match[2];
-
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (!entries[0].isIntersecting || started.current) return;
-        started.current = true;
-        const duration = 1300;
-        const t0 = performance.now();
-        const tick = (t: number) => {
-          const p = Math.min((t - t0) / duration, 1);
-          const eased = 1 - Math.pow(1 - p, 3);
-          setDisplay(`${Math.round(target * eased)}${suffix}`);
-          if (p < 1) requestAnimationFrame(tick);
-        };
-        requestAnimationFrame(tick);
-        io.disconnect();
-      },
-      { threshold: 0.4 }
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [value]);
-
-  return <span ref={ref}>{display}</span>;
-}
-
-export default function Hero({ data }: { data: ProfileData }) {
-  const [roleIndex, setRoleIndex] = useState(0);
-
-  useEffect(() => {
-    const id = setInterval(() => {
-      setRoleIndex((i) => (i + 1) % ROLES.length);
-    }, 2600);
-    return () => clearInterval(id);
-  }, []);
-
-  const initials = data.avatarInitials || "MX";
+  const meta = [
+    p.location ? { icon: "pin" as const, text: p.location } : null,
+    p.englishLevel ? { icon: "gauge" as const, text: `Ingliz tili: ${p.englishLevel}` } : null,
+    study ? { icon: "sparkle" as const, text: study } : null,
+  ].filter((x): x is { icon: "pin" | "gauge" | "sparkle"; text: string } => !!x);
 
   return (
-    <section id="home" className="relative overflow-hidden">
-      {/* Dekorativ orblar va to'r */}
-      <div className="absolute inset-0 pf-grid-bg" aria-hidden />
-      <div className="pf-orb w-[480px] h-[480px] -top-40 -right-32" style={{ background: "rgba(30,107,255,0.22)" }} aria-hidden />
-      <div className="pf-orb w-[380px] h-[380px] top-1/3 -left-40" style={{ background: "rgba(0,183,255,0.13)" }} aria-hidden />
+    <section id="home" className="u-hero-lines relative overflow-clip pt-28 pb-[var(--section-y)] md:pt-36">
+      <div className="u-container">
+        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-16">
+          <div className="reveal">
+            {p.badge ? (
+              <p className="label mb-7 flex flex-wrap items-center gap-2.5">
+                <span className="dot" aria-hidden />
+                <span className="label-accent">{p.badge}</span>
+              </p>
+            ) : null}
 
-      <div className="pf-container relative z-10 pt-36 pb-10 md:pt-44 md:pb-6">
-        <div className="grid md:grid-cols-[1.15fr_0.85fr] gap-12 lg:gap-16 items-center">
-          {/* Chap taraf */}
-          <div>
-            <span className="pf-badge mb-6">{data.badge}</span>
-
-            <h1 className="pf-title text-[clamp(38px,6.4vw,68px)] mb-5">
-              Salom, men{" "}
-              <span className="pf-grad-text">{data.fullName}</span>.
+            <h1 className="display text-display-xl leading-[0.94]">
+              Student &amp;{" "}
+              <span className="display-em">AI Developer</span>
             </h1>
 
-            <p className="font-display text-xl md:text-2xl font-semibold mb-5 min-h-[2.2rem]">
-              <span className="text-white">{ROLES[roleIndex]}</span>
-              <span className="pf-caret" aria-hidden />
+            <p className="mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span className="display text-[19px] font-semibold">{p.fullName || "Portfolio"}</span>
+              {roles.length > 1 ? (
+                <Rotator
+                  items={roles.slice(1)}
+                  className="flex h-6 font-mono text-micro uppercase tracking-[0.14em] text-ink-3"
+                />
+              ) : null}
             </p>
 
-            <p className="pf-muted text-base md:text-lg max-w-xl mb-8">{data.bio}</p>
+            {p.bio ? <p className="mt-6 max-w-xl text-lead text-ink-2">{p.bio}</p> : null}
 
-            <div className="flex flex-wrap items-center gap-4 mb-8">
-              <a href="#projects" className="pf-btn pf-btn-primary">
+            <div className="mt-9 flex flex-wrap items-center gap-2.5">
+              <a href="#contact" className="btn btn--accent btn--lg">
+                Keling, birga ishlaymiz
+                <Icon name="arrow-right" size={16} />
+              </a>
+              <a href="#work" className="btn btn--lg">
+                <Icon name="layers" size={16} />
                 Loyihalarni ko&apos;rish
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14" />
-                  <path d="M13 6l6 6-6 6" />
-                </svg>
               </a>
-              <a href="#contact" className="pf-btn">
-                Bog&apos;lanish
-              </a>
-              {data.resumeUrl ? (
-                <a href={data.resumeUrl} target="_blank" rel="noopener noreferrer" className="pf-btn">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 3v12" />
-                    <path d="M7 10l5 5 5-5" />
-                    <path d="M4 19h16" />
-                  </svg>
-                  CV yuklab olish
+              {resume ? (
+                <a href={resume} target="_blank" rel="noopener noreferrer" className="btn btn--ghost btn--lg">
+                  <Icon name="download" size={16} />
+                  CV (PDF)
                 </a>
               ) : null}
             </div>
 
-            <div className="flex items-center gap-3">
-              <SocialLink href={data.github} label="GitHub">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-2.15c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.75 2.69 1.25 3.35.95.1-.74.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.42-2.7 5.39-5.26 5.68.41.35.78 1.05.78 2.12v3.14c0 .3.21.66.8.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z" />
-                </svg>
-              </SocialLink>
-              <SocialLink href={data.linkedin} label="LinkedIn">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z" />
-                </svg>
-              </SocialLink>
-              <SocialLink href={data.instagram} label="Instagram">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="2" width="20" height="20" rx="5" />
-                  <circle cx="12" cy="12" r="4" />
-                  <circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none" />
-                </svg>
-              </SocialLink>
-              <SocialLink href={data.telegram.startsWith("@") ? `https://t.me/${data.telegram.slice(1)}` : data.telegram} label="Telegram">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M21.94 4.35a1.5 1.5 0 0 0-1.7-.57L2.8 10.02c-1.07.42-1.02 1.95.08 2.29l4.55 1.4 1.75 5.5c.3.94 1.5 1.16 2.12.4l2.54-3.1 4.36 3.2c.83.61 2.02.19 2.2-.78l2.27-13.26a1.5 1.5 0 0 0-.73-1.32zM8.98 12.93l9.07-5.68-7.6 6.98-.28 3.52-1.19-4.82z" />
-                </svg>
-              </SocialLink>
-              <span className="pf-muted text-sm hidden sm:flex items-center gap-2 ml-2">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z" />
-                  <circle cx="12" cy="10" r="3" />
-                </svg>
-                {data.location}
-              </span>
+            <div className="mt-8 flex flex-wrap items-center gap-2.5">
+              {socials.map((s) => (
+                <a
+                  key={s.key}
+                  href={s.href}
+                  target={s.key === "email" || s.key === "phone" ? undefined : "_blank"}
+                  rel="noopener noreferrer"
+                  aria-label={s.label}
+                  className="icon-btn"
+                >
+                  <Icon name={SOCIAL_ICON[s.key]} size={17} />
+                </a>
+              ))}
+              {p.email ? <CopyButton value={p.email} label="Emailni nusxa olish" /> : null}
+              {p.telegram ? (
+                <CopyButton value={p.telegram.replace("@", "")} label="Telegramni nusxa olish" />
+              ) : null}
             </div>
           </div>
 
-          {/* O'ng taraf — avatar */}
-          <div className="relative flex justify-center md:justify-end">
-            <div className="pf-avatar-ring relative w-[280px] h-[320px] sm:w-[320px] sm:h-[370px]">
-              <div className="absolute inset-0 rounded-[26px] overflow-hidden bg-[#0a1128] border border-[rgba(255,255,255,0.1)]">
-                {data.photoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={data.photoUrl} alt={data.fullName} className="w-full h-full object-cover" />
+          {/* Portret + ish oqimi panellari. Rasm DB'dan (`photoUrl`) yoki
+              `public/media/portrait.*` faylidan olinadi; ikkalasi bo'lmasa
+              monogram freym chiqadi — bo'sh/buzuq rasm ko'rsatilmaydi. */}
+          <div className="reveal relative mx-auto w-full max-w-[440px] lg:max-w-none">
+            <figure className="hero-photo">
+              {portrait ? (
+                <Image
+                  src={portrait}
+                  alt={`${p.fullName || "Muhammad Xoliqulov"} — portret`}
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 90vw, 440px"
+                  className="hero-photo__img"
+                />
+              ) : (
+                <div className="hero-photo__mono" aria-hidden="true">
+                  <span className="display text-display-l font-semibold tracking-tight">
+                    {(p.avatarInitials || p.fullName || "M").trim().slice(0, 2).toUpperCase()}
+                  </span>
+                </div>
+              )}
+              <PortraitSlot current={portrait} initials={p.avatarInitials || p.fullName} />
+
+              <figcaption className="hero-photo__caption">
+                <span className="text-body font-semibold">{p.fullName || "Portfolio"}</span>
+                {p.location ? <span className="flex items-center gap-1.5 text-small text-ink-2">
+                  <Icon name="pin" size={12} className="text-ink-3" />
+                  {p.location}
+                </span> : null}
+              </figcaption>
+            </figure>
+
+            <div className="hero-panels" aria-hidden="true">
+              <div className="hero-panel hero-panel--back">
+                <p className="label mb-2">AI yordamchi</p>
+                <p className="text-small text-ink-2">prompt · kod · izoh</p>
+              </div>
+              <div className="hero-panel hero-panel--mid">
+                <p className="label mb-3 flex items-center justify-between">
+                  <span>muhammad / ielts.mock</span>
+                  <span className="chip chip--accent !py-0.5 text-[10px]">PWA</span>
+                </p>
+                {steps.length > 0 ? (
+                  <ol className="stack gap-2">
+                    {steps.slice(0, 4).map((step, i) => (
+                      <li key={step} className="flex items-start gap-2.5 text-small text-ink-2">
+                        <span className="u-num mt-0.5 shrink-0 font-mono text-micro text-ink-3">0{i + 1}</span>
+                        {step}
+                      </li>
+                    ))}
+                  </ol>
                 ) : (
-                  <div className="w-full h-full grid place-items-center">
-                    <span className="font-display font-extrabold text-[110px] text-white/90 tracking-tight">
-                      {initials}
-                    </span>
-                  </div>
+                  <p className="text-small text-ink-3">Ish oqimi admin panelda sozlanadi.</p>
                 )}
-                <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-[#050816] to-transparent" aria-hidden />
               </div>
-
-              {/* Suzuvchi chiplar */}
-              <div
-                className="absolute -left-6 sm:-left-10 top-8 pf-card px-4 py-2.5 text-sm font-semibold flex items-center gap-2"
-                style={{ animation: "float-slow 5s ease-in-out infinite" }}
-              >
-                <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                Doim aloqada
-              </div>
-              <div
-                className="absolute -right-3 sm:-right-8 bottom-10 pf-card px-4 py-2.5 text-sm font-semibold flex items-center gap-2"
-                style={{ animation: "float-slow 6s ease-in-out 1s infinite" }}
-              >
-                <span className="text-base">⚡</span> Tez va sifatli
+              <div className="hero-panel hero-panel--front">
+                <span className="chip">
+                  <Icon name="rocket" size={12} />
+                  Vercel&apos;da jonli
+                </span>
+                <a
+                  href={safeHref(p.github) ?? "https://github.com"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="link-underline text-small"
+                >
+                  GitHub
+                  <Icon name="arrow-up-right" size={13} />
+                </a>
               </div>
             </div>
+
+            {stats.length > 0 ? (
+              <dl className="hairline-x card card--flat mt-4 !rounded-3 px-4 py-1">
+                {stats.map((s) => (
+                  <div key={s.label} className="flex items-baseline justify-between gap-4 py-2.5">
+                    <dt className="text-small text-ink-2">{s.label}</dt>
+                    <dd className="display u-num text-[19px] font-semibold">{s.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            ) : null}
           </div>
         </div>
 
-        {/* Statistika bandi */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-16 md:mt-20">
-          {[
-            { value: data.statProjects, label: "Bajarilgan loyihalar" },
-            { value: data.statExperience, label: "Ish tajribasi" },
-            { value: data.statAvailability, label: "Mavjudlik" },
-          ].map((s) => (
-            <div key={s.label} className="pf-card pf-card-hover p-5 text-center sm:text-left">
-              <div className="font-display text-3xl md:text-4xl font-bold pf-grad-text">
-                <CountUp value={s.value} />
-              </div>
-              <p className="pf-muted text-sm mt-1">{s.label}</p>
-            </div>
-          ))}
-        </div>
+        {meta.length > 0 ? (
+          <ul className="mt-14 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-line-1 pt-6">
+            {meta.map((m) => (
+              <li key={m.text} className="flex items-center gap-2 text-small text-ink-2">
+                <Icon name={m.icon} size={14} className="text-ink-3" />
+                {m.text}
+              </li>
+            ))}
+            {p.email ? (
+              <li className="flex items-center gap-2 text-small text-ink-2">
+                <Icon name="mail" size={14} className="text-ink-3" />
+                <a href={`mailto:${p.email}`} className="link-underline">
+                  {p.email}
+                </a>
+              </li>
+            ) : null}
+            {phoneHref(p.phone) ? (
+              <li className="flex items-center gap-2 text-small text-ink-2">
+                <Icon name="phone" size={14} className="text-ink-3" />
+                <a href={phoneHref(p.phone) as string} className="link-underline">
+                  {p.phone}
+                </a>
+              </li>
+            ) : null}
+            <li className="ml-auto hidden items-center gap-2 text-small text-ink-3 md:flex">
+              <span className="animate-pulse-soft" aria-hidden>
+                <Icon name="chevron-down" size={14} />
+              </span>
+              Pastga suring
+            </li>
+          </ul>
+        ) : null}
       </div>
     </section>
   );

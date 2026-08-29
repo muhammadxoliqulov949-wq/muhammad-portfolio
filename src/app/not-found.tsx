@@ -1,20 +1,33 @@
 import Link from "next/link";
+import Icon from "@/components/ui/Icon";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen grid place-items-center px-4 text-center">
-      <div>
-        <div className="pf-badge mb-4">404</div>
-        <h1 className="text-[clamp(32px,6vw,56px)] font-bold mb-3">
-          Sahifa <span className="text-[var(--blue2)]">topilmadi</span>
-        </h1>
-        <p className="pf-muted mb-8">
-          Siz izlagan sahifa mavjud emas yoki ko&apos;chirilgan bo&apos;lishi mumkin.
-        </p>
-        <Link href="/" className="pf-btn pf-btn-primary">
-          Bosh sahifaga qaytish
+    <main id="main" className="u-container flex min-h-dvh flex-col items-start justify-center py-24">
+      <p className="label mb-6 flex items-center gap-3">
+        <span className="u-num text-ink-3">404</span>
+        <span className="h-px w-6 bg-line-2" aria-hidden />
+        <span className="label-accent">Sahifa topilmadi</span>
+      </p>
+      <h1 className="display text-display-l max-w-xl">
+        Bunday manzil <span className="display-em">yo&apos;q</span>
+      </h1>
+      <p className="mt-5 max-w-md text-lead text-ink-2">
+        Havola eskirgan yoki manzil noto&apos;g&apos;ri yozilgan bo&apos;lishi mumkin. Quyidagilardan birini
+        tanlang — uzoqqa ketmadim.
+      </p>
+      <div className="mt-9 flex flex-wrap gap-2.5">
+        <Link href="/" className="btn btn--accent btn--lg">
+          Bosh sahifa
+          <Icon name="arrow-right" size={15} />
+        </Link>
+        <Link href="/projects" className="btn btn--lg">
+          Ishlar
+        </Link>
+        <Link href="/#contact" className="btn btn--ghost btn--lg">
+          Aloqa
         </Link>
       </div>
-    </div>
+    </main>
   );
 }

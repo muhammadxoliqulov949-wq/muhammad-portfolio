@@ -1,12 +1,10 @@
-import { createCollectionRoutes } from "@/lib/crud";
-import { skills } from "@/db/schema";
-import { z } from "zod";
+import { NextRequest } from "next/server";
+import { collections } from "@/lib/collections";
 
-export const skillSchema = z.object({
-  name: z.string().min(1).max(80),
-  level: z.number().int().min(0).max(100).default(80),
-  category: z.string().min(1).max(60).default("Frontend"),
-  order: z.number().int().default(0),
-});
+const routes = collections.skills;
 
-export const { GET, POST } = createCollectionRoutes(skills, skillSchema, skills.order);
+/** GET /api/skills — ochiq ro'yxat; ?all=1 (admin sessiyasi bilan) — hammasi. */
+export const GET = (req: NextRequest) => routes.GET(req);
+
+/** POST /api/skills — yangi yozuv (faqat admin, Origin tekshiruvi bilan). */
+export const POST = (req: NextRequest) => routes.POST(req);

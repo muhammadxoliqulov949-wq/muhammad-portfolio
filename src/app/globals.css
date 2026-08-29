@@ -1,25 +1,202 @@
 @import "tailwindcss";
 
-@theme {
+/* =========================================================================
+   Portfolio — dizayn tizimi (design tokens)
+   Dark-first: qorong'i tema asosiy bo'lib loyihalanadi, "paper" (yorug')
+   tema ikkinchi darajaga moslangan. Barcha ranglar SEMANTIK token orqali —
+   komponentlarda hex/rgba yozilmaydi (audit P1-8).
+
+   Mantiq:
+     :root            → qorong'i qiymatlar (default)
+     [data-theme=light] → yorug' qiymatlar
+     @media (prefers-color-scheme: light) → JS'siz ham to'g'ri tema
+   Tailwind `@theme inline` utilitylarini (bg-canvas, text-ink-2, border-line-1...)
+   shu o'zgaruvchilarga bog'laymiz, ya'ni tema almashtirish uchun faqat
+   `data-theme` atributi yetarli.
+   ========================================================================= */
+
+@theme inline {
+  /* Ranglar (semantik) */
+  --color-canvas: var(--c-canvas);
+  --color-canvas-sunken: var(--c-canvas-sunken);
+  --color-surface-1: var(--c-surface-1);
+  --color-surface-2: var(--c-surface-2);
+  --color-surface-3: var(--c-surface-3);
+
+  --color-ink-1: var(--c-ink-1);
+  --color-ink-2: var(--c-ink-2);
+  --color-ink-3: var(--c-ink-3);
+  --color-inverse-ink: var(--c-inverse-ink);
+
+  --color-line-1: var(--c-line-1);
+  --color-line-2: var(--c-line-2);
+
+  --color-accent: var(--c-accent);
+  --color-accent-strong: var(--c-accent-strong);
+  --color-accent-text: var(--c-accent-text);
+  --color-accent-soft: var(--c-accent-soft);
+  --color-accent-ink: var(--c-accent-ink);
+
+  --color-success: var(--c-success);
+  --color-success-soft: var(--c-success-soft);
+  --color-danger: var(--c-danger);
+  --color-danger-soft: var(--c-danger-soft);
+  --color-warn: var(--c-warn);
+
+  /* Shriftlar */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: var(--font-space-grotesk), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* Matn massvasi (fluid) — audit P1-9: bitta massva, subpixel yo'q */
+  --text-micro: 0.6875rem;
+  --text-micro--line-height: 1;
+  --text-micro--letter-spacing: 0.14em;
+  --text-small: 0.8125rem;
+  --text-small--line-height: 1.5;
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.68;
+  --text-lead: clamp(1rem, 0.95rem + 0.28vw, 1.1875rem);
+  --text-lead--line-height: 1.66;
+  --text-title: clamp(1.0625rem, 1rem + 0.3vw, 1.375rem);
+  --text-title--line-height: 1.3;
+  --text-title--letter-spacing: -0.012em;
+  --text-display-m: clamp(1.5rem, 1.15rem + 1.6vw, 2.25rem);
+  --text-display-m--line-height: 1.12;
+  --text-display-m--letter-spacing: -0.022em;
+  --text-display-l: clamp(2rem, 1.4rem + 2.7vw, 3.35rem);
+  --text-display-l--line-height: 1.04;
+  --text-display-l--letter-spacing: -0.028em;
+  --text-display-xl: clamp(2.6rem, 1.5rem + 5vw, 5.25rem);
+  --text-display-xl--line-height: 0.95;
+  --text-display-xl--letter-spacing: -0.035em;
+
+  /* Radius — aralash qiymat (bento ruhida), hammasi bir xil emas */
+  --radius-1: 4px;
+  --radius-2: 8px;
+  --radius-3: 14px;
+  --radius-4: 22px;
+
+  /* Soyalar (temaga mos) */
+  --shadow-1: var(--sh-1);
+  --shadow-2: var(--sh-2);
+  --shadow-3: var(--sh-3);
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Animatsiyalarni Tailwind orqali ham ishlatish mumkin */
+  --animate-pulse-soft: pulse-soft 2.6s ease-in-out infinite;
+  --animate-marquee: marquee 38s linear infinite;
 }
 
 :root {
-  --bg: #050816;
-  --bg2: #0b1122;
-  --text: #e9efff;
-  --muted: #93a1c0;
-  --blue: #1e6bff;
-  --blue2: #00b7ff;
-  --blue3: #7dd3fc;
-  --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.14);
-  --card: rgba(13, 19, 41, 0.55);
-  --shadow: 0 24px 70px rgba(2, 6, 23, 0.55);
-  --glow-blue: rgba(0, 183, 255, 0.28);
-  --grad: linear-gradient(135deg, var(--blue) 0%, var(--blue2) 100%);
+  --c-canvas: #0a0c10;
+  --c-canvas-sunken: #07090c;
+  --c-surface-1: #101319;
+  --c-surface-2: #161a21;
+  --c-surface-3: #1d222b;
+
+  --c-ink-1: #f3f1ea;
+  --c-ink-2: #a8afbc;
+  --c-ink-3: #767e8d;
+  --c-inverse-ink: #0a0c10;
+
+  --c-line-1: rgba(243, 241, 234, 0.11);
+  --c-line-2: rgba(243, 241, 234, 0.2);
+
+  --c-accent: #d6f25c;
+  --c-accent-strong: #e4ff74;
+  --c-accent-text: #d6f25c;
+  --c-accent-soft: rgba(214, 242, 92, 0.1);
+  --c-accent-ink: #0a0c10;
+
+  --c-success: #7ee7b8;
+  --c-success-soft: rgba(126, 231, 184, 0.12);
+  --c-danger: #ff9384;
+  --c-danger-soft: rgba(255, 147, 132, 0.12);
+  --c-warn: #ffc861;
+
+  --c-focus: #eaff8f;
+  --sh-1: 0 1px 0 rgba(255, 255, 255, 0.045) inset;
+  --sh-2: 0 24px 50px -28px rgba(0, 0, 0, 0.85);
+  --sh-3: 0 40px 90px -40px rgba(0, 0, 0, 0.95);
+  --grain-opacity: 0.05;
+
+  color-scheme: dark;
 }
+
+/* Yorug' tema — "paper". Accent MATN uchun to'q, BUTTON uchun yorug' qoladi. */
+[data-theme="light"] {
+  --c-canvas: #f8f6f0;
+  --c-canvas-sunken: #efeadf;
+  --c-surface-1: #ffffff;
+  --c-surface-2: #f6f3ea;
+  --c-surface-3: #ece7db;
+
+  --c-ink-1: #14161b;
+  --c-ink-2: #4c5460;
+  --c-ink-3: #6d7482;
+  --c-inverse-ink: #f8f6f0;
+
+  --c-line-1: rgba(20, 22, 27, 0.12);
+  --c-line-2: rgba(20, 22, 27, 0.22);
+
+  --c-accent: #c3e236;
+  --c-accent-strong: #a9cd17;
+  --c-accent-text: #47580a;
+  --c-accent-soft: rgba(169, 205, 23, 0.18);
+  --c-accent-ink: #101408;
+
+  --c-success: #14785a;
+  --c-success-soft: rgba(20, 120, 90, 0.1);
+  --c-danger: #a3341f;
+  --c-danger-soft: rgba(163, 52, 31, 0.09);
+  --c-warn: #8a5a00;
+
+  --c-focus: #14161b;
+  --sh-1: 0 1px 0 rgba(20, 22, 27, 0.04) inset;
+  --sh-2: 0 18px 40px -28px rgba(20, 22, 27, 0.28);
+  --sh-3: 0 30px 70px -45px rgba(20, 22, 27, 0.35);
+  --grain-opacity: 0;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]):not([data-theme="light"]) {
+    --c-canvas: #f8f6f0;
+    --c-canvas-sunken: #efeadf;
+    --c-surface-1: #ffffff;
+    --c-surface-2: #f6f3ea;
+    --c-surface-3: #ece7db;
+    --c-ink-1: #14161b;
+    --c-ink-2: #4c5460;
+    --c-ink-3: #6d7482;
+    --c-inverse-ink: #f8f6f0;
+    --c-line-1: rgba(20, 22, 27, 0.12);
+    --c-line-2: rgba(20, 22, 27, 0.22);
+    --c-accent: #c3e236;
+    --c-accent-strong: #a9cd17;
+    --c-accent-text: #47580a;
+    --c-accent-soft: rgba(169, 205, 23, 0.18);
+    --c-accent-ink: #101408;
+    --c-success: #14785a;
+    --c-success-soft: rgba(20, 120, 90, 0.1);
+    --c-danger: #a3341f;
+    --c-danger-soft: rgba(163, 52, 31, 0.09);
+    --c-warn: #8a5a00;
+    --c-focus: #14161b;
+    --sh-1: 0 1px 0 rgba(20, 22, 27, 0.04) inset;
+    --sh-2: 0 18px 40px -28px rgba(20, 22, 27, 0.28);
+    --sh-3: 0 30px 70px -45px rgba(20, 22, 27, 0.35);
+    --grain-opacity: 0;
+    color-scheme: light;
+  }
+}
+
+/* =========================================================================
+   Reset va asos
+   ========================================================================= */
 
 * {
   box-sizing: border-box;
@@ -27,216 +204,530 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 90px;
+  /* fixed header balandligi + nafas (audit: fokus/anchor header ostiga kirib qolardi) */
+  scroll-padding-top: calc(var(--header-h) + 1.25rem);
+  scroll-padding-bottom: 6rem;
+  -webkit-text-size-adjust: 100%;
+  interpolation-quality: high-quality;
 }
 
 body {
+  --header-h: 68px;
+  --gutter: clamp(1.15rem, 4vw, 2.5rem);
+  --container: 78rem;
+  --section-y: clamp(4.25rem, 2.4rem + 7vw, 8.5rem);
+
+  margin: 0;
+  background-color: var(--c-canvas);
+  color: var(--c-ink-1);
   font-family: var(--font-sans);
-  background:
-    radial-gradient(1100px 700px at 85% -10%, rgba(30, 107, 255, 0.16), transparent 60%),
-    radial-gradient(900px 600px at -10% 30%, rgba(0, 183, 255, 0.1), transparent 55%),
-    radial-gradient(1000px 800px at 50% 120%, rgba(30, 107, 255, 0.08), transparent 60%),
-    #050816;
-  background-attachment: fixed;
-  color: var(--text);
-  line-height: 1.65;
-  min-height: 100vh;
-  overflow-x: hidden;
+  font-size: var(--text-body);
+  line-height: var(--leading-body, 1.68);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  min-height: 100dvh;
+  /* audit: overflow-x: hidden o'rniga aniq cheklov + xato yashirmaslik */
+  overflow-wrap: break-word;
+  transition: background-color 0.4s var(--ease-out-soft), color 0.4s var(--ease-out-soft);
+}
+
+/* Donador (grain) qatlam — faqat qorong'i temada, GPU uchun arzon */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
 }
 
 ::selection {
-  background: rgba(0, 183, 255, 0.35);
-  color: #fff;
+  background: var(--c-accent);
+  color: var(--c-accent-ink);
 }
 
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  text-wrap: balance;
+}
+
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* Skrollbar — temaga mos */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 12px;
+  height: 12px;
 }
 ::-webkit-scrollbar-track {
-  background: #070b1a;
+  background: var(--c-canvas-sunken);
 }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #1e3a8a, #0e7490);
-  border-radius: 8px;
+  background: var(--c-line-2);
+  border-radius: 99px;
+  border: 3px solid var(--c-canvas-sunken);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #2563eb, #06b6d4);
+  background: var(--c-ink-3);
 }
 
-/* ---------- Komponentlar ---------- */
-@layer components {
-  .pf-container {
-    width: min(92%, 1140px);
-    margin-inline: auto;
-  }
+/* =========================================================================
+   Fokus — audit P0-4: barcha interaktiv elementlarda 3:1+ ko'rinish,
+   hech qayerda `outline: none` yo'q.
+   ========================================================================= */
 
-  .pf-card {
-    position: relative;
-    background: linear-gradient(180deg, rgba(17, 24, 50, 0.72), rgba(8, 12, 26, 0.85));
-    border: 1px solid var(--border);
-    border-radius: 22px;
-    box-shadow: var(--shadow);
-    transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
-  }
+:focus-visible {
+  outline: 2px solid var(--c-focus);
+  outline-offset: 3px;
+  border-radius: var(--radius-1);
+}
 
-  .pf-card-hover:hover {
-    transform: translateY(-5px);
-    border-color: rgba(0, 183, 255, 0.35);
-    box-shadow: 0 30px 80px rgba(2, 6, 23, 0.6), 0 0 40px rgba(0, 183, 255, 0.07);
-  }
+/* Fokuslangan element fixed header ostiga yashirinmasligi uchun (WCAG 2.4.11) */
+:focus-visible {
+  scroll-margin-block-start: calc(var(--header-h) + 1.5rem);
+  scroll-margin-block-end: 5rem;
+}
 
-  .pf-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border-radius: 999px;
-    border: 1px solid rgba(0, 183, 255, 0.35);
-    background: linear-gradient(135deg, rgba(30, 107, 255, 0.14), rgba(0, 183, 255, 0.08));
-    color: #c9f2ff;
-    font-size: 13.5px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-  }
+.skip-link {
+  position: fixed;
+  top: 0.65rem;
+  left: 0.65rem;
+  z-index: 120;
+  transform: translateY(-160%);
+  background: var(--c-accent);
+  color: var(--c-accent-ink);
+  font-weight: 700;
+  font-size: var(--text-small);
+  padding: 0.7rem 1.05rem;
+  border-radius: var(--radius-2);
+  transition: transform 0.18s var(--ease-out-soft);
+}
 
-  .pf-badge::before {
-    content: "";
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-    background: #22d3ee;
-    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.7);
-    animation: pulse-dot 2.2s infinite;
-  }
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
 
-  .pf-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 13px 24px;
-    border-radius: 14px;
-    border: 1px solid var(--border-strong);
-    background: rgba(255, 255, 255, 0.04);
-    color: var(--text);
-    font-weight: 700;
-    font-size: 15px;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    text-decoration: none;
-  }
+/* =========================================================================
+   Layout yordamchilari
+   ========================================================================= */
 
-  .pf-btn:hover {
-    transform: translateY(-2px);
-    border-color: rgba(0, 183, 255, 0.5);
-    box-shadow: 0 12px 32px rgba(0, 183, 255, 0.15);
-  }
+.u-container {
+  width: min(100% - (var(--gutter) * 2), var(--container));
+  margin-inline: auto;
+}
 
-  .pf-btn-primary {
-    background: linear-gradient(135deg, var(--blue), var(--blue2));
-    border: none;
-    color: #fff;
-    box-shadow: 0 12px 36px rgba(30, 107, 255, 0.35);
-  }
+.u-section {
+  padding-block: var(--section-y);
+}
 
-  .pf-btn-primary:hover {
-    box-shadow: 0 16px 44px rgba(0, 183, 255, 0.45);
-    filter: brightness(1.08);
-  }
+.u-sunken {
+  background-color: var(--c-canvas-sunken);
+}
 
-  .pf-muted {
-    color: var(--muted);
-  }
+.u-hairline {
+  border-top: 1px solid var(--c-line-1);
+}
 
-  .pf-input {
-    width: 100%;
-    padding: 13px 16px;
-    border-radius: 13px;
-    border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.035);
-    color: var(--text);
-    font-family: inherit;
-    font-size: 15px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-  }
+.u-rule {
+  height: 1px;
+  background: linear-gradient(90deg, var(--c-line-2), transparent 78%);
+}
 
-  .pf-input:focus {
-    outline: none;
-    border-color: var(--blue2);
-    background: rgba(0, 183, 255, 0.05);
-    box-shadow: 0 0 0 3px rgba(0, 183, 255, 0.14);
-  }
+/* Uzun sahifani tezkorlash: ekrandan tashqaridagi bo'limlarni render qilmaslik */
+.u-cv {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 620px;
+}
 
-  .pf-input::placeholder {
-    color: #64748f;
-  }
+.u-num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
 
-  .pf-kicker {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 12.5px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--blue2);
-    margin-bottom: 14px;
-  }
+.u-link-quiet {
+  text-decoration: underline;
+  text-decoration-color: var(--c-line-2);
+  text-underline-offset: 0.22em;
+  text-decoration-thickness: 1px;
+  transition: text-decoration-color 0.2s, color 0.2s;
+}
+.u-link-quiet:hover {
+  text-decoration-color: currentColor;
+}
 
-  .pf-kicker::before {
-    content: "";
-    width: 26px;
-    height: 2px;
-    background: var(--grad);
-    border-radius: 2px;
-  }
+/* =========================================================================
+   Tipografik uslublar
+   ========================================================================= */
 
-  .pf-title {
-    font-family: var(--font-display);
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1.12;
-  }
+.display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  /* Fraunces o'qlari: ozgina yumshoq + wonk = identitet */
+  font-variation-settings: "SOFT" 12, "WONK" 0;
+  font-weight: 600;
+}
 
-  .pf-grid-bg {
-    background-image:
-      linear-gradient(rgba(148, 163, 184, 0.055) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(148, 163, 184, 0.055) 1px, transparent 1px);
-    background-size: 44px 44px;
-    mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, #000 40%, transparent 100%);
-  }
+.display-em {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-variation-settings: "SOFT" 40, "WONK" 1;
+  font-weight: 400;
+  color: var(--c-accent-text);
+}
 
-  .pf-chip {
-    display: inline-flex;
-    align-items: center;
-    padding: 5px 12px;
-    border-radius: 999px;
-    font-size: 12.5px;
-    font-weight: 600;
-    color: var(--blue3);
-    background: rgba(0, 183, 255, 0.08);
-    border: 1px solid rgba(0, 183, 255, 0.22);
-  }
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  line-height: 1;
+  letter-spacing: var(--text-micro--letter-spacing);
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--c-ink-2);
+}
 
-  .pf-orb {
-    position: absolute;
-    border-radius: 999px;
-    filter: blur(80px);
-    pointer-events: none;
-    z-index: 0;
+.label-accent {
+  color: var(--c-accent-text);
+}
+
+/* =========================================================================
+   Tugmalar — pressed (active) holati bilan (audit: 0 ta `active:` bor edi)
+   ========================================================================= */
+
+.btn {
+  --btn-h: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: var(--btn-h);
+  padding: 0 1.15rem;
+  border-radius: var(--radius-2);
+  border: 1px solid var(--c-line-2);
+  background: var(--c-surface-2);
+  color: var(--c-ink-1);
+  font-size: var(--text-small);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  box-shadow: var(--sh-1);
+  transition:
+    background-color 0.2s var(--ease-out-soft),
+    border-color 0.2s var(--ease-out-soft),
+    color 0.2s var(--ease-out-soft),
+    transform 0.14s var(--ease-out-soft),
+    box-shadow 0.2s var(--ease-out-soft);
+}
+
+.btn:hover {
+  background: var(--c-surface-3);
+  border-color: var(--c-ink-3);
+}
+
+.btn:active {
+  transform: translateY(1px) scale(0.995);
+  box-shadow: none;
+}
+
+.btn[disabled],
+.btn[aria-disabled="true"] {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.btn--accent {
+  background: var(--c-accent);
+  border-color: transparent;
+  color: var(--c-accent-ink);
+  font-weight: 700;
+  box-shadow: var(--sh-1), 0 10px 26px -14px var(--c-accent);
+}
+.btn--accent:hover {
+  background: var(--c-accent-strong);
+  border-color: transparent;
+  color: var(--c-accent-ink);
+}
+
+.btn--ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--c-ink-2);
+}
+.btn--ghost:hover {
+  background: var(--c-surface-2);
+  color: var(--c-ink-1);
+  border-color: var(--c-line-1);
+}
+
+.btn--lg {
+  --btn-h: 52px;
+  padding: 0 1.5rem;
+  font-size: var(--text-body);
+  border-radius: var(--radius-3);
+}
+
+.btn--sm {
+  --btn-h: 36px;
+  padding: 0 0.85rem;
+  font-size: var(--text-small);
+}
+
+/* Ikonka tugmasi — 44×44 (audit: 36px edi) */
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 44px;
+  block-size: 44px;
+  border-radius: var(--radius-2);
+  border: 1px solid var(--c-line-1);
+  background: var(--c-surface-1);
+  color: var(--c-ink-2);
+  transition:
+    color 0.2s,
+    border-color 0.2s,
+    background-color 0.2s,
+    transform 0.14s var(--ease-out-soft);
+}
+.icon-btn:hover {
+  color: var(--c-ink-1);
+  border-color: var(--c-line-2);
+  background: var(--c-surface-2);
+}
+.icon-btn:active {
+  transform: translateY(1px);
+}
+
+/* =========================================================================
+   Kartalar va bento
+   ========================================================================= */
+
+.card {
+  position: relative;
+  background: var(--c-surface-1);
+  border: 1px solid var(--c-line-1);
+  border-radius: var(--radius-4);
+  box-shadow: var(--sh-1);
+  transition:
+    border-color 0.3s var(--ease-out-soft),
+    transform 0.3s var(--ease-out-soft),
+    box-shadow 0.3s var(--ease-out-soft),
+    background-color 0.3s var(--ease-out-soft);
+}
+
+.card--hover:hover,
+a.card:hover,
+.card:focus-within {
+  border-color: var(--c-line-2);
+  background: var(--c-surface-2);
+  transform: translateY(-2px);
+  box-shadow: var(--sh-2);
+}
+
+.card--flat:hover {
+  transform: none;
+}
+
+/* Bento: mobil'da 1 ustun, desktop'da 12-ustun to'r (2026 standarti) */
+.bento {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 48rem) {
+  .bento {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+  }
+}
+@media (min-width: 64rem) {
+  .bento {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  .bento > * {
+    grid-column: span 4;
+  }
+  .bento > [data-span="wide"] {
+    grid-column: span 8;
+  }
+  .bento > [data-span="full"] {
+    grid-column: span 12;
+  }
+  .bento > [data-span="third"] {
+    grid-column: span 4;
+  }
+  .bento > [data-span="half"] {
+    grid-column: span 6; }
+  .bento > [data-span="tall"] {
+    grid-row: span 2;
   }
 }
 
-/* ---------- Animatsiyalar ---------- */
-@keyframes pulse-dot {
-  0% {
-    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.55);
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 28px;
+  padding: 0.15rem 0.6rem;
+  border-radius: var(--radius-1);
+  border: 1px solid var(--c-line-1);
+  background: var(--c-surface-2);
+  color: var(--c-ink-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.chip--accent {
+  border-color: var(--c-accent-soft);
+  background: var(--c-accent-soft);
+  color: var(--c-accent-text);
+}
+
+.dot {
+  inline-size: 7px;
+  block-size: 7px;
+  border-radius: 99px;
+  background: var(--c-success);
+  box-shadow: 0 0 0 3px var(--c-success-soft);
+  flex: none;
+}
+
+/* =========================================================================
+   Formalar — label bog'lanishi, inline xato, focus (audit P0-4, P1-12)
+   ========================================================================= */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.field__label {
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: var(--c-ink-1);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.field__hint {
+  font-size: var(--text-small);
+  color: var(--c-ink-3);
+  font-weight: 400;
+}
+
+.input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-2);
+  border: 1px solid var(--c-line-1);
+  background: var(--c-canvas);
+  color: var(--c-ink-1);
+  font-size: var(--text-body);
+  transition:
+    border-color 0.18s,
+    background-color 0.18s,
+    box-shadow 0.18s;
+}
+
+.input::placeholder {
+  color: var(--c-ink-3);
+  opacity: 1;
+}
+
+.input:hover {
+  border-color: var(--c-line-2);
+}
+
+.input:focus-visible {
+  outline: none;
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 3px var(--c-accent-soft);
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--c-danger);
+  background: var(--c-danger-soft);
+}
+
+textarea.input {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.field__error {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: var(--text-small);
+  color: var(--c-danger);
+}
+
+/* =========================================================================
+   Animatsiyalar
+   — asosiy mexanizm: CSS scroll-driven (`animation-timeline: view()`).
+     JS/hi dratsiya talab qilmaydi → SSR HTML'da kontent darhol ko'rinadi,
+     JS o'chgan bo'lsa ham yo'qolmaydi (audit P0-5).
+   — support bo'lmasa: hech qanday yashirish yo'q (progressive enhancement).
+   ========================================================================= */
+
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
   }
-  70% {
-    box-shadow: 0 0 0 9px rgba(34, 211, 238, 0);
+  to {
+    opacity: 1;
+    transform: none;
   }
-  100% {
-    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0);
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation: reveal-in both linear;
+      animation-timeline: view();
+      animation-range: entry 2% entry 32%;
+    }
   }
 }
 
@@ -249,161 +740,369 @@ body {
   }
 }
 
-@keyframes caret-blink {
+@keyframes pulse-soft {
   0%,
   100% {
     opacity: 1;
   }
   50% {
-    opacity: 0;
-  }
-}
-
-@keyframes float-slow {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-14px);
+    opacity: 0.35;
   }
 }
 
 @keyframes spin-slow {
-  from {
-    transform: rotate(0deg);
-  }
   to {
     transform: rotate(360deg);
   }
 }
 
-@keyframes gradient-pan {
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
+.spin {
+  animation: spin-slow 0.9s linear infinite;
 }
 
-/* Marquee */
-.pf-marquee {
+.marquee {
+  --marquee-state: running;
   display: flex;
   width: max-content;
-  animation: marquee 32s linear infinite;
-  will-change: transform;
+  animation: marquee var(--marquee-duration, 40s) linear infinite;
+  animation-play-state: var(--marquee-state);
 }
 
-.pf-marquee-wrap:hover .pf-marquee {
-  animation-play-state: paused;
+.marquee[data-paused="true"] {
+  --marquee-state: paused;
 }
 
-.pf-marquee-mask {
-  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+.marquee-mask {
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
 }
 
-/* Reveal */
-.reveal {
-  opacity: 0;
-  transform: translateY(26px);
-  transition:
-    opacity 0.75s ease,
-    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: var(--reveal-delay, 0ms);
-  will-change: opacity, transform;
-}
-
-.reveal.is-visible {
-  opacity: 1;
-  transform: none;
-}
-
-/* Typing caret */
-.pf-caret {
-  display: inline-block;
-  width: 3px;
-  height: 1em;
-  margin-left: 4px;
-  vertical-align: -0.12em;
-  background: var(--blue2);
-  border-radius: 2px;
-  animation: caret-blink 0.9s step-end infinite;
-}
-
-/* Skill bar */
-.pf-skill-track {
-  height: 8px;
-  border-radius: 999px;
-  background: rgba(148, 163, 184, 0.12);
-  overflow: hidden;
-}
-
-.pf-skill-fill {
-  height: 100%;
-  width: 0%;
-  border-radius: 999px;
-  background: var(--grad);
-  background-size: 200% 200%;
-  animation: gradient-pan 4s ease infinite;
-  transition: width 1.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-/* Gradient text */
-.pf-grad-text {
-  background: linear-gradient(120deg, #60a5fa 0%, var(--blue2) 45%, #a5f3fc 100%);
-  background-size: 200% 200%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: gradient-pan 6s ease infinite;
-}
-
-/* Timeline */
-.pf-timeline {
+/* Sarlavha alt-chizig'i: hover'da to'lqinlanmaydigan, accent chiziq */
+.link-underline {
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
+  color: var(--c-ink-1);
 }
-
-.pf-timeline::before {
+.link-underline::after {
   content: "";
-  position: absolute;
-  left: 9px;
-  top: 8px;
-  bottom: 8px;
-  width: 2px;
-  background: linear-gradient(180deg, var(--blue), var(--blue2), transparent);
-  opacity: 0.45;
-  border-radius: 2px;
-}
-
-.pf-dot {
   position: absolute;
   left: 0;
-  top: 6px;
-  width: 20px;
-  height: 20px;
-  border-radius: 999px;
-  background: var(--bg);
-  border: 2px solid var(--blue2);
-  box-shadow: 0 0 0 4px rgba(0, 183, 255, 0.15);
+  bottom: -3px;
+  inline-size: 100%;
+  block-size: 1px;
+  background: var(--c-line-2);
+  transform-origin: right;
+  transform: scaleX(1);
+  transition: transform 0.35s var(--ease-out-soft), background-color 0.35s;
+}
+.link-underline:hover::after,
+.link-underline:focus-visible::after {
+  transform: scaleX(0);
+  transform-origin: left;
+  background: var(--c-accent-text);
 }
 
-/* Hero avatar ring */
-.pf-avatar-ring {
+/* Hero foni: ko'rinadigan to'r (2026 "visible grid" uslubiyati) + yuqoridan
+   xiralash. Faqat bitta statik fon — GPU uchun arzon. */
+.u-hero-lines {
+  background-image:
+    linear-gradient(rgba(243, 241, 234, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(243, 241, 234, 0.045) 1px, transparent 1px);
+  background-size: 64px 64px;
+  background-position: center top;
+  mask-image: linear-gradient(180deg, #000 0%, #000 42%, transparent 92%);
+}
+[data-theme="light"] .u-hero-lines {
+  background-image:
+    linear-gradient(rgba(20, 22, 27, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 22, 27, 0.05) 1px, transparent 1px);
+}
+
+/* Hero: portret freymi — rasm bo'lmasa monogram, bo'sh <img> hech qachon.
+   pastki burchakdagi panellar rasm ustiga chiqib turadi (flow + negative margin). */
+.hero-photo {
   position: relative;
+  isolation: isolate;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-4);
+  border: 1px solid var(--c-line-1);
+  background:
+    radial-gradient(120% 90% at 80% 0%, var(--c-accent-soft), transparent 58%),
+    var(--c-surface-2);
+  overflow: hidden;
+  box-shadow: var(--shadow-3);
 }
-
-.pf-avatar-ring::before {
+.hero-photo::after {
+  /* ichki hairline — «print» hissi */
   content: "";
   position: absolute;
-  inset: -3px;
-  border-radius: 26px;
-  background: conic-gradient(from 0deg, var(--blue), var(--blue2), #1e3a8a, var(--blue));
-  animation: spin-slow 9s linear infinite;
-  opacity: 0.9;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid color-mix(in srgb, var(--c-ink-1) 8%, transparent);
+  pointer-events: none;
+  z-index: 2;
+}
+.hero-photo__img {
+  object-fit: cover;
+  object-position: 50% 22%;
+  transition: scale 0.8s var(--ease-out-soft);
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .hero-photo:hover .hero-photo__img {
+    scale: 1.03;
+  }
+}
+.hero-photo__mono {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: 0.75rem;
+  justify-items: center;
+  text-align: center;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--c-ink-1) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--c-ink-1) 5%, transparent) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.hero-photo__caption {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: 2.25rem 1.1rem 0.95rem;
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--c-canvas) 88%, transparent) 58%);
+  backdrop-filter: blur(2px);
+}
+.hero-panels {
+  margin-top: -2.75rem;
 }
 
+/* Portret ustidagi admin tugmasi («+») — faqat admin kirganda render qilinadi */
+.portrait-edit {
+  position: absolute;
+  z-index: 3;
+  right: 0.6rem;
+  bottom: 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--c-accent) 55%, transparent);
+  background: color-mix(in srgb, var(--c-canvas) 82%, transparent);
+  color: var(--c-ink-1);
+  font-size: var(--text-small);
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+  transition: background-color 0.2s var(--ease-out-soft), color 0.2s var(--ease-out-soft),
+    transform 0.2s var(--ease-out-soft);
+}
+.portrait-edit:hover {
+  background: var(--c-accent);
+  color: var(--c-accent-ink);
+  transform: translateY(-1px);
+}
+.portrait-edit svg {
+  flex: none;
+}
+@media (max-width: 40rem) {
+  .portrait-edit__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+}
+.portrait-dialog {
+  width: 100vw;
+  max-width: none;
+  max-height: none;
+  padding: 1.5rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  align-content: center;
+  justify-content: center;
+  place-items: center;
+}
+.portrait-dialog::backdrop {
+  background: color-mix(in srgb, #05070b 72%, transparent);
+  backdrop-filter: blur(3px);
+}
+.portrait-drop {
+  transition: border-color 0.2s var(--ease-out-soft), background-color 0.2s var(--ease-out-soft);
+}
+.portrait-drop[data-drag="true"] {
+  border-color: var(--c-accent);
+  background: color-mix(in srgb, var(--c-accent) 8%, var(--c-surface-2));
+}
+.portrait-preview {
+  background: radial-gradient(120% 90% at 50% 0%, var(--c-accent-soft), var(--c-canvas) 70%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .portrait-edit,
+  .portrait-drop {
+    transition: none;
+  }
+}
+/* Hero: suzuvchi ish oqimi panellari — pseudo-3D, CSS'gana (JS yo'q).
+   Maqsad: "AI-assisted workflow" ni vizual metafora bilan ko'rsatish. */
+.hero-panels {
+  position: relative;
+  padding: 2.5rem 0 3rem;
+  perspective: 1000px;
+}
+.hero-panel {
+  border: 1px solid var(--c-line-1);
+  border-radius: var(--radius-3);
+  background: color-mix(in srgb, var(--c-surface-2) 90%, transparent);
+  box-shadow: var(--shadow-2);
+  padding: 0.95rem 1.15rem;
+  will-change: transform;
+}
+@supports (backdrop-filter: blur(2px)) {
+  .hero-panel {
+    backdrop-filter: blur(12px) saturate(1.1);
+  }
+}
+.hero-panel--back {
+  width: 82%;
+  opacity: 0.66;
+  transform: translate3d(11%, -6%, 0) rotate(-3.4deg);
+  animation: hero-float 9s ease-in-out infinite;
+}
+.hero-panel--mid {
+  position: relative;
+  z-index: 2;
+  width: 92%;
+  margin-top: -1.1rem;
+  margin-left: 4%;
+  transform: rotate(1.6deg);
+  animation: hero-float 7.2s ease-in-out infinite reverse;
+}
+.hero-panel--front {
+  position: relative;
+  z-index: 3;
+  width: 74%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: -0.9rem;
+  margin-left: 14%;
+  transform: rotate(-2deg);
+  animation: hero-float 11s ease-in-out infinite;
+}
+@keyframes hero-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -9px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-panel {
+    animation: none;
+  }
+}
+@media (min-width: 64rem) {
+  .hero-panel--back {
+    width: 76%;
+  }
+}
+
+/* Timeline (tajriba) */
+.timeline {
+  position: relative;
+  isolation: isolate;
+}
+.timeline::before {
+  content: "";
+  position: absolute;
+  inset-block: 0.65rem;
+  inset-inline-start: 5px;
+  inline-size: 1px;
+  background: linear-gradient(180deg, var(--c-line-2), var(--c-line-1) 70%, transparent);
+  z-index: -1;
+}
+.timeline-node {
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 0.7rem;
+  inline-size: 11px;
+  block-size: 11px;
+  border-radius: 99px;
+  background: var(--c-canvas);
+  border: 1px solid var(--c-ink-3);
+}
+.timeline-node[data-current="true"] {
+  background: var(--c-accent);
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 4px var(--c-accent-soft);
+}
+
+/* =========================================================================
+   Maxfiylik va yordamchi sinflar
+   ========================================================================= */
+
+.hairline-x > * + * {
+  border-top: 1px solid var(--c-line-1);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+}
+
+/* High-contrast va forced-colors rejimlari (audit P2-18) */
+@media (prefers-contrast: more) {
+  :root {
+    --c-line-1: rgba(243, 241, 234, 0.28);
+    --c-line-2: rgba(243, 241, 234, 0.45);
+    --c-ink-2: #d3d8e2;
+    --c-ink-3: #b6bcc9;
+  }
+  [data-theme="light"] {
+    --c-line-1: rgba(20, 22, 27, 0.3);
+    --c-line-2: rgba(20, 22, 27, 0.5);
+    --c-ink-2: #23272f;
+    --c-ink-3: #3a4048;
+  }
+}
+
+@media (forced-colors: active) {
+  .card,
+  .btn,
+  .input,
+  .icon-btn {
+    border: 1px solid CanvasText;
+  }
+  :focus-visible {
+    outline: 3px solid Highlight;
+  }
+}
+
+/* Bosma/pointer imkoniyati: hover-only affordance'larni to'g'rilash */
+@media (hover: none) {
+  .card--hover:hover {
+    transform: none;
+    box-shadow: var(--sh-1);
+  }
+}
+
+/* Harakatni kamaytirish so'rovi — butun sayt bo'yicha */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -411,16 +1110,34 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .marquee {
+    animation: none;
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
   }
   .reveal {
-    opacity: 1;
-    transform: none;
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
   }
-  .pf-skill-fill {
-    width: var(--skill-w, 80%) !important;
-    transition: none;
+}
+
+@media print {
+  body::before,
+  .site-header,
+  .mobile-cta,
+  .no-print {
+    display: none !important;
   }
-  html {
-    scroll-behavior: auto;
+  body {
+    background: #fff;
+    color: #000;
+  }
+  .card {
+    border: 1px solid #ccc;
+    box-shadow: none;
   }
 }

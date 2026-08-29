@@ -1,122 +1,227 @@
 "use client";
+import Image from "next/image";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import Icon from "./ui/Icon";
+import ThemeToggle from "./ThemeToggle";
 
-const LINKS = [
-  { href: "#home", label: "Bosh sahifa" },
-  { href: "#skills", label: "Ko'nikmalar" },
-  { href: "#services", label: "Xizmatlar" },
-  { href: "#projects", label: "Loyihalar" },
-  { href: "#contact", label: "Aloqa" },
-];
+export type NavLink = { id: string; label: string };
 
 type Props = {
-  fullName: string;
+  name: string;
   initials: string;
+  links: NavLink[];
+  ctaLabel?: string;
+  /** `profile.photoUrl` yoki `public/media/portrait.*` — bo'lsa avatar chiqadi */
+  portrait?: string | null;
 };
 
-export default function Header({ fullName, initials }: Props) {
+/**
+ * Sticky header.
+ * Audit tuzatishlari:
+ *  - mobil menyu endi `role="dialog"` + aria-expanded/controls, Escape bilan
+ *    yopiladi, ochilganda fokusga o'tadi va scroll qulanadi (P2-19);
+ *  - aktiv bo'lim `aria-current` bilan belgilanadi;
+ *  - backdrop-blur faqat scroll qilinganda (GPU tejamkorligi);
+ *  - barcha targetlar ≥44px.
+ */
+/** kenglik tor bo'lganda yashirinadigan qo'shimcha bo'limlar */
+const SECONDARY_SECTIONS = new Set(["about", "education", "achievements", "approach"]);
+
+export default function Header({ name, initials, links, ctaLabel = "Loyiha muhokamasi", portrait }: Props) {
   const [scrolled, setScrolled] = useState(false);
-  const [active, setActive] = useState("#home");
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [active, setActive] = useState<string>(links[0]?.id ?? "home");
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    let raf = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => setScrolled(window.scrollY > 16));
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(raf);
+    };
   }, []);
 
   useEffect(() => {
-    const sections = LINKS.map((l) => document.querySelector(l.href)).filter(Boolean);
+    const nodes = links
+      .map((l) => document.getElementById(l.id))
+      .filter((el): el is HTMLElement => !!el);
+    if (nodes.length === 0) return;
+
     const io = new IntersectionObserver(
       (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) setActive(`#${entry.target.id}`);
-        }
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible) setActive(visible.target.id);
       },
-      { rootMargin: "-40% 0px -55% 0px" }
+      { rootMargin: "-45% 0px -45% 0px", threshold: [0, 0.25, 0.6] }
     );
-    sections.forEach((s) => io.observe(s!));
+    nodes.forEach((n) => io.observe(n));
     return () => io.disconnect();
-  }, []);
+  }, [links]);
+
+  // Mobil panel: Escape + fokus boshqaruvi + scroll lokki
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.activeElement as HTMLElement | null;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        toggleRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    panelRef.current?.querySelector<HTMLElement>("a, button")?.focus();
+
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = overflow;
+      prev?.focus?.();
+    };
+  }, [open]);
+
+  const go = (id: string) => {
+    setOpen(false);
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      // Boshqa sahifadamiz (masalan case study) — bosh sahifaning o'sha
+      // bo'limiga yo'naltiramiz.
+      router.push(`/#${id}`);
+    }
+  };
+
+  const navLinks = links.filter((l) => l.id !== "home");
 
   return (
     <header
-      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-[rgba(5,8,22,0.82)] backdrop-blur-xl border-b border-[var(--border)] shadow-[0_10px_40px_rgba(2,6,23,0.45)]"
-          : "bg-transparent border-b border-transparent"
+      className={`site-header fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-300 ${
+        scrolled || open
+          ? "border-b border-line-1 bg-canvas/85 backdrop-blur-xl"
+          : "border-b border-transparent"
       }`}
     >
-      <div className="pf-container flex justify-between items-center py-3.5">
-        <a href="#home" className="flex items-center gap-2.5 group">
-          <span className="w-10 h-10 rounded-xl grid place-items-center font-display font-extrabold text-white bg-[var(--grad)] shadow-[0_6px_20px_rgba(0,183,255,0.35)] transition-transform duration-300 group-hover:scale-105">
-            {initials}
-          </span>
-          <span className="font-display font-bold text-lg tracking-tight">
-            {fullName}
-            <span className="text-[var(--blue2)]">.</span>
-          </span>
+      <div className="u-container flex items-center justify-between gap-4" style={{ minHeight: "var(--header-h)" }}>
+        <a
+          href="#home"
+          onClick={(e) => {
+            e.preventDefault();
+            go(links[0]?.id ?? "home");
+          }}
+          className="group flex items-center gap-2.5 rounded-2"
+        >
+          {portrait ? (
+            <span className="relative size-9 overflow-hidden rounded-2 ring-1 ring-line-2">
+              <Image src={portrait} alt="" fill sizes="36px" className="object-cover object-top" priority />
+            </span>
+          ) : (
+            <span className="grid size-9 place-items-center rounded-2 bg-accent font-mono text-[11px] font-bold tracking-tight text-accent-ink">
+              {initials || name.slice(0, 2).toUpperCase()}
+            </span>
+          )}
+          <span className="display text-[15px] font-semibold tracking-tight">{name}</span>
         </a>
 
-        <nav className="hidden md:flex items-center gap-1">
-          {LINKS.map((l) => (
+        {/* Desktop nav: lg'da asosiy 5 bo'lim, xl'da hammasi. 9 havolani
+            1024px sig'dirish — matnni siqib yuborardi. */}
+        <nav aria-label="Sahifa bo'limlari" className="hidden items-center gap-0.5 lg:flex">
+          {navLinks.map((l, i) => (
             <a
-              key={l.href}
-              href={l.href}
-              className={`px-3.5 py-2 rounded-full text-sm font-medium transition-colors ${
-                active === l.href
-                  ? "text-[var(--blue2)] bg-[rgba(0,183,255,0.08)]"
-                  : "pf-muted hover:text-[var(--text)]"
-              }`}
+              key={l.id}
+              href={`#${l.id}`}
+              onClick={(e) => {
+                e.preventDefault();
+                go(l.id);
+              }}
+              aria-current={active === l.id ? "true" : undefined}
+              className={`relative h-11 items-center gap-1.5 rounded-2 px-3 text-small font-medium transition-colors ${
+                SECONDARY_SECTIONS.has(l.id) ? "hidden xl:flex" : "flex"
+              } ${active === l.id ? "text-ink-1" : "text-ink-2 hover:text-ink-1"}`}
             >
+              <span className="font-mono text-micro text-ink-3">{String(i + 1).padStart(2, "0")}</span>
               {l.label}
+              {active === l.id ? (
+                <span className="absolute inset-x-3 -bottom-px h-px bg-accent" aria-hidden />
+              ) : null}
             </a>
           ))}
-          <a href="#contact" className="pf-btn pf-btn-primary ml-3 !py-2 !px-5 text-sm">
-            Ish buyurtma qilish
-          </a>
         </nav>
 
-        <button
-          onClick={() => setMenuOpen((v) => !v)}
-          aria-label="Menyu"
-          className="md:hidden w-10 h-10 grid place-items-center rounded-xl border border-[var(--border)] bg-[rgba(255,255,255,0.04)]"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            {menuOpen ? (
-              <>
-                <path d="M6 6l12 12" />
-                <path d="M18 6L6 18" />
-              </>
-            ) : (
-              <>
-                <path d="M4 7h16" />
-                <path d="M4 12h16" />
-                <path d="M4 17h10" />
-              </>
-            )}
-          </svg>
-        </button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <a href="#contact" onClick={(e) => { e.preventDefault(); go("contact"); }} className="btn btn--accent btn--sm hidden sm:inline-flex">
+            {ctaLabel}
+            <Icon name="arrow-right" size={15} />
+          </a>
+          <button
+            ref={toggleRef}
+            type="button"
+            className="icon-btn lg:hidden"
+            aria-label={open ? "Menyuni yopish" : "Menyuni ochish"}
+            aria-expanded={open}
+            aria-controls="mobile-nav"
+            onClick={() => setOpen((v) => !v)}
+          >
+            <Icon name={open ? "close" : "menu"} size={18} />
+          </button>
+        </div>
       </div>
 
-      {menuOpen ? (
-        <nav className="md:hidden border-t border-[var(--border)] bg-[rgba(5,8,22,0.96)] backdrop-blur-xl px-6 py-4 flex flex-col gap-1">
-          {LINKS.map((l) => (
+      {open ? (
+        <div
+          id="mobile-nav"
+          ref={panelRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Sahifa bo'limlari"
+          className="lg:hidden"
+        >
+          <nav className="hairline-x max-h-[70vh] overflow-y-auto border-t border-line-1 bg-canvas/95 px-[var(--gutter)] py-2 backdrop-blur-xl">
+            {links.map((l, i) => (
+              <a
+                key={l.id}
+                href={`#${l.id}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  go(l.id);
+                }}
+                aria-current={active === l.id ? "true" : undefined}
+                className="flex min-h-[52px] items-center justify-between gap-4 py-3 text-lead"
+              >
+                <span className="flex items-center gap-3">
+                  <span className="font-mono text-micro text-ink-3">{String(i + 1).padStart(2, "0")}</span>
+                  {l.label}
+                </span>
+                <Icon name="arrow-up-right" size={16} className="text-ink-3" />
+              </a>
+            ))}
+          </nav>
+          <div className="flex gap-2 border-t border-line-1 px-[var(--gutter)] py-4">
             <a
-              key={l.href}
-              href={l.href}
-              onClick={() => setMenuOpen(false)}
-              className="py-2.5 px-3 rounded-xl font-medium pf-muted hover:text-[var(--text)] hover:bg-[rgba(255,255,255,0.04)]"
+              href="#contact"
+              onClick={(e) => {
+                e.preventDefault();
+                go("contact");
+              }}
+              className="btn btn--accent btn--lg flex-1"
             >
-              {l.label}
+              {ctaLabel}
             </a>
-          ))}
-          <a href="#contact" onClick={() => setMenuOpen(false)} className="pf-btn pf-btn-primary mt-2">
-            Ish buyurtma qilish
-          </a>
-        </nav>
+          </div>
+        </div>
       ) : null}
     </header>
   );

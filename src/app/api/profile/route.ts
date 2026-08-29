@@ -1,56 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { profile } from "@/db/schema";
-import { getSession } from "@/lib/auth";
-import { z } from "zod";
+import { profileSchema, fieldErrors } from "@/lib/schemas";
+import { requireAdmin } from "@/lib/security";
 
-const profileSchema = z.object({
-  fullName: z.string().min(1).max(120),
-  title: z.string().min(1).max(160),
-  role2: z.string().max(120).optional().default(""),
-  role3: z.string().max(120).optional().default(""),
-  badge: z.string().max(80),
-  bio: z.string().max(2000),
-  avatarInitials: z.string().max(4),
-  photoUrl: z.string().max(1000).optional().default(""),
-  email: z.string().email(),
-  telegram: z.string().max(80),
-  github: z.string().max(500).optional().default(""),
-  linkedin: z.string().max(500).optional().default(""),
-  instagram: z.string().max(500).optional().default(""),
-  location: z.string().max(120).optional().default(""),
-  resumeUrl: z.string().max(500).optional().default(""),
-  statProjects: z.string().max(20),
-  statExperience: z.string().max(20),
-  statAvailability: z.string().max(20),
-});
-
+/** GET /api/profile — ochiq (saytda allaqachon ko'rinadigan ma'lumot). */
 export async function GET() {
   const row = await db.select().from(profile).get();
-  return NextResponse.json(row ?? null);
+  return NextResponse.json(row ?? null, { headers: { "cache-control": "no-store" } });
 }
 
+/**
+ * PUT /api/profile — singleton qatorni yangilaydi.
+ * Sessiya + Origin tekshiruvi + yagona zod sxema (admin formasi bilan bir xil).
+ */
 export async function PUT(req: NextRequest) {
-  const session = await getSession();
-  if (!session) {
-    return NextResponse.json({ error: "Ruxsat yo'q" }, { status: 401 });
-  }
+  const auth = await requireAdmin(req);
+  if (auth instanceof NextResponse) return auth;
 
   const body = await req.json().catch(() => null);
   const parsed = profileSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Ma'lumotlar noto'g'ri", details: parsed.error.flatten() }, { status: 400 });
+    return NextResponse.json(
+      { error: "Ba'zi maydonlarni tekshiring", fields: fieldErrors(parsed.error) },
+      { status: 422 }
+    );
   }
 
-  const existing = await db.select().from(profile).get();
   const now = new Date();
-
+  const existing = await db.select().from(profile).get();
   if (existing) {
     await db.update(profile).set({ ...parsed.data, updatedAt: now }).run();
   } else {
     await db.insert(profile).values({ ...parsed.data, updatedAt: now }).run();
   }
 
+  revalidatePath("/", "layout");
+  revalidatePath("/projects", "layout");
   const updated = await db.select().from(profile).get();
   return NextResponse.json(updated);
 }

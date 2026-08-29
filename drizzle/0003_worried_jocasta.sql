@@ -1,0 +1,1 @@
+ALTER TABLE `admins` ADD `sessions_revoked_at` integer;
