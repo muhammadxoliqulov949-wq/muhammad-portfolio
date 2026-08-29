@@ -3,10 +3,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Field, { type FieldConfig } from "@/components/ui/Field";
+import PortraitUpload from "@/components/PortraitUpload";
 import Card from "@/components/ui/Card";
 import Icon from "@/components/ui/Icon";
 import Skeleton from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
+import { useRouter } from "next/navigation";
 
 type ProfileForm = Record<string, string | number | boolean>;
 
@@ -90,6 +92,7 @@ const empty: ProfileForm = Object.fromEntries(
 
 export default function AdminProfilePage() {
   const { push } = useToast();
+  const router = useRouter();
   const [form, setForm] = useState<ProfileForm>(empty);
   const [baseline, setBaseline] = useState<ProfileForm>(empty);
   const [loading, setLoading] = useState(true);
@@ -190,6 +193,33 @@ export default function AdminProfilePage() {
           Saytda ko&apos;rish
         </Link>
       </div>
+
+      {/* Portret: fayl tanlash/sürülash/⌘V — yuklangan rasm DB'da saqlanadi
+          (Vercel'da fayl tizimi read-only), sayt uni /api/media/portrait'dan oladi. */}
+      <Card className="p-5 md:p-6" interactive={false}>
+        <div className="mb-5 flex items-baseline gap-3 border-b border-line-1 pb-4">
+          <span className="u-num font-mono text-micro text-accent-text">00</span>
+          <h2 className="display text-title font-semibold">Portret</h2>
+        </div>
+        <PortraitUpload
+          current={(form.photoUrl as string) || null}
+          initials={(form.avatarInitials as string) || (form.fullName as string) || "M"}
+          onChanged={(info) => {
+            const url = info?.url ?? "";
+            setForm((prev) => ({ ...prev, photoUrl: url }));
+            setBaseline((prev) => ({ ...prev, photoUrl: url }));
+            push({
+              variant: "success",
+              title: url ? "Portret yuklandi" : "Portret oʻchirildi",
+              description: url && info?.bytes
+                ? `${info.width}×${info.height}, ${Math.round(info.bytes / 1024)} KB — sayt 1 daqiqada yangilanadi`
+                : "Sayt endi monogram freymni koʻrsatadi",
+            });
+            router.refresh();
+          }}
+          onError={(m) => push({ variant: "error", title: "Yuklab boʻlmadi", description: m })}
+        />
+      </Card>
 
       {groups.map((g, gi) => (
         <Card key={g.title} className="p-5 md:p-6" interactive={false}>

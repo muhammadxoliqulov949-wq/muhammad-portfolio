@@ -20,6 +20,16 @@ let pass = 0;
 let fail = 0;
 const failures: string[] = [];
 
+/** Javob massivmi? 401/429 holatida ob'ekt keladi — `.some` uni yiqitmasin. */
+function rowsOf(text: string): Row[] {
+  try {
+    const v = JSON.parse(text) as unknown;
+    return Array.isArray(v) ? (v as Row[]) : [];
+  } catch {
+    return [];
+  }
+}
+
 function ok(name: string, cond: boolean, extra = "") {
   if (cond) {
     pass++;
@@ -147,7 +157,13 @@ async function main() {
 
   /* ─── 3. Admin oqimi ─────────────────────────────────────────────────── */
   console.log("\n3) Admin");
-  const login = await post("/api/auth/login", { email: EMAIL, password: PASSWORD });
+  let login = await post("/api/auth/login", { email: EMAIL, password: PASSWORD });
+  for (let i = 0; i < 2 && login.res.status === 429; i++) {
+    const wait = Math.min(45, Number(login.res.headers.get("retry-after") ?? 20) || 20);
+    console.log(`  … login rate limit — ${wait}s kutib qayta urilmoqda`);
+    await new Promise((r) => setTimeout(r, wait * 1000));
+    login = await post("/api/auth/login", { email: EMAIL, password: PASSWORD });
+  }
   ok("Login → 200", login.res.status === 200, JSON.stringify(login.json));
   const rawSet = login.res.headers.getSetCookie?.() ?? [];
   const cookie = rawSet.map((c) => c.split(";")[0]).join("; ");
@@ -191,7 +207,7 @@ async function main() {
   });
   ok("PATCH published=false → 200", patched.status === 200, `status=${patched.status}`);
   const hidden = await get("/api/projects");
-  ok("Public ro'yxatdan chiqdi", !JSON.parse(hidden.text).some((p: Row) => p.id === newId));
+  ok("Public ro'yxatdan chiqdi", !rowsOf(hidden.text).some((p: Row) => p.id === newId));
 
   const del = await fetch(`${BASE}/api/projects/${newId}`, {
     method: "DELETE",
@@ -231,6 +247,84 @@ async function main() {
   });
   ok("PUT /api/profile → 200 (o'zgarmagan holatga qaytarildi)", putRes.status === 200, `status=${putRes.status}`);
 
+
+  /* ─── 3b. Portret yuklash (rasm → DB → sayt) ─────────────────────────── */
+  console.log("\n3b) Portret yuklash");
+  // Test uchun haqiqiy PNG: sharp bilan yasalgan 120×400 solid rangli rasm
+  // (portret nisbatiga yaqin — kesish yo'li ham sinovdan o'tadi).
+  const { default: sharp } = await import("sharp");
+  const tinyPng = await sharp({
+    create: { width: 120, height: 400, channels: 3, background: { r: 214, g: 242, b: 92 } },
+  })
+    .png()
+    .toBuffer();
+  async function upload(cookie?: string, type = "image/png") {
+    const fd = new FormData();
+    fd.append("file", new Blob([tinyPng], { type }));
+    const res = await fetch(BASE + "/api/media/portrait", {
+      method: "POST",
+      headers: { origin: BASE, ...(cookie ? { cookie } : {}) },
+      body: fd,
+    });
+    const text = await res.text();
+    let json: Record<string, unknown> | null = null;
+    try {
+      json = JSON.parse(text) as Record<string, unknown>;
+    } catch {
+      /* rasm javobi yoki bo'sh tana */
+    }
+    return { res, json, text };
+  }
+
+  const anonUp = await upload();
+  ok("Anonim yuklash → 401", anonUp.res.status === 401, `status=${anonUp.res.status}`);
+
+  const badType = await upload(cookie, "text/plain");
+  ok(
+    "Rasm bo'lmagan fayl → 422 + maydon xatosi",
+    badType.res.status === 422 && Boolean((badType.json?.fields as Record<string, unknown> | undefined)?.file),
+    `status=${badType.res.status}`
+  );
+
+  const up = await upload(cookie);
+  ok("Admin yuklashi → 200", up.res.status === 200, `status=${up.res.status} ${up.text.slice(0, 140)}`);
+  ok(
+    "Rasm 4:5 freymga kesiladi",
+    up.json?.width === 1100 && up.json?.height === 1375,
+    JSON.stringify({ w: up.json?.width, h: up.json?.height })
+  );
+  ok("profile.photoUrl avtomatik yo'naltirildi", up.json?.url === "/api/media/portrait");
+
+  const served = await fetch(BASE + "/api/media/portrait");
+  const etag = served.headers.get("etag") ?? "";
+  ok(
+    "GET /api/media/portrait → 200 va image/*",
+    served.status === 200 && (served.headers.get("content-type") ?? "").startsWith("image/"),
+    `status=${served.status}`
+  );
+  ok("ETag beriladi", etag.length > 0);
+  await served.arrayBuffer();
+  const reval = await fetch(BASE + "/api/media/portrait", { headers: { "if-none-match": etag } });
+  ok("ETag mos kelse → 304", reval.status === 304, `status=${reval.status}`);
+
+  const homeAfter = await get("/");
+  ok(
+    "Sayt portret almashtirilganini ko'radi (revalidatePath)",
+    homeAfter.text.includes("/api/media/portrait")
+  );
+
+  const up2 = await upload(cookie);
+  ok("Almashtirish eski nusxani qayta yozadi", up2.res.status === 200 && up2.json?.replaced === true);
+
+  const delMedia = await fetch(BASE + "/api/media/portrait", { method: "DELETE", headers: { origin: BASE, cookie } });
+  ok("DELETE → 200", delMedia.status === 200, `status=${delMedia.status}`);
+  const gone = await fetch(BASE + "/api/media/portrait");
+  ok("O'chirilgach → 404", gone.status === 404, `status=${gone.status}`);
+  const profAfter = await get("/api/profile");
+  ok(
+    "photoUrl bo'shatildi (sayt monogramga qaytadi)",
+    (JSON.parse(profAfter.text) as { photoUrl?: string }).photoUrl === ""
+  );
   /* ─── 4. Kontakt + xabarlar + CSRF ───────────────────────────────────── */
   console.log("\n4) Kontakt va xabarlar");
   const msg = await post("/api/contact", {
@@ -249,7 +343,7 @@ async function main() {
   const hp = await get("/api/messages?limit=200", cookie);
   ok(
     "Honeypot xabari DB'ga tushmadi",
-    !JSON.parse(hp.text).some((m: Row) => m.email === "bot@example.com"),
+    !rowsOf(hp.text).some((m: Row) => m.email === "bot@example.com"),
   );
 
   const msgs = await get("/api/messages", cookie);

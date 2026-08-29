@@ -27,7 +27,8 @@ export function isSameOrigin(req: NextRequest): boolean {
  * `if (deny) return deny;` ko'rinishida ishlatadi.
  */
 export function requireAdmin(
-  req: NextRequest
+  req: NextRequest,
+  opts: { /** `multipart/form-data` (rasm yuklash) JSON talabini yengillashtiradi */ allowMultipart?: boolean } = {}
 ): Promise<NextResponse | SessionPayload | null> {
   return (async () => {
     if (!isSameOrigin(req)) {
@@ -38,7 +39,8 @@ export function requireAdmin(
     if (req.method !== "GET" && req.method !== "HEAD") {
       const len = Number(req.headers.get("content-length") ?? "0");
       const ct = req.headers.get("content-type") ?? "";
-      if (len > 0 && !ct.includes("application/json")) {
+      const allowed = opts.allowMultipart && ct.includes("multipart/form-data");
+      if (len > 0 && !allowed && !ct.includes("application/json")) {
         return NextResponse.json({ error: "Content-Type: application/json bo'lishi kerak" }, { status: 415 });
       }
     }

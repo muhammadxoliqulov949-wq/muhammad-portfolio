@@ -184,3 +184,23 @@ export const messages = sqliteTable("messages", {
   read: integer("read", { mode: "boolean" }).notNull().default(false),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 });
+
+/**
+ * Sayt rasmlari (hozircha: portret). Vercel'ning fayl tizimi read-only,
+ * shuning uchun rasm shu yerda saqlanadi — base64, ~20–120 KB.
+ * `key` bo'yicha bitta faol nusxa saqlanadi; `profile.photoUrl` esa
+ * `/api/media/<key>` manziliga ishora qiladi (bu qator bo'lmasa sayt
+ * `public/media/portrait.*` yoki monogramga qaytadi).
+ */
+export const media = sqliteTable("media", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  key: text("key").notNull().unique(),
+  mime: text("mime").notNull().default("image/jpeg"),
+  /** base64 (SQLite blob'iga qaraganda libsql/Turso'da ishonchliroq) */
+  data: text("data").notNull(),
+  bytes: integer("bytes").notNull().default(0),
+  width: integer("width"),
+  height: integer("height"),
+  etag: text("etag").notNull().default(""),
+  uploadedAt: integer("uploaded_at", { mode: "timestamp" }).notNull(),
+});

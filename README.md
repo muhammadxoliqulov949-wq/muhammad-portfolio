@@ -102,26 +102,29 @@ src/
   proxy.ts                    # /admin va /api/method'lar uchun edge himoyasi
 ```
 
-### Portret rasmi
+### Portret rasmi — admin paneldan yuklanadi
 
-Sayt portret uchun **ikki manbani** qo'llab-quvvatlaydi; ikkalasi ham bo'lmasa hero'da monogram freymi chiqadi — buzuq yoki soxta rasm hech qachon ko'rsatilmaydi:
+Portret **sayt bazasida** saqlanadi (`media` jadvali, base64 JPEG). Sababi oddiy:
+Vercel'da fayl tizimi read-only — «admin panelda fayl tanlab, `public/media`ga
+yozib qo'yamiz» varianti production'da ishlamasdi.
 
-1. `public/media/portrait.jpg` — faylni shu nom bilan papkaga tashlash kifoya (`jpg/jpeg/png/webp/avif`). Sayt uni DB'ga tegmasdan avtomatik oladi.
-2. **admin → Profil → «Portret URL»** — `/media/portrait.jpg` yoki to'liq `https://…` URL (ustuvorlik shu maydonda).
+| Qayerdan | Qanday |
+|---|---|
+| **admin → Profil → «Portret»** | faylni tanlash, sürülib tashlash yoki ⌘/Ctrl+V; progress, almashtirish va oʻchirish tugmalari bilan |
+| **Bosh sahifa (faqat admin koʻradi)** | portret freymi burchagidagi «+» tugmasi → oynani ochib, shu yerda almashtirish. `GET /api/auth/me` gidratatsiyadan keyin tekshiriladi, shuning uchun mehmonlar hech qanday tugma koʻrmaydi |
+| `public/media/portrait.jpg` | repo'ga tashlab commit qilingan fayl — DB'da «Portret URL» boʻsh boʻlsa ishlatiladi |
+| admin → Profil → «Portret URL» | tashqi `https://…` manzil (ustuvor emas: yuklangan rasm bu maydonni `/api/media/portrait`ga qoʻyadi) |
 
-Qayerda ko'rinadi: hero'dagi portret freymi (4:5 kadrlash, `object-position: 50% 22%`, `priority` → LCP), sticky header avatari va **OG kartochkadagi** monogram kvadrati. Tavsiya etilgan o'lcham: 1000–1200 px tomon, 200–400 KB.
+Bir fayl boʻlmasa — **monogram freym** (buzuq rasm, boʻsh blok yoki «placeholder» yoʻq).
 
-```bash
-# 1-variant (tavsiya): faylni qayta ishlab joylaydi
-npm run portrait -- ~/rasmlar/portrait.png        # yoki https://… URL
-npm run portrait -- ./kadr.jpg --position north   # yuz yuqorida bo'lsa
-npm run portrait -- ./kadr.jpg --no-db            # DB'ga tegmasdan faqat fayl
+Yuklashda server nima qiladi: `POST /api/media/portrait` (`multipart/form-data`, 8 MB gacha)
+→ EXIF boʻyicha aylantirish → **4:5 (1100×1375) «cover» kesish**, `position: attention`
+(yuzni saqlaydi) → mozjpeg progressive q≈86 (~20–120 KB) → DB → `revalidatePath` →
+sayt ~1 daqiqada yangi portretni koʻrsatadi (`GET /api/media/portrait` + `ETag`, `max-age=60`).
+`DELETE /api/media/portrait` esa portretni olib, monogramga qaytaradi.
 
-# 2-variant: faylni o'zingiz tashlaysiz
-public/media/portrait.jpg
-```
-
-`npm run portrait` nima qiladi: EXIF burilishini to'g'irlaydi → 4:5 (1100×1375) «cover» bilan kesadi → progressive JPEG (~86 sifat) → `public/media/portrait.jpg` → `profile.photoUrl`ni yozadi (admin panelda ham ko'rinadi). `sharp` ishlatiladi, rasmning o'zi ixtir qilinmaydi: fayl bo'lmasa yoki buzilgan bo'lsa — xato beradi.
+Kontentni qoʻlda ham boshqarish mumkin: `npm run portrait -- ./rasm.jpg` (skript
+faylni shu talablarga moslab `public/media/portrait.jpg`ga yozadi va `photoUrl`ni yangilaydi).
 
 **Ma'lumot oqimi:** `DB → src/lib/content.ts (cache + Promise.all) → RSC (HTML)`. Admin'da yozuv → `src/lib/crud.ts` → `revalidatePath('/', 'layout')` va tegishli yo'llar → sayt 1 daqiqada yangilanadi (ISR). `getSiteData` bitta React `cache()` ichida — har bir request'da 6 ta so'rov parallell.
 
@@ -137,6 +140,9 @@ public/media/portrait.jpg
 | `/api/<kollekisiya>/reorder` | `POST` | admin | `{ ids: [3,1,2] }` → `order = indeks` |
 | `/api/profile` | `GET` / `PUT` | GET ochiq, PUT admin | singleton profil |
 | `/api/contact` | `POST` | ochiq | `201`; honeypot ham `201`; 5 daq/IP → `429` |
+| `/api/media/[key]` | `GET` | ochiq | rasmning oʻzi (DB'dan), `ETag` + `max-age=60`; yoʻq → `404` |
+| `/api/media/[key]` | `POST`/`PUT` | admin | `multipart/form-data` (`file`) → 4:5 kesish, siqish, saqlash; 15/10 daq |
+| `/api/media/[key]` | `DELETE` | admin | nusxani oʻchirish (portret boʻlsa `photoUrl` ham tozalanadi) |
 | `/api/messages` | `GET` | admin | `?unread=1&limit=1..200` |
 | `/api/messages/[id]` | `PATCH` / `DELETE` | admin | `{ read: true }` / o'chirish |
 | `/api/auth/login` | `POST` | ochiq | 8 urinish / 10 daq / IP → `429` |
@@ -174,7 +180,7 @@ Saytdagi har bir gap DB'dan keladi va **faqt haqiqat**: ixtiro qilingan kompaniy
 
 ## Ma'lumotlar bazasi
 
-8 jadval: `admins` (+ `sessions_revoked_at`), `profile`, `projects`, `services`, `skills`, `experience`, `education`, `achievements`, `testimonials`, `messages`.
+9 jadval: `admins` (+ `sessions_revoked_at`), `profile`, `projects`, `services`, `skills`, `experience`, `education`, `achievements`, `testimonials`, `messages`.
 
 **Kontent ustunlari (migration 0004–0006):**
 
@@ -185,6 +191,7 @@ Saytdagi har bir gap DB'dan keladi va **faqt haqiqat**: ixtiro qilingan kompaniy
 | `skills` | `name`, `category` (saytda guruh sarlavhasi), `context`, `years` (maydon saqlanadi, saytda ko'rsatilmaydi) |
 | `education` | `institution`, `credential`, `field`, `period`, `status`, `detail`, `current`, `order` |
 | `achievements` | `title`, `issuer`, `kind` (`cert`/`academic`/`sport`), `year`, `detail`, `url` («Tekshirish» havolasi), `order` |
+| `media` | `key` (`portrait`), `mime`, `data` (base64), `bytes`, `width`, `height`, `etag`, `uploaded_at` — rasm DB'da saqlanadi, chunki Vercel FS read-only |
 
 Migratsiyalar `drizzle/` da va `npm run db:generate` bilan qo'shiladi; `npx drizzle-kit migrate` o'rniga `npm run db:migrate:run` ishlatiladi (libsql bilan ishonchliroq).
 

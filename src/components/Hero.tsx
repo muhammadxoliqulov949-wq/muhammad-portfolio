@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Icon from "./ui/Icon";
+import PortraitSlot from "./PortraitSlot";
 import Rotator from "./Rotator";
 import CopyButton from "./ui/CopyButton";
 import {
@@ -137,6 +138,8 @@ export default function Hero({ profile: p, study }: Props) {
                   </span>
                 </div>
               )}
+              <PortraitSlot current={portrait} initials={p.avatarInitials || p.fullName} />
+
               <figcaption className="hero-photo__caption">
                 <span className="text-body font-semibold">{p.fullName || "Portfolio"}</span>
                 {p.location ? <span className="flex items-center gap-1.5 text-small text-ink-2">

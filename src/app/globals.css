@@ -884,6 +884,77 @@ textarea.input {
 .hero-panels {
   margin-top: -2.75rem;
 }
+
+/* Portret ustidagi admin tugmasi («+») — faqat admin kirganda render qilinadi */
+.portrait-edit {
+  position: absolute;
+  z-index: 3;
+  right: 0.6rem;
+  bottom: 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--c-accent) 55%, transparent);
+  background: color-mix(in srgb, var(--c-canvas) 82%, transparent);
+  color: var(--c-ink-1);
+  font-size: var(--text-small);
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+  transition: background-color 0.2s var(--ease-out-soft), color 0.2s var(--ease-out-soft),
+    transform 0.2s var(--ease-out-soft);
+}
+.portrait-edit:hover {
+  background: var(--c-accent);
+  color: var(--c-accent-ink);
+  transform: translateY(-1px);
+}
+.portrait-edit svg {
+  flex: none;
+}
+@media (max-width: 40rem) {
+  .portrait-edit__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+}
+.portrait-dialog {
+  width: 100vw;
+  max-width: none;
+  max-height: none;
+  padding: 1.5rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  align-content: center;
+  justify-content: center;
+  place-items: center;
+}
+.portrait-dialog::backdrop {
+  background: color-mix(in srgb, #05070b 72%, transparent);
+  backdrop-filter: blur(3px);
+}
+.portrait-drop {
+  transition: border-color 0.2s var(--ease-out-soft), background-color 0.2s var(--ease-out-soft);
+}
+.portrait-drop[data-drag="true"] {
+  border-color: var(--c-accent);
+  background: color-mix(in srgb, var(--c-accent) 8%, var(--c-surface-2));
+}
+.portrait-preview {
+  background: radial-gradient(120% 90% at 50% 0%, var(--c-accent-soft), var(--c-canvas) 70%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .portrait-edit,
+  .portrait-drop {
+    transition: none;
+  }
+}
 /* Hero: suzuvchi ish oqimi panellari — pseudo-3D, CSS'gana (JS yo'q).
    Maqsad: "AI-assisted workflow" ni vizual metafora bilan ko'rsatish. */
 .hero-panels {
