@@ -215,7 +215,7 @@ html {
 }
 
 body {
-  --header-h: 68px;
+  --header-h: 84px;
   --gutter: clamp(1.15rem, 4vw, 2.5rem);
   --container: 78rem;
   --section-y: clamp(4.25rem, 2.4rem + 7vw, 8.5rem);
@@ -580,8 +580,215 @@ select {
   clip-path: inset(50%);
 }
 
+/* Yuqori tab — suzuvchi shisha-pill. Shrift va yozuvlar o'zgarmaydi. */
 .site-header {
-  padding-top: env(safe-area-inset-top, 0px);
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 50;
+  padding: calc(env(safe-area-inset-top, 0px) + 0.7rem) var(--gutter) 0;
+  pointer-events: none;
+}
+.site-header__bar {
+  pointer-events: auto;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.4rem 0.75rem;
+  width: min(100%, var(--container));
+  margin-inline: auto;
+  min-height: 58px;
+  padding: 0.35rem 0.4rem 0.35rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--c-line-1) 70%, transparent);
+  background: color-mix(in srgb, var(--c-canvas) 55%, transparent);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--c-ink-1) 6%, transparent) inset;
+  transition:
+    background-color 0.35s var(--ease-out-soft),
+    border-color 0.35s var(--ease-out-soft),
+    box-shadow 0.35s var(--ease-out-soft),
+    border-radius 0.3s var(--ease-out-soft);
+}
+@media (min-width: 64rem) {
+  .site-header__bar {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+}
+@supports (backdrop-filter: blur(8px)) {
+  .site-header__bar {
+    background: color-mix(in srgb, var(--c-canvas) 48%, transparent);
+    backdrop-filter: blur(22px) saturate(1.35);
+  }
+}
+.site-header.is-solid .site-header__bar {
+  border-color: var(--c-line-1);
+  background: color-mix(in srgb, var(--c-canvas) 78%, transparent);
+  box-shadow: var(--sh-1), 0 18px 40px -28px color-mix(in srgb, var(--c-inverse-ink) 55%, transparent);
+}
+.site-header.is-open .site-header__bar {
+  border-radius: 22px;
+  align-items: flex-start;
+}
+
+.site-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 44px;
+  padding: 0 0.35rem 0 0.15rem;
+  border-radius: 999px;
+  flex: none;
+  justify-self: start;
+}
+.site-header__avatar,
+.site-header__mono {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  overflow: hidden;
+  border-radius: 999px;
+}
+.site-header__avatar {
+  box-shadow: 0 0 0 1px var(--c-line-2);
+}
+.site-header__mono {
+  background: var(--c-accent);
+  color: var(--c-accent-ink);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.site-header__name {
+  max-width: 38vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+@media (min-width: 40rem) {
+  .site-header__name {
+    max-width: 14rem;
+  }
+}
+
+.site-header__nav {
+  display: none;
+  align-items: center;
+  justify-self: center;
+  gap: 0.1rem;
+  padding: 0.15rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--c-surface-2) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c-line-1) 80%, transparent);
+}
+@media (min-width: 64rem) {
+  .site-header__nav {
+    display: flex;
+  }
+}
+.site-header__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 0.8rem;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--c-ink-2);
+  transition: color 0.18s var(--ease-out-soft), background-color 0.18s var(--ease-out-soft);
+}
+.site-header__link:hover {
+  color: var(--c-ink-1);
+}
+.site-header__link[aria-current="true"] {
+  color: var(--c-ink-1);
+  background: var(--c-surface-1);
+  box-shadow: var(--sh-1);
+  font-weight: 600;
+}
+.site-header__link--more {
+  display: none;
+}
+@media (min-width: 80rem) {
+  .site-header__link--more {
+    display: inline-flex;
+  }
+}
+
+.site-header__tools {
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  gap: 0.4rem;
+  flex: none;
+}
+.site-header__cta {
+  display: none;
+}
+@media (min-width: 40rem) {
+  .site-header__cta {
+    display: inline-flex;
+  }
+}
+.site-header__menu {
+  display: inline-grid;
+}
+@media (min-width: 64rem) {
+  .site-header__menu {
+    display: none;
+  }
+}
+
+.site-header__sheet {
+  grid-column: 1 / -1;
+  width: 100%;
+  padding: 0.15rem 0.2rem 0.4rem;
+}
+.site-header__sheet-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding-block: 0.35rem;
+  border-top: 1px solid var(--c-line-1);
+}
+.site-header__sheet-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 48px;
+  padding: 0 0.85rem;
+  border-radius: 14px;
+  font-size: var(--text-lead);
+  font-weight: 500;
+  color: var(--c-ink-2);
+}
+.site-header__sheet-link[aria-current="true"] {
+  color: var(--c-ink-1);
+  background: var(--c-surface-2);
+}
+.site-header__sheet-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.15rem 0.15rem;
+  border-top: 1px solid var(--c-line-1);
+}
+@media (min-width: 64rem) {
+  .site-header__sheet {
+    display: none;
+  }
 }
 
 a,

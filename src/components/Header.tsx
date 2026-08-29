@@ -21,16 +21,10 @@ type Props = {
 };
 
 /**
- * Sticky header.
- * Audit tuzatishlari:
- *  - mobil menyu endi `role="dialog"` + aria-expanded/controls, Escape bilan
- *    yopiladi, ochilganda fokusga o'tadi va scroll qulanadi (P2-19);
- *  - aktiv bo'lim `aria-current` bilan belgilanadi;
- *  - backdrop-blur faqat scroll qilinganda (GPU tejamkorligi);
- *  - barcha targetlar ≥44px.
+ * Sticky header — suzuvchi tab (island).
+ * Yozuvlar va shriftlar o'zgarmaydi; faqat yuqori tabning tuzilishi.
  */
-/** kenglik tor bo'lganda yashirinadigan qo'shimcha bo'limlar */
-const SECONDARY_SECTIONS = new Set(["about", "education", "achievements", "approach"]);
+const SECONDARY_SECTIONS = new Set(["experience", "education", "achievements", "approach"]);
 
 export default function Header({ name, initials, links, ctaLabel, locale = "uz", portrait }: Props) {
   const cta = ctaLabel ?? t(locale, "hero.cta");
@@ -45,7 +39,7 @@ export default function Header({ name, initials, links, ctaLabel, locale = "uz",
     let raf = 0;
     const onScroll = () => {
       cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => setScrolled(window.scrollY > 16));
+      raf = requestAnimationFrame(() => setScrolled(window.scrollY > 12));
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -74,7 +68,6 @@ export default function Header({ name, initials, links, ctaLabel, locale = "uz",
     return () => io.disconnect();
   }, [links]);
 
-  // Mobil panel: Escape + fokus boshqaruvi + scroll lokki
   useEffect(() => {
     if (!open) return;
     const prev = document.activeElement as HTMLElement | null;
@@ -102,8 +95,6 @@ export default function Header({ name, initials, links, ctaLabel, locale = "uz",
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
-      // Boshqa sahifadamiz (masalan case study) — bosh sahifaning o'sha
-      // bo'limiga yo'naltiramiz.
       router.push(`/#${id}`);
     }
   };
@@ -111,40 +102,38 @@ export default function Header({ name, initials, links, ctaLabel, locale = "uz",
   const navLinks = links.filter((l) => l.id !== "home");
 
   return (
-    <header
-      className={`site-header fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-300 ${
-        scrolled || open
-          ? "border-b border-line-1 bg-canvas/85 backdrop-blur-xl"
-          : "border-b border-transparent"
-      }`}
-    >
-      <div className="u-container flex items-center justify-between gap-2 sm:gap-4" style={{ minHeight: "var(--header-h)" }}>
+    <header className={`site-header${scrolled || open ? " is-solid" : ""}${open ? " is-open" : ""}`}>
+      <div className="site-header__bar">
         <a
           href="/#home"
           onClick={(e) => {
             e.preventDefault();
             go(links[0]?.id ?? "home");
           }}
-          className="group flex items-center gap-2.5 rounded-2"
+          className="site-header__brand"
         >
           {portrait ? (
-            <span className="relative size-9 overflow-hidden rounded-2 ring-1 ring-line-2">
-              <Image src={portrait} alt="" fill sizes="36px" className="object-cover object-top" priority unoptimized={portrait.startsWith("/api/media/")} />
+            <span className="site-header__avatar">
+              <Image
+                src={portrait}
+                alt=""
+                fill
+                sizes="32px"
+                className="object-cover object-top"
+                priority
+                unoptimized={portrait.startsWith("/api/media/")}
+              />
             </span>
           ) : (
-            <span className="grid size-9 place-items-center rounded-2 bg-accent font-mono text-[11px] font-bold tracking-tight text-accent-ink">
+            <span className="site-header__mono">
               {initials || name.slice(0, 2).toUpperCase()}
             </span>
           )}
-          <span className="display max-w-[42vw] truncate text-[15px] font-semibold tracking-tight sm:max-w-[14rem] lg:max-w-none">
-            {name}
-          </span>
+          <span className="display site-header__name">{name}</span>
         </a>
 
-        {/* Desktop nav: lg'da asosiy 5 bo'lim, xl'da hammasi. 9 havolani
-            1024px sig'dirish — matnni siqib yuborardi. */}
-        <nav aria-label={t(locale, "nav.sections")} className="hidden items-center gap-0.5 lg:flex">
-          {navLinks.map((l, i) => (
+        <nav aria-label={t(locale, "nav.sections")} className="site-header__nav">
+          {navLinks.map((l) => (
             <a
               key={l.id}
               href={`/#${l.id}`}
@@ -153,30 +142,30 @@ export default function Header({ name, initials, links, ctaLabel, locale = "uz",
                 go(l.id);
               }}
               aria-current={active === l.id ? "true" : undefined}
-              className={`relative h-11 items-center gap-1.5 rounded-2 px-3 text-small font-medium transition-colors ${
-                SECONDARY_SECTIONS.has(l.id) ? "hidden xl:flex" : "flex"
-              } ${active === l.id ? "text-ink-1" : "text-ink-2 hover:text-ink-1"}`}
+              className={`site-header__link${SECONDARY_SECTIONS.has(l.id) ? " site-header__link--more" : ""}`}
             >
-              <span className="font-mono text-micro text-ink-3">{String(i + 1).padStart(2, "0")}</span>
               {l.label}
-              {active === l.id ? (
-                <span className="absolute inset-x-3 -bottom-px h-px bg-accent" aria-hidden />
-              ) : null}
             </a>
           ))}
         </nav>
 
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="site-header__tools">
           <LangSwitch locale={locale} />
           <ThemeToggle locale={locale} />
-          <a href="/#contact" onClick={(e) => { e.preventDefault(); go("contact"); }} className="btn btn--accent btn--sm hidden sm:inline-flex">
+          <a
+            href="/#contact"
+            onClick={(e) => {
+              e.preventDefault();
+              go("contact");
+            }}
+            className="btn btn--accent btn--sm site-header__cta"
+          >
             {cta}
-            <Icon name="arrow-right" size={15} />
           </a>
           <button
             ref={toggleRef}
             type="button"
-            className="icon-btn lg:hidden"
+            className="icon-btn site-header__menu"
             aria-label={open ? t(locale, "nav.menuClose") : t(locale, "nav.menuOpen")}
             aria-expanded={open}
             aria-controls="mobile-nav"
@@ -185,52 +174,48 @@ export default function Header({ name, initials, links, ctaLabel, locale = "uz",
             <Icon name={open ? "close" : "menu"} size={18} />
           </button>
         </div>
-      </div>
 
-      {open ? (
-        <div
-          id="mobile-nav"
-          ref={panelRef}
-          role="dialog"
-          aria-modal="true"
-          aria-label={t(locale, "nav.sections")}
-          className="lg:hidden"
-        >
-          <nav className="hairline-x max-h-[70vh] overflow-y-auto border-t border-line-1 bg-canvas/95 px-[var(--gutter)] py-2 backdrop-blur-xl">
-            {links.map((l, i) => (
+        {open ? (
+          <div
+            id="mobile-nav"
+            ref={panelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={t(locale, "nav.sections")}
+            className="site-header__sheet"
+          >
+            <nav className="site-header__sheet-nav">
+              {links.map((l) => (
+                <a
+                  key={l.id}
+                  href={`/#${l.id}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    go(l.id);
+                  }}
+                  aria-current={active === l.id ? "true" : undefined}
+                  className="site-header__sheet-link"
+                >
+                  {l.label}
+                  <Icon name="arrow-up-right" size={15} className="text-ink-3" />
+                </a>
+              ))}
+            </nav>
+            <div className="site-header__sheet-foot">
               <a
-                key={l.id}
-                href={`/#${l.id}`}
+                href="/#contact"
                 onClick={(e) => {
                   e.preventDefault();
-                  go(l.id);
+                  go("contact");
                 }}
-                aria-current={active === l.id ? "true" : undefined}
-                className="flex min-h-[52px] items-center justify-between gap-4 py-3 text-lead"
+                className="btn btn--accent btn--lg min-w-0 flex-1"
               >
-                <span className="flex items-center gap-3">
-                  <span className="font-mono text-micro text-ink-3">{String(i + 1).padStart(2, "0")}</span>
-                  {l.label}
-                </span>
-                <Icon name="arrow-up-right" size={16} className="text-ink-3" />
+                {cta}
               </a>
-            ))}
-          </nav>
-          <div className="flex flex-wrap items-center gap-2 border-t border-line-1 px-[var(--gutter)] py-4">
-            <ThemeToggle locale={locale} />
-            <a
-              href="/#contact"
-              onClick={(e) => {
-                e.preventDefault();
-                go("contact");
-              }}
-              className="btn btn--accent btn--lg min-w-0 flex-1"
-            >
-              {cta}
-            </a>
+            </div>
           </div>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
     </header>
   );
 }
