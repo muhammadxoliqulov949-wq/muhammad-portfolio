@@ -1,6 +1,7 @@
 import SectionHead from "./ui/Section";
 import Icon from "./ui/Icon";
 import { highlightsOf, type ExperienceItem, type Profile } from "@/lib/content";
+import { t, tx, txEach, type Locale } from "@/lib/i18n-core";
 
 /**
  * Tajriba — haqiqiy, lekin «korporativ» boʻlmagan roʻyxat.
@@ -10,42 +11,52 @@ import { highlightsOf, type ExperienceItem, type Profile } from "@/lib/content";
  * boʻlib chiqadi. Sarlavhadagi davr ham DB'dan olinadi (`statExperience`) —
  * komponentda ixtirilgan sana qolmaydi.
  */
-export default function Experience({ items, profile }: { items: ExperienceItem[]; profile: Profile }) {
+export default function Experience({
+  items,
+  profile,
+  locale = "uz",
+}: {
+  items: ExperienceItem[];
+  profile: Profile;
+  locale?: Locale;
+}) {
   if (items.length === 0) return null;
 
-  const span = profile.statExperience.trim();
+  const span = tx(locale, profile.statExperience.trim());
 
   return (
     <section id="experience" className="u-section u-cv">
       <div className="u-container">
         <SectionHead
           index="03"
-          eyebrow="Tajriba"
+          eyebrow={t(locale, "experience.eyebrow")}
           title={
             span ? (
               <>
-                {span} — {items.length} yoʻnalishda, <span className="display-em">mijoz bilan</span>
+                {span} — {items.length} {t(locale, "experience.titleMid")}{" "}
+                <span className="display-em">{t(locale, "experience.titleEm")}</span>
               </>
             ) : (
               <>
-                {items.length} yoʻnalishda, <span className="display-em">mijoz bilan</span>
+                {items.length} {t(locale, "experience.titleMid")}{" "}
+                <span className="display-em">{t(locale, "experience.titleEm")}</span>
               </>
             )
           }
-          lead="Bu roʻyxat katta kompaniyalar tarixi emas. Bu — har birida jonli odamlar bilan kelishib, ular kutgan natijani oʻz vaqtida topshirish tajribasi."
+          lead={t(locale, "experience.lead")}
         />
 
         <ol className="timeline stack pl-8">
           {items.map((item) => {
-            const highlights = highlightsOf(item.highlights);
+            const highlights = txEach(locale, highlightsOf(item.highlights));
             const metric = highlights[0];
             const rest = highlights.slice(1);
             return (
               <li key={item.id} className="relative pb-9 last:pb-0">
                 <span className="timeline-node" data-current={item.current} aria-hidden />
                 <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
-                  <h3 className="display text-title font-semibold">{item.role}</h3>
-                  <span className="text-body text-ink-2">{item.company}</span>
+                  <h3 className="display text-title font-semibold">{tx(locale, item.role)}</h3>
+                  <span className="text-body text-ink-2">{tx(locale, item.company)}</span>
                   {metric ? (
                     <span className="chip chip--accent ml-auto">
                       <Icon name="sparkle" size={11} />
@@ -59,7 +70,7 @@ export default function Experience({ items, profile }: { items: ExperienceItem[]
                   </p>
                 ) : null}
                 {item.description ? (
-                  <p className="mt-3 max-w-2xl text-body text-ink-2">{item.description}</p>
+                  <p className="mt-3 max-w-2xl text-body text-ink-2">{tx(locale, item.description)}</p>
                 ) : null}
                 {rest.length > 0 ? (
                   <ul className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -79,11 +90,11 @@ export default function Experience({ items, profile }: { items: ExperienceItem[]
         <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-2 rounded-3 border border-line-1 bg-surface-1 px-5 py-4">
           <p className="flex items-center gap-2.5 text-small text-ink-2">
             <span className="dot" aria-hidden />
-            Hozirda: <span className="font-medium text-ink-1">IELTS.mock</span> platformasini
-            rivojlantirish davom etmoqda
+            {t(locale, "experience.now")} <span className="font-medium text-ink-1">IELTS.mock</span>{" "}
+            {t(locale, "experience.nowRest")}
           </p>
           <a href="/#work" className="link-underline ml-auto text-small">
-            Loyihani koʻrish
+            {t(locale, "experience.see")}
             <Icon name="arrow-right" size={13} />
           </a>
         </div>

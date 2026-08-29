@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import Script from "next/script";
 import "./globals.css";
 import { getSiteData, phoneHref, socialsOf } from "@/lib/content";
+import { getLocale, LOCALE_META, t } from "@/lib/i18n";
 
 /**
  * Shriftlar — audit P1-9: 9 ta static woff2 o'rniga 3 ta VARIABLE fayl.
@@ -107,7 +108,7 @@ export const viewport: Viewport = {
 const THEME_BOOTSTRAP = `(function(){try{var d=document.documentElement;var s=localStorage.getItem('theme');if(s==='light'||s==='dark'){d.setAttribute('data-theme',s);}else if(window.matchMedia('(prefers-color-scheme: dark)').matches){d.setAttribute('data-theme','dark');}else{d.setAttribute('data-theme','light');}d.style.colorScheme=s==='light'?'light':(s==='dark'?'dark':'light dark');}catch(e){}})();`;
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const { profile, skills, services } = await getSiteData();
+  const [{ profile, skills, services }, locale] = await Promise.all([getSiteData(), getLocale()]);
   const sameAs = socialsOf(profile)
     .filter((s) => s.key !== "email" && s.key !== "phone")
     .map((s) => s.href);
@@ -136,7 +137,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html
-      lang="uz"
+      lang={LOCALE_META[locale].html}
       className={`${display.variable} ${sans.variable} ${mono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
@@ -148,7 +149,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="flex min-h-full flex-col">
         {/* Skip-link: klaviatura bilan navigatsiya qiluvchilar uchun (audit P2-19) */}
         <a href="#main" className="skip-link">
-          Asosiy kontentga o&apos;tish
+          {t(locale, "skip")}
         </a>
         {children}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(person) }} />

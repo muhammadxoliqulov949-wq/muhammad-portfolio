@@ -13,6 +13,7 @@ import {
   socialsOf,
   type Profile,
 } from "@/lib/content";
+import { t, tx, txEach, type Locale } from "@/lib/i18n-core";
 
 const SOCIAL_ICON = {
   github: "github",
@@ -31,24 +32,24 @@ const SOCIAL_ICON = {
  * O'ng tarafdagi suzuvchi panellar — uni aldashtiruvchi "3D grafika" emas,
  * uning haqiqiy ish oqimi (AI-assisted workflow) vizualizatsiyasi.
  */
-type Props = { profile: Profile; study?: string };
+type Props = { profile: Profile; study?: string; locale?: Locale };
 
-export default function Hero({ profile: p, study }: Props) {
-  const roles = rolesOf(p);
+export default function Hero({ profile: p, study, locale = "uz" }: Props) {
+  const roles = txEach(locale, rolesOf(p));
   const socials = socialsOf(p);
-  const steps = listFrom(p.workflow);
+  const steps = txEach(locale, listFrom(p.workflow));
   const resume = safeHref(p.resumeUrl);
   const portrait = portraitOf(p);
 
   const stats = [
-    { label: "Amaliy tajriba", value: compactStat("tajriba", p.statExperience) },
-    { label: "Mijozlar", value: compactStat("mijoz", p.statAvailability) },
-    { label: "Saytlar", value: compactStat("sayt", p.statProjects) },
+    { label: t(locale, "hero.exp"), value: tx(locale, p.statExperience) },
+    { label: t(locale, "hero.clients"), value: tx(locale, p.statAvailability) },
+    { label: t(locale, "hero.sites"), value: tx(locale, p.statProjects) },
   ].filter((s) => s.value);
 
   const meta = [
-    p.location ? { icon: "pin" as const, text: p.location } : null,
-    p.englishLevel ? { icon: "gauge" as const, text: `Ingliz tili: ${p.englishLevel}` } : null,
+    p.location ? { icon: "pin" as const, text: tx(locale, p.location) } : null,
+    p.englishLevel ? { icon: "gauge" as const, text: `${t(locale, "hero.english")}: ${p.englishLevel}` } : null,
     study ? { icon: "sparkle" as const, text: study } : null,
   ].filter((x): x is { icon: "pin" | "gauge" | "sparkle"; text: string } => !!x);
 
@@ -60,7 +61,7 @@ export default function Hero({ profile: p, study }: Props) {
             {p.badge ? (
               <p className="label mb-7 flex flex-wrap items-center gap-2.5">
                 <span className="dot" aria-hidden />
-                <span className="label-accent">{p.badge}</span>
+                <span className="label-accent">{tx(locale, p.badge)}</span>
               </p>
             ) : null}
 
@@ -80,21 +81,21 @@ export default function Hero({ profile: p, study }: Props) {
               ) : null}
             </p>
 
-            {p.bio ? <p className="mt-6 max-w-xl text-lead text-ink-2">{p.bio}</p> : null}
+            {p.bio ? <p className="mt-6 max-w-xl text-lead text-ink-2">{tx(locale, p.bio)}</p> : null}
 
             <div className="hero-actions mt-9 flex flex-wrap items-center gap-2.5">
               <a href={sectionHref("contact")} className="btn btn--accent btn--lg">
-                Let&apos;s Work Together
+                {t(locale, "hero.cta")}
                 <Icon name="arrow-right" size={16} />
               </a>
               <a href={sectionHref("work")} className="btn btn--lg">
                 <Icon name="layers" size={16} />
-                View My Projects
+                {t(locale, "hero.projects")}
               </a>
               {resume ? (
                 <a href={resume} target="_blank" rel="noopener noreferrer" className="btn btn--ghost btn--lg">
                   <Icon name="download" size={16} />
-                  CV (PDF)
+                  {t(locale, "hero.cv")}
                 </a>
               ) : null}
             </div>
@@ -112,9 +113,9 @@ export default function Hero({ profile: p, study }: Props) {
                   <Icon name={SOCIAL_ICON[s.key]} size={17} />
                 </a>
               ))}
-              {p.email ? <CopyButton value={p.email} label="Emailni nusxa olish" /> : null}
+              {p.email ? <CopyButton value={p.email} label={t(locale, "hero.copyEmail")} /> : null}
               {p.telegram ? (
-                <CopyButton value={p.telegram.replace("@", "")} label="Telegramni nusxa olish" />
+                <CopyButton value={p.telegram.replace("@", "")} label={t(locale, "hero.copyTg")} />
               ) : null}
             </div>
           </div>
@@ -127,7 +128,7 @@ export default function Hero({ profile: p, study }: Props) {
               {portrait ? (
                 <Image
                   src={portrait}
-                  alt={`${p.fullName || "Muhammad Xoliqulov"} — portret`}
+                  alt={`${p.fullName || "Muhammad Xoliqulov"} — ${t(locale, "hero.portrait")}`}
                   fill
                   priority
                   unoptimized={portrait.startsWith("/api/media/")}
@@ -147,14 +148,14 @@ export default function Hero({ profile: p, study }: Props) {
                 <span className="text-body font-semibold">{p.fullName || "Portfolio"}</span>
                 {p.location ? <span className="flex items-center gap-1.5 text-small text-ink-2">
                   <Icon name="pin" size={12} className="text-ink-3" />
-                  {p.location}
+                  {tx(locale, p.location)}
                 </span> : null}
               </figcaption>
             </figure>
 
             <div className="hero-panels">
               <div className="hero-panel hero-panel--back" aria-hidden="true">
-                <p className="label mb-2">AI yordamchi</p>
+                <p className="label mb-2">{t(locale, "hero.ai")}</p>
                 <p className="text-small text-ink-2">prompt · kod · izoh</p>
               </div>
               <div className="hero-panel hero-panel--mid" aria-hidden="true">
@@ -172,13 +173,13 @@ export default function Hero({ profile: p, study }: Props) {
                     ))}
                   </ol>
                 ) : (
-                  <p className="text-small text-ink-3">Ish oqimi admin panelda sozlanadi.</p>
+                  <p className="text-small text-ink-3">{t(locale, "hero.workflowEmpty")}</p>
                 )}
               </div>
               <div className="hero-panel hero-panel--front">
                 <span className="chip" aria-hidden="true">
                   <Icon name="rocket" size={12} />
-                  Vercel&apos;da jonli
+                  {t(locale, "hero.live")}
                 </span>
                 {safeHref(p.github) ? (
                   <a
@@ -235,7 +236,7 @@ export default function Hero({ profile: p, study }: Props) {
               <span className="animate-pulse-soft" aria-hidden>
                 <Icon name="chevron-down" size={14} />
               </span>
-              Pastga suring
+              {t(locale, "hero.scroll")}
             </li>
           </ul>
         ) : null}
@@ -256,11 +257,4 @@ function TitleMark({ title }: { title: string }) {
   );
 }
 
-/** Yorliq bilan takrorlanadigan so'zni qiymatdan olib tashlaydi (`10+ mijoz` → `10+`). */
-function compactStat(unit: string, raw: string): string {
-  const v = (raw ?? "").trim();
-  if (!v) return "";
-  const re = new RegExp(`\\s*(ta\\s+)?${unit}(lar)?\\.?$`, "i");
-  const trimmed = v.replace(re, "").trim();
-  return trimmed || v;
-}
+

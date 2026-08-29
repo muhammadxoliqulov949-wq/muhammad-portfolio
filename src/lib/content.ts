@@ -4,6 +4,7 @@ import { cache } from "react";
 import { db } from "@/db";
 import { achievements, education, experience, profile, projects, services, skills, testimonials } from "@/db/schema";
 import { asc, desc, eq } from "drizzle-orm";
+import { t, type Locale } from "@/lib/i18n-core";
 
 /**
  * Sayt ma'lumotlarini yuklash — bitta manba.
@@ -269,18 +270,18 @@ export function sectionHref(id: string): string {
 }
 
 /** Sahifa uchun navigatsiya (bo'lim mavjud bo'lsagina ko'rsatiladi). */
-export function sectionsOf(data: SiteData) {
+export function sectionsOf(data: SiteData, locale: Locale = "uz") {
   const hasApproach = Boolean(data.profile.workflow?.trim() || data.profile.goals?.trim());
   return [
-    { id: "home", label: "Bosh sahifa" },
-    { id: "about", label: "Kimman" },
-    { id: "skills", label: "Ko'nikmalar", has: data.skills.length > 0 },
-    { id: "experience", label: "Tajriba", has: data.experience.length > 0 },
-    { id: "work", label: "Loyihalar", has: data.projects.length > 0 },
-    { id: "services", label: "Xizmatlar", has: data.services.length > 0 },
-    { id: "education", label: "Ta'lim", has: data.education.length > 0 },
-    { id: "achievements", label: "Yutuqlar", has: data.achievements.length > 0 },
-    { id: "approach", label: "Odamlar bilan", has: hasApproach || data.experience.length > 0 },
-    { id: "contact", label: "Aloqa", has: true },
+    { id: "home", label: t(locale, "nav.home") },
+    { id: "about", label: t(locale, "nav.about") },
+    { id: "skills", label: t(locale, "nav.skills"), has: data.skills.length > 0 },
+    { id: "experience", label: t(locale, "nav.experience"), has: data.experience.length > 0 },
+    { id: "work", label: t(locale, "nav.work"), has: data.projects.length > 0 },
+    { id: "services", label: t(locale, "nav.services"), has: data.services.length > 0 },
+    { id: "education", label: t(locale, "nav.education"), has: data.education.length > 0 },
+    { id: "achievements", label: t(locale, "nav.achievements"), has: data.achievements.length > 0 },
+    { id: "approach", label: t(locale, "nav.approach"), has: hasApproach || data.experience.length > 0 },
+    { id: "contact", label: t(locale, "nav.contact"), has: true },
   ].filter((s) => s.has !== false);
 }

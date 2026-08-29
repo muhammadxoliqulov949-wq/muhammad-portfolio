@@ -2,6 +2,7 @@ import SectionHead, { Section } from "./ui/Section";
 import Card from "./ui/Card";
 import Icon from "./ui/Icon";
 import { interestsOf, listFrom, principlesOf, type Profile } from "@/lib/content";
+import { t, tx, txEach, type Locale } from "@/lib/i18n-core";
 
 /**
  * About — "kimman" bo'limi.
@@ -10,13 +11,13 @@ import { interestsOf, listFrom, principlesOf, type Profile } from "@/lib/content
  * urinish yo'q. Bu yerda haqiqiy pozitsiya: tez o'rganuvchi talaba, AI bilan
  * ishlaydigan amaliyotchi va mijoz oldida javobgarlik oladigan odam.
  */
-export default function About({ profile: p }: { profile: Profile }) {
-  const strengths = listFrom(p.strengths);
-  const interests = interestsOf(p);
-  const principles = principlesOf(p);
+export default function About({ profile: p, locale = "uz" }: { profile: Profile; locale?: Locale }) {
+  const strengths = txEach(locale, listFrom(p.strengths));
+  const interests = txEach(locale, interestsOf(p));
+  const principles = txEach(locale, principlesOf(p));
   const paragraphs = (p.story || p.bio || "")
     .split(/\n{2,}/)
-    .map((x) => x.trim())
+    .map((x) => tx(locale, x.trim()))
     .filter(Boolean);
 
   if (paragraphs.length === 0 && strengths.length === 0) return null;
@@ -25,10 +26,11 @@ export default function About({ profile: p }: { profile: Profile }) {
     <Section id="about" sunken>
       <SectionHead
         index="01"
-        eyebrow="Kimman"
+        eyebrow={t(locale, "about.eyebrow")}
         title={
           <>
-            1-kurs, biznes va <span className="display-em">AI-assisted</span> dasturlash
+            {t(locale, "about.titleBefore")}{" "}
+            <span className="display-em">{t(locale, "about.titleEm")}</span> {t(locale, "about.titleAfter")}
           </>
         }
       />
@@ -56,7 +58,7 @@ export default function About({ profile: p }: { profile: Profile }) {
         <div className="reveal stack gap-3">
           {strengths.length > 0 ? (
             <Card className="p-5" interactive={false}>
-              <h3 className="label label-accent mb-3.5">Kuchli tomonlarim</h3>
+              <h3 className="label label-accent mb-3.5">{t(locale, "about.strengths")}</h3>
               <ul className="flex flex-wrap gap-1.5">
                 {strengths.map((s) => (
                   <li key={s} className="chip">
@@ -69,9 +71,9 @@ export default function About({ profile: p }: { profile: Profile }) {
 
           {interests.length > 0 ? (
             <Card className="p-5" interactive={false}>
-              <h3 className="label label-accent mb-3.5">Qiziqishlarim</h3>
+              <h3 className="label label-accent mb-3.5">{t(locale, "about.interests")}</h3>
               <p className="text-small text-ink-2">
-                Kasbiy daʼvo emas — shunchaki men haqida.{" "}
+                {t(locale, "about.interestsNote")}{" "}
                 {interests.join(", ")}.
               </p>
             </Card>

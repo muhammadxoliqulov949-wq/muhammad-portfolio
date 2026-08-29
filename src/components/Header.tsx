@@ -5,6 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Icon from "./ui/Icon";
 import ThemeToggle from "./ThemeToggle";
+import LangSwitch from "./LangSwitch";
+import { t, type Locale } from "@/lib/i18n-core";
 
 export type NavLink = { id: string; label: string };
 
@@ -13,6 +15,7 @@ type Props = {
   initials: string;
   links: NavLink[];
   ctaLabel?: string;
+  locale?: Locale;
   /** `profile.photoUrl` yoki `public/media/portrait.*` — bo'lsa avatar chiqadi */
   portrait?: string | null;
 };
@@ -29,7 +32,8 @@ type Props = {
 /** kenglik tor bo'lganda yashirinadigan qo'shimcha bo'limlar */
 const SECONDARY_SECTIONS = new Set(["about", "education", "achievements", "approach"]);
 
-export default function Header({ name, initials, links, ctaLabel = "Let's Work Together", portrait }: Props) {
+export default function Header({ name, initials, links, ctaLabel, locale = "uz", portrait }: Props) {
+  const cta = ctaLabel ?? t(locale, "hero.cta");
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState<string>(links[0]?.id ?? "home");
   const [open, setOpen] = useState(false);
@@ -139,7 +143,7 @@ export default function Header({ name, initials, links, ctaLabel = "Let's Work T
 
         {/* Desktop nav: lg'da asosiy 5 bo'lim, xl'da hammasi. 9 havolani
             1024px sig'dirish — matnni siqib yuborardi. */}
-        <nav aria-label="Sahifa bo'limlari" className="hidden items-center gap-0.5 lg:flex">
+        <nav aria-label={t(locale, "nav.sections")} className="hidden items-center gap-0.5 lg:flex">
           {navLinks.map((l, i) => (
             <a
               key={l.id}
@@ -162,17 +166,18 @@ export default function Header({ name, initials, links, ctaLabel = "Let's Work T
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <LangSwitch locale={locale} />
+          <ThemeToggle locale={locale} />
           <a href="/#contact" onClick={(e) => { e.preventDefault(); go("contact"); }} className="btn btn--accent btn--sm hidden sm:inline-flex">
-            {ctaLabel}
+            {cta}
             <Icon name="arrow-right" size={15} />
           </a>
           <button
             ref={toggleRef}
             type="button"
             className="icon-btn lg:hidden"
-            aria-label={open ? "Menyuni yopish" : "Menyuni ochish"}
+            aria-label={open ? t(locale, "nav.menuClose") : t(locale, "nav.menuOpen")}
             aria-expanded={open}
             aria-controls="mobile-nav"
             onClick={() => setOpen((v) => !v)}
@@ -188,7 +193,7 @@ export default function Header({ name, initials, links, ctaLabel = "Let's Work T
           ref={panelRef}
           role="dialog"
           aria-modal="true"
-          aria-label="Sahifa bo'limlari"
+          aria-label={t(locale, "nav.sections")}
           className="lg:hidden"
         >
           <nav className="hairline-x max-h-[70vh] overflow-y-auto border-t border-line-1 bg-canvas/95 px-[var(--gutter)] py-2 backdrop-blur-xl">
@@ -212,7 +217,7 @@ export default function Header({ name, initials, links, ctaLabel = "Let's Work T
             ))}
           </nav>
           <div className="flex flex-wrap items-center gap-2 border-t border-line-1 px-[var(--gutter)] py-4">
-            <ThemeToggle />
+            <ThemeToggle locale={locale} />
             <a
               href="/#contact"
               onClick={(e) => {
@@ -221,7 +226,7 @@ export default function Header({ name, initials, links, ctaLabel = "Let's Work T
               }}
               className="btn btn--accent btn--lg min-w-0 flex-1"
             >
-              {ctaLabel}
+              {cta}
             </a>
           </div>
         </div>

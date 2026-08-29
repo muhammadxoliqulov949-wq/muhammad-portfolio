@@ -1,10 +1,12 @@
 import Icon from "./ui/Icon";
 import BackToTop from "./BackToTop";
 import { sectionHref, socialsOf, type Profile } from "@/lib/content";
+import { t, type Locale } from "@/lib/i18n-core";
 
 type Props = {
   profile: Profile;
   links: { id: string; label: string }[];
+  locale?: Locale;
 };
 
 const ICON = {
@@ -16,7 +18,7 @@ const ICON = {
   phone: "phone",
 } as const;
 
-export default function Footer({ profile: p, links }: Props) {
+export default function Footer({ profile: p, links, locale = "uz" }: Props) {
   const socials = socialsOf(p);
 
   return (
@@ -26,12 +28,12 @@ export default function Footer({ profile: p, links }: Props) {
           <div>
             <p className="display text-display-m">
               {p.fullName ? `${p.fullName}.` : "Portfolio."}{" "}
-              <span className="display-em">davomi bor</span>
+              <span className="display-em">{t(locale, "footer.more")}</span>
             </p>
             {p.title ? <p className="mt-2 text-small text-ink-2">{p.title}</p> : null}
           </div>
 
-          <nav aria-label="Sahifa bo'limlari" className="grid grid-cols-2 gap-x-6 gap-y-1.5 md:justify-items-end">
+          <nav aria-label={t(locale, "nav.sections")} className="grid grid-cols-2 gap-x-6 gap-y-1.5 md:justify-items-end">
             {links.map((l) => (
               <a key={l.id} href={sectionHref(l.id)} className="u-link-quiet justify-self-start py-1 text-small text-ink-2 hover:text-ink-1 md:justify-self-end">
                 {l.label}
@@ -57,10 +59,10 @@ export default function Footer({ profile: p, links }: Props) {
 
         <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-line-1 pt-6">
           <p className="text-small text-ink-3">
-            © {new Date().getFullYear()} {p.fullName || "Portfolio"} · Toshkentda yaratilgan ·{" "}
+            © {new Date().getFullYear()} {p.fullName || "Portfolio"} · {t(locale, "footer.made")} ·{" "}
             <span className="font-mono">Next.js 16 + Turso</span>
           </p>
-          <BackToTop />
+          <BackToTop locale={locale} />
         </div>
       </div>
     </footer>

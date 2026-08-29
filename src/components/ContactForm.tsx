@@ -2,6 +2,7 @@
 
 import { useRef, useState, type FormEvent } from "react";
 import Icon from "./ui/Icon";
+import { t, type Locale } from "@/lib/i18n-core";
 
 type Status = "idle" | "loading" | "success" | "error";
 type Errors = Partial<Record<"name" | "email" | "message", string>>;
@@ -16,7 +17,13 @@ type Errors = Partial<Record<"name" | "email" | "message", string>>;
  *  - yuborish paytida `aria-busy` + takroriy yuborish bloklandi;
  *  - botlarga qarshi honeypot (ko'rinmaydi, fokussiz).
  */
-export default function ContactForm({ successNote }: { successNote?: string }) {
+export default function ContactForm({
+  successNote,
+  locale = "uz",
+}: {
+  successNote?: string;
+  locale?: Locale;
+}) {
   const formRef = useRef<HTMLFormElement>(null);
   const [status, setStatus] = useState<Status>("idle");
   const [errors, setErrors] = useState<Errors>({});
@@ -36,9 +43,9 @@ export default function ContactForm({ successNote }: { successNote?: string }) {
     };
 
     const next: Errors = {};
-    if (payload.name.length < 2) next.name = "Ismingizni yozing";
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(payload.email)) next.email = "Email manzili noto'g'ri";
-    if (payload.message.length < 12) next.message = "Kamida 12 belgi — loyihangiz haqida qisqacha yozing";
+    if (payload.name.length < 2) next.name = t(locale, "form.nameErr");
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(payload.email)) next.email = t(locale, "form.emailErr");
+    if (payload.message.length < 12) next.message = t(locale, "form.messageErr");
     setErrors(next);
 
     if (Object.keys(next).length > 0) {
@@ -58,18 +65,14 @@ export default function ContactForm({ successNote }: { successNote?: string }) {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        setGeneral(
-          typeof data.error === "string"
-            ? data.error
-            : "Yuborib bo'lmadi. Bir necha daqiqadan so'ng qayta urinib ko'ring."
-        );
+        setGeneral(typeof data.error === "string" ? data.error : t(locale, "form.fail"));
         setStatus("error");
         return;
       }
       setStatus("success");
       form.reset();
     } catch {
-      setGeneral("Internet aloqasi uzildi. Telegram orqali ham yozaverishingiz mumkin.");
+      setGeneral(t(locale, "form.offline"));
       setStatus("error");
     }
   }
@@ -81,12 +84,12 @@ export default function ContactForm({ successNote }: { successNote?: string }) {
           <Icon name="check" size={20} />
         </span>
         <div>
-          <h3 className="display text-title font-semibold">Xabaringiz qabul qilindi</h3>
-          <p className="mt-1.5 text-body text-ink-2">{successNote ?? "Rahmat! Tez orada javob beraman."}</p>
+          <h3 className="display text-title font-semibold">{t(locale, "form.okTitle")}</h3>
+          <p className="mt-1.5 text-body text-ink-2">{successNote ?? t(locale, "contact.success")}</p>
         </div>
         <button type="button" className="btn btn--sm" onClick={() => setStatus("idle")}>
           <Icon name="pencil" size={14} />
-          Yana xabar yuborish
+          {t(locale, "form.again")}
         </button>
       </div>
     );
@@ -97,38 +100,38 @@ export default function ContactForm({ successNote }: { successNote?: string }) {
       <div className="grid gap-4 sm:grid-cols-2">
         <Field
           id="cf-name"
-          label="Ismingiz"
-          hint="Kimligini bilish foydali"
+          label={t(locale, "form.name")}
+          hint={t(locale, "form.nameHint")}
           error={errors.name}
           name="name"
           autoComplete="name"
           maxLength={120}
-          placeholder="Aziz Karimov"
+          placeholder={t(locale, "form.phName")}
         />
         <Field
           id="cf-email"
-          label="Email"
-          hint="Javob shu yerga boradi"
+          label={t(locale, "form.email")}
+          hint={t(locale, "form.emailHint")}
           error={errors.email}
           name="email"
           type="email"
           inputMode="email"
           autoComplete="email"
           maxLength={200}
-          placeholder="aziz@company.uz"
+          placeholder={t(locale, "form.phEmail")}
         />
       </div>
 
       <Field
         id="cf-message"
-        label="Loyihangiz"
-        hint="Maqsad, muddat va taxminiy byudjet — yetarli"
+        label={t(locale, "form.message")}
+        hint={t(locale, "form.messageHint")}
         error={errors.message}
         name="message"
         as="textarea"
         rows={6}
         maxLength={4000}
-        placeholder="Nima qilish kerak, qachongacha kerak va hozirgi holat qanday?"
+        placeholder={t(locale, "form.phMsg")}
       />
 
       {/* Honeypot: botlar to'ldiradi, odam ko'rmaydi */}
@@ -149,20 +152,20 @@ export default function ContactForm({ successNote }: { successNote?: string }) {
               <span className="spin" aria-hidden>
                 <Icon name="zap" size={15} />
               </span>
-              Yuborilmoqda…
+              {t(locale, "form.sending")}
             </>
           ) : (
             <>
-              Xabarni yuborish
+              {t(locale, "form.send")}
               <Icon name="arrow-right" size={15} />
             </>
           )}
         </button>
-        <p className="text-small text-ink-3">Ma&apos;lumotlaringiz faqat javob berish uchun ishlatiladi.</p>
+        <p className="text-small text-ink-3">{t(locale, "form.privacy")}</p>
       </div>
 
       <p role="status" aria-live="polite" className="sr-only">
-        {status === "loading" ? "Xabar yuborilmoqda" : ""}
+        {status === "loading" ? t(locale, "form.sending") : ""}
       </p>
       {general ? (
         <p

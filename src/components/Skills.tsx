@@ -3,6 +3,7 @@ import Icon, { type IconName } from "./ui/Icon";
 import Card from "./ui/Card";
 import Marquee from "./Marquee";
 import { skillsByCategory, type Skill } from "@/lib/content";
+import { t, tx, type Locale } from "@/lib/i18n-core";
 
 const GROUP_ICON: Record<string, IconName> = {
   "AI & Development": "bot",
@@ -18,7 +19,7 @@ const GROUP_ICON: Record<string, IconName> = {
  * raqamlar hech narsani isbotlamaydi). To'rt guruh, har birida asbob va
  * uni nimaga ishlataman degan izoh.
  */
-export default function Skills({ skills }: { skills: Skill[] }) {
+export default function Skills({ skills, locale = "uz" }: { skills: Skill[]; locale?: Locale }) {
   if (skills.length === 0) return null;
   const groups = skillsByCategory(skills);
 
@@ -29,13 +30,13 @@ export default function Skills({ skills }: { skills: Skill[] }) {
       <Section id="skills">
         <SectionHead
           index="02"
-          eyebrow="Ko'nikmalar"
+          eyebrow={t(locale, "skills.eyebrow")}
           title={
             <>
-              Roʻyxat emas, <span className="display-em">ishlatish tarzim</span>
+              {t(locale, "skills.titleBefore")} <span className="display-em">{t(locale, "skills.titleEm")}</span>
             </>
           }
-          lead="Foizli shkala yoʻq. Guruhlar: AI & Development, Web, Design, Tools, AI tools va amaliy odatlar — har birida nima qilishim yozilgan."
+          lead={t(locale, "skills.lead")}
         />
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -46,7 +47,7 @@ export default function Skills({ skills }: { skills: Skill[] }) {
                   <span className="grid size-7 place-items-center rounded-2 border border-line-1 bg-surface-2 text-accent-text">
                     <Icon name={GROUP_ICON[g.category] ?? "target"} size={14} />
                   </span>
-                  {g.category}
+                  {tx(locale, g.category)}
                   <span className="u-num ml-auto text-ink-3">{g.items.length}</span>
                 </h3>
                 <ul className="hairline-x stack -mt-1">
@@ -55,7 +56,7 @@ export default function Skills({ skills }: { skills: Skill[] }) {
                       <span className="min-w-0">
                         <span className="block text-body font-medium">{s.name}</span>
                         {s.context ? (
-                          <span className="mt-0.5 block text-small text-ink-3">{s.context}</span>
+                          <span className="mt-0.5 block text-small text-ink-3">{tx(locale, s.context)}</span>
                         ) : null}
                       </span>
                     </li>
@@ -68,8 +69,7 @@ export default function Skills({ skills }: { skills: Skill[] }) {
 
         <p className="mt-6 flex flex-wrap items-center gap-2 text-small text-ink-3">
           <Icon name="info" size={14} />
-          AI menga tezlik beradi, tekshiruv esa javobgarlikni — kodni men oʻqib chiqmasdan hech narsa
-          eʼlon qilinmaydi.
+          {t(locale, "skills.note")}
         </p>
       </Section>
     </>

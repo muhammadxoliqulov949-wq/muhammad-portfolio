@@ -1,27 +1,33 @@
 import SectionHead, { Section } from "./ui/Section";
 import Icon from "./ui/Icon";
 import { achievementsByKind, safeHref, type Achievement } from "@/lib/content";
+import { t, tx, type Locale } from "@/lib/i18n-core";
 
 /**
  * Yutuqlar — ataylab "ko'rsatsiz" dizayn: sertifikatlar va olimpiada
  * natijalari ro'yxat ko'rinishida, medali-grafika va 3D kartochkalarsiz.
  * (Egasi topshig'i: bu bo'limni overdesign qilish mumkin emas.)
  */
-export default function Achievements({ items }: { items: Achievement[] }) {
+export default function Achievements({ items, locale = "uz" }: { items: Achievement[]; locale?: Locale }) {
   if (items.length === 0) return null;
-  const groups = achievementsByKind(items);
+  const groups = achievementsByKind(items).map((g) => ({
+    ...g,
+    label: t(locale, `achievements.${g.kind}`),
+  }));
 
   return (
     <Section id="achievements">
       <SectionHead
         index="07"
-        eyebrow="Yutuqlar"
+        eyebrow={t(locale, "achievements.eyebrow")}
         title={
           <>
-            Tasdiqlab <span className="display-em">boʻlgan</span> narsalar
+            {t(locale, "achievements.titleBefore")}{" "}
+            <span className="display-em">{t(locale, "achievements.titleEm")}</span>{" "}
+            {t(locale, "achievements.titleAfter")}
           </>
         }
-        lead="Bu roʻyxatda faqat hujjat yoki natija bilan tasdiqlanganlar turadi. Hech qanday „yilning eng yaxshi mutaxassisi“ kabi bezaklar yoʻq."
+        lead={t(locale, "achievements.lead")}
       />
 
       <div className="grid gap-x-10 gap-y-8 md:grid-cols-2 lg:grid-cols-3">
@@ -37,18 +43,18 @@ export default function Achievements({ items }: { items: Achievement[] }) {
                 const url = safeHref(a.url);
                 return (
                   <li key={a.id} className="py-3.5">
-                    <p className="text-body font-medium">{a.title}</p>
+                    <p className="text-body font-medium">{tx(locale, a.title)}</p>
                     <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-small text-ink-3">
-                      {a.issuer ? <span>{a.issuer}</span> : null}
+                      {a.issuer ? <span>{tx(locale, a.issuer)}</span> : null}
                       {a.year ? <span className="u-num font-mono text-micro">{a.year}</span> : null}
                       {url ? (
                         <a href={url} target="_blank" rel="noopener noreferrer" className="u-link-quiet">
-                          Tekshirish
+                          {t(locale, "achievements.verify")}
                           <Icon name="arrow-up-right" size={12} />
                         </a>
                       ) : null}
                     </p>
-                    {a.detail ? <p className="mt-1.5 text-small text-ink-2">{a.detail}</p> : null}
+                    {a.detail ? <p className="mt-1.5 text-small text-ink-2">{tx(locale, a.detail)}</p> : null}
                   </li>
                 );
               })}

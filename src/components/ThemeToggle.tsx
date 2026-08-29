@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Icon from "./ui/Icon";
+import { t, type Locale } from "@/lib/i18n-core";
 
 type Theme = "dark" | "light";
 
@@ -23,11 +24,7 @@ function applyTheme(next: Theme) {
   window.dispatchEvent(new CustomEvent("themechange", { detail: next }));
 }
 
-/**
- * Tun / Kun almashtirgich.
- * localStorage + data-theme; iOS status bar rangi ham yangilanadi.
- */
-export default function ThemeToggle() {
+export default function ThemeToggle({ locale = "uz" }: { locale?: Locale }) {
   const [theme, setTheme] = useState<Theme | null>(null);
 
   useEffect(() => {
@@ -52,26 +49,26 @@ export default function ThemeToggle() {
   }
 
   return (
-    <div className="theme-switch" role="group" aria-label="Tun va kun">
+    <div className="theme-switch" role="group" aria-label={t(locale, "theme.group")}>
       <button
         type="button"
         className="theme-switch__btn"
         aria-pressed={theme === "dark"}
-        aria-label="Tun (qorong'i) rejim"
+        aria-label={t(locale, "theme.darkAria")}
         onClick={() => choose("dark")}
       >
-        <Icon name="moon" size={15} />
-        <span className="theme-switch__label">Tun</span>
+        <Icon name="moon" size={13} />
+        <span className="theme-switch__label">{t(locale, "theme.dark")}</span>
       </button>
       <button
         type="button"
         className="theme-switch__btn"
         aria-pressed={theme === "light"}
-        aria-label="Kun (yorug') rejim"
+        aria-label={t(locale, "theme.lightAria")}
         onClick={() => choose("light")}
       >
-        <Icon name="sun" size={15} />
-        <span className="theme-switch__label">Kun</span>
+        <Icon name="sun" size={13} />
+        <span className="theme-switch__label">{t(locale, "theme.light")}</span>
       </button>
     </div>
   );

@@ -1,8 +1,9 @@
 "use client";
 
 import Icon from "./ui/Icon";
+import { t, type Locale } from "@/lib/i18n-core";
 
-export default function BackToTop() {
+export default function BackToTop({ locale = "uz" }: { locale?: Locale }) {
   return (
     <button
       type="button"
@@ -10,7 +11,7 @@ export default function BackToTop() {
       className="btn btn--ghost btn--sm"
     >
       <Icon name="arrow-up" size={14} />
-      Yuqoriga
+      {t(locale, "footer.top")}
     </button>
   );
 }
