@@ -1,12 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import Icon from "./ui/Icon";
 import { t, type Locale } from "@/lib/i18n-core";
 
 type Theme = "dark" | "light";
 
 const COLORS: Record<Theme, string> = { dark: "#0a0c10", light: "#f8f6f0" };
+
+function read(): Theme {
+  const attr = document.documentElement.getAttribute("data-theme");
+  if (attr === "light" || attr === "dark") return attr;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function subscribe(onStoreChange: () => void) {
+  window.addEventListener("themechange", onStoreChange);
+  const mq = window.matchMedia("(prefers-color-scheme: dark)");
+  mq.addEventListener("change", onStoreChange);
+  return () => {
+    window.removeEventListener("themechange", onStoreChange);
+    mq.removeEventListener("change", onStoreChange);
+  };
+}
 
 function applyTheme(next: Theme) {
   const root = document.documentElement;
@@ -25,24 +41,7 @@ function applyTheme(next: Theme) {
 }
 
 export default function ThemeToggle({ locale = "uz" }: { locale?: Locale }) {
-  const [theme, setTheme] = useState<Theme | null>(null);
-
-  useEffect(() => {
-    const read = (): Theme => {
-      const attr = document.documentElement.getAttribute("data-theme");
-      if (attr === "light" || attr === "dark") return attr;
-      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-    };
-    setTheme(read());
-    const onChange = (e: Event) => setTheme((e as CustomEvent<Theme>).detail);
-    window.addEventListener("themechange", onChange);
-    return () => window.removeEventListener("themechange", onChange);
-  }, []);
-
-  function choose(next: Theme) {
-    applyTheme(next);
-    setTheme(next);
-  }
+  const theme = useSyncExternalStore(subscribe, read, () => null as Theme | null);
 
   if (theme === null) {
     return <span className="theme-switch" aria-hidden />;
@@ -55,7 +54,7 @@ export default function ThemeToggle({ locale = "uz" }: { locale?: Locale }) {
         className="theme-switch__btn"
         aria-pressed={theme === "dark"}
         aria-label={t(locale, "theme.darkAria")}
-        onClick={() => choose("dark")}
+        onClick={() => applyTheme("dark")}
       >
         <Icon name="moon" size={13} />
         <span className="theme-switch__label">{t(locale, "theme.dark")}</span>
@@ -65,7 +64,7 @@ export default function ThemeToggle({ locale = "uz" }: { locale?: Locale }) {
         className="theme-switch__btn"
         aria-pressed={theme === "light"}
         aria-label={t(locale, "theme.lightAria")}
-        onClick={() => choose("light")}
+        onClick={() => applyTheme("light")}
       >
         <Icon name="sun" size={13} />
         <span className="theme-switch__label">{t(locale, "theme.light")}</span>

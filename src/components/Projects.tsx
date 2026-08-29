@@ -223,10 +223,10 @@ export default function Projects({
               <Icon name="info" size={16} className="mt-0.5 shrink-0 text-accent-text" />
               <span>{t(locale, "work.more")}</span>
             </p>
-            <a href="/#contact" className="btn btn--sm">
+            <Link href="/#contact" className="btn btn--sm">
               {t(locale, "work.discuss")}
               <Icon name="arrow-right" size={14} />
-            </a>
+            </Link>
           </Card>
         ) : null}
       </div>

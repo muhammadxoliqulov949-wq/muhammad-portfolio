@@ -14,16 +14,15 @@ export {
 } from "./i18n-core";
 
 /**
- * Til manbai: 1) cookie  2) proxy qo'ygan x-locale  3) default uz.
- * cookies()/headers() — static kesh o'rniga har so'rovda o'qiladi.
+ * Til: proxy `x-locale` (URL ?lang= cookie'dan ustun), so'ng cookie, so'ng uz.
+ * Layout searchParams o'qimaydi — header shu so'rovning tilini shu yerda oladi.
  */
 export async function getLocale(): Promise<Locale> {
-  const jar = await cookies();
-  const cookieVal = jar.get(LOCALE_COOKIE)?.value;
-  if (cookieVal) return parseLocale(cookieVal);
-
   const headerVal = (await headers()).get("x-locale");
   if (headerVal) return parseLocale(headerVal);
+
+  const cookieVal = (await cookies()).get(LOCALE_COOKIE)?.value;
+  if (cookieVal) return parseLocale(cookieVal);
 
   return DEFAULT_LOCALE;
 }

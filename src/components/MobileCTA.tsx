@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import Icon from "./ui/Icon";
 
 /**
@@ -39,10 +40,10 @@ export default function MobileCTA({ label = "Let's Work Together" }: { label?: s
       }`}
       aria-hidden={!visible}
     >
-      <a href="/#contact" tabIndex={visible ? 0 : -1} className="btn btn--accent btn--lg w-full">
+      <Link href="/#contact" tabIndex={visible ? 0 : -1} className="btn btn--accent btn--lg w-full">
         <Icon name="arrow-right" size={16} />
         {label}
-      </a>
+      </Link>
     </div>
   );
 }

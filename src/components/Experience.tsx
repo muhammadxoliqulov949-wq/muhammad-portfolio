@@ -1,3 +1,4 @@
+import Link from "next/link";
 import SectionHead from "./ui/Section";
 import Icon from "./ui/Icon";
 import { highlightsOf, type ExperienceItem, type Profile } from "@/lib/content";
@@ -92,10 +93,10 @@ export default function Experience({
             {t(locale, "experience.now")} <span className="font-medium text-ink-1">IELTS.mock</span>{" "}
             {t(locale, "experience.nowRest")}
           </p>
-          <a href="/#work" className="link-underline ml-auto text-small">
+          <Link href="/#work" className="link-underline ml-auto text-small">
             {t(locale, "experience.see")}
             <Icon name="arrow-right" size={13} />
-          </a>
+          </Link>
         </div>
       </div>
     </section>

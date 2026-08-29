@@ -1,9 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import Icon from "@/components/ui/Icon";
 import { parseLocale, t, type Locale } from "@/lib/i18n-core";
+
+function subscribe() {
+  return () => {};
+}
+
+function localeFromDom(): Locale {
+  return parseLocale(document.documentElement.lang);
+}
 
 export default function ErrorBoundary({
   error,
@@ -12,11 +20,7 @@ export default function ErrorBoundary({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const [locale, setLocale] = useState<Locale>("uz");
-  useEffect(() => {
-    setLocale(parseLocale(document.documentElement.lang));
-  }, []);
-
+  const locale = useSyncExternalStore(subscribe, localeFromDom, () => "uz" as Locale);
   const after = t(locale, "err.titleAfter");
 
   return (
