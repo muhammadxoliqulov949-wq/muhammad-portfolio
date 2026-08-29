@@ -67,7 +67,7 @@
   --text-display-l: clamp(2rem, 1.4rem + 2.7vw, 3.35rem);
   --text-display-l--line-height: 1.04;
   --text-display-l--letter-spacing: -0.028em;
-  --text-display-xl: clamp(2.6rem, 1.5rem + 5vw, 5.25rem);
+  --text-display-xl: clamp(2.85rem, 1.35rem + 6.2vw, 6.1rem);
   --text-display-xl--line-height: 0.95;
   --text-display-xl--letter-spacing: -0.035em;
 
@@ -98,7 +98,7 @@
 
   --c-ink-1: #f3f1ea;
   --c-ink-2: #a8afbc;
-  --c-ink-3: #767e8d;
+  --c-ink-3: #9098a6;
   --c-inverse-ink: #0a0c10;
 
   --c-line-1: rgba(243, 241, 234, 0.11);
@@ -135,7 +135,7 @@
 
   --c-ink-1: #14161b;
   --c-ink-2: #4c5460;
-  --c-ink-3: #6d7482;
+  --c-ink-3: #5a6270;
   --c-inverse-ink: #f8f6f0;
 
   --c-line-1: rgba(20, 22, 27, 0.12);
@@ -143,7 +143,7 @@
 
   --c-accent: #c3e236;
   --c-accent-strong: #a9cd17;
-  --c-accent-text: #47580a;
+  --c-accent-text: #3f4e0c;
   --c-accent-soft: rgba(169, 205, 23, 0.18);
   --c-accent-ink: #101408;
 
@@ -171,13 +171,13 @@
     --c-surface-3: #ece7db;
     --c-ink-1: #14161b;
     --c-ink-2: #4c5460;
-    --c-ink-3: #6d7482;
+    --c-ink-3: #5a6270;
     --c-inverse-ink: #f8f6f0;
     --c-line-1: rgba(20, 22, 27, 0.12);
     --c-line-2: rgba(20, 22, 27, 0.22);
     --c-accent: #c3e236;
     --c-accent-strong: #a9cd17;
-    --c-accent-text: #47580a;
+    --c-accent-text: #3f4e0c;
     --c-accent-soft: rgba(169, 205, 23, 0.18);
     --c-accent-ink: #101408;
     --c-success: #14785a;
@@ -205,17 +205,20 @@
 html {
   scroll-behavior: smooth;
   /* fixed header balandligi + nafas (audit: fokus/anchor header ostiga kirib qolardi) */
-  scroll-padding-top: calc(var(--header-h) + 1.25rem);
-  scroll-padding-bottom: 6rem;
+  scroll-padding-top: calc(var(--header-h) + env(safe-area-inset-top, 0px) + 1.25rem);
+  scroll-padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
   -webkit-text-size-adjust: 100%;
   interpolation-quality: high-quality;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+  max-width: 100%;
 }
 
 body {
-  --header-h: 68px;
+  --header-h: 84px;
   --gutter: clamp(1.15rem, 4vw, 2.5rem);
-  --container: 78rem;
-  --section-y: clamp(4.25rem, 2.4rem + 7vw, 8.5rem);
+  --container: 80rem;
+  --section-y: clamp(4.75rem, 2.6rem + 8vw, 9.75rem);
 
   margin: 0;
   background-color: var(--c-canvas);
@@ -228,6 +231,10 @@ body {
   min-height: 100dvh;
   /* audit: overflow-x: hidden o'rniga aniq cheklov + xato yashirmaslik */
   overflow-wrap: break-word;
+  overflow-x: clip;
+  max-width: 100%;
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
   transition: background-color 0.4s var(--ease-out-soft), color 0.4s var(--ease-out-soft);
 }
 
@@ -424,6 +431,31 @@ select {
   color: var(--c-accent-text);
 }
 
+.section-head {
+  position: relative;
+}
+.section-head__index {
+  position: absolute;
+  left: -0.08em;
+  top: -0.55em;
+  z-index: 0;
+  font-family: var(--font-display);
+  font-size: clamp(4.5rem, 3rem + 8vw, 9rem);
+  font-weight: 600;
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+  color: var(--c-ink-1);
+  opacity: 0.045;
+  pointer-events: none;
+  user-select: none;
+}
+.section-head .label,
+.section-head h2,
+.section-head p {
+  position: relative;
+  z-index: 1;
+}
+
 /* =========================================================================
    Tugmalar — pressed (active) holati bilan (audit: 0 ta `active:` bor edi)
    ========================================================================= */
@@ -531,6 +563,302 @@ select {
   transform: translateY(1px);
 }
 
+/* Til + Tun/Kun — ixcham, headerga sig'adi */
+.lang-switch,
+.theme-switch {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 2px;
+  gap: 1px;
+  border-radius: 999px;
+  border: 1px solid var(--c-line-1);
+  background: var(--c-surface-1);
+  flex: none;
+}
+.lang-switch__btn,
+.theme-switch__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  min-width: 32px;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--c-ink-3);
+  transition: background-color 0.18s var(--ease-out-soft), color 0.18s var(--ease-out-soft);
+}
+.lang-switch__btn[aria-pressed="true"],
+.theme-switch__btn[aria-pressed="true"],
+html:not([data-theme]) .theme-switch__btn[data-theme-set="dark"],
+html[data-theme="dark"] .theme-switch__btn[data-theme-set="dark"],
+html[data-theme="light"] .theme-switch__btn[data-theme-set="light"] {
+  background: var(--c-accent);
+  color: var(--c-accent-ink);
+}
+.theme-switch__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+/* Yuqori tab — suzuvchi shisha-pill. Shrift va yozuvlar o'zgarmaydi. */
+.site-header {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 50;
+  padding: calc(env(safe-area-inset-top, 0px) + 0.7rem) var(--gutter) 0;
+  pointer-events: none;
+}
+.site-header__bar {
+  pointer-events: auto;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.4rem 0.75rem;
+  width: min(100%, var(--container));
+  margin-inline: auto;
+  min-height: 58px;
+  padding: 0.35rem 0.4rem 0.35rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--c-line-1) 70%, transparent);
+  background: color-mix(in srgb, var(--c-canvas) 55%, transparent);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--c-ink-1) 6%, transparent) inset;
+  transition:
+    background-color 0.35s var(--ease-out-soft),
+    border-color 0.35s var(--ease-out-soft),
+    box-shadow 0.35s var(--ease-out-soft),
+    border-radius 0.3s var(--ease-out-soft);
+}
+@media (min-width: 64rem) {
+  .site-header__bar {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+}
+@supports (backdrop-filter: blur(8px)) {
+  .site-header__bar {
+    background: color-mix(in srgb, var(--c-canvas) 48%, transparent);
+    backdrop-filter: blur(22px) saturate(1.35);
+  }
+}
+.site-header.is-solid .site-header__bar {
+  border-color: var(--c-line-1);
+  background: color-mix(in srgb, var(--c-canvas) 78%, transparent);
+  box-shadow: var(--sh-1), 0 18px 40px -28px color-mix(in srgb, var(--c-inverse-ink) 55%, transparent);
+}
+.site-header.is-open .site-header__bar {
+  border-radius: 22px;
+  align-items: flex-start;
+}
+
+.site-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 44px;
+  padding: 0 0.35rem 0 0.15rem;
+  border-radius: 999px;
+  flex: none;
+  justify-self: start;
+}
+.site-header__avatar,
+.site-header__mono {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  overflow: hidden;
+  border-radius: 999px;
+}
+.site-header__avatar {
+  box-shadow: 0 0 0 1px var(--c-line-2);
+}
+.site-header__mono {
+  background: var(--c-accent);
+  color: var(--c-accent-ink);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.site-header__name {
+  max-width: 38vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+@media (min-width: 40rem) {
+  .site-header__name {
+    max-width: 14rem;
+  }
+}
+
+.site-header__nav {
+  display: none;
+  align-items: center;
+  justify-self: center;
+  gap: 0.1rem;
+  padding: 0.15rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--c-surface-2) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c-line-1) 80%, transparent);
+}
+@media (min-width: 64rem) {
+  .site-header__nav {
+    display: flex;
+  }
+}
+.site-header__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 0.8rem;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--c-ink-2);
+  transition: color 0.18s var(--ease-out-soft), background-color 0.18s var(--ease-out-soft);
+}
+.site-header__link:hover {
+  color: var(--c-ink-1);
+}
+.site-header__link[aria-current="page"] {
+  color: var(--c-ink-1);
+  background: var(--c-surface-1);
+  box-shadow: var(--sh-1);
+  font-weight: 600;
+}
+.site-header__more {
+  position: relative;
+}
+.site-header__more-btn {
+  gap: 0.2rem;
+}
+.site-header__more-panel {
+  position: absolute;
+  top: calc(100% + 0.55rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  min-width: 13rem;
+  padding: 0.35rem;
+  border-radius: 16px;
+  border: 1px solid var(--c-line-1);
+  background: color-mix(in srgb, var(--c-canvas) 90%, transparent);
+  box-shadow: var(--sh-2);
+}
+@supports (backdrop-filter: blur(8px)) {
+  .site-header__more-panel {
+    backdrop-filter: blur(18px) saturate(1.2);
+  }
+}
+.site-header__more-item {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 0.8rem;
+  border-radius: 10px;
+  font-size: 0.8125rem;
+  color: var(--c-ink-2);
+}
+.site-header__more-item:hover,
+.site-header__more-item[aria-current="page"] {
+  color: var(--c-ink-1);
+  background: var(--c-surface-2);
+}
+
+.site-header__tools {
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  gap: 0.4rem;
+  flex: none;
+}
+.site-header__cta {
+  display: none;
+}
+@media (min-width: 64rem) {
+  .site-header__cta {
+    display: inline-flex;
+  }
+}
+.site-header__menu {
+  display: inline-grid;
+}
+@media (min-width: 64rem) {
+  .site-header__menu {
+    display: none;
+  }
+}
+
+.site-header__sheet {
+  grid-column: 1 / -1;
+  width: 100%;
+  padding: 0.15rem 0.2rem 0.4rem;
+}
+.site-header__sheet-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding-block: 0.35rem;
+  border-top: 1px solid var(--c-line-1);
+}
+.site-header__sheet-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 48px;
+  padding: 0 0.85rem;
+  border-radius: 14px;
+  font-size: var(--text-lead);
+  font-weight: 500;
+  color: var(--c-ink-2);
+}
+.site-header__sheet-link[aria-current="page"] {
+  color: var(--c-ink-1);
+  background: var(--c-surface-2);
+}
+.site-header__sheet-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.15rem 0.15rem;
+  border-top: 1px solid var(--c-line-1);
+}
+@media (min-width: 64rem) {
+  .site-header__sheet {
+    display: none;
+  }
+}
+
+a,
+button,
+.btn,
+.icon-btn,
+.theme-switch__btn,
+.lang-switch__btn {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: color-mix(in srgb, var(--c-accent) 24%, transparent);
+}
+
 /* =========================================================================
    Kartalar va bento
    ========================================================================= */
@@ -553,12 +881,24 @@ a.card:hover,
 .card:focus-within {
   border-color: var(--c-line-2);
   background: var(--c-surface-2);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow: var(--sh-2);
 }
 
 .card--flat:hover {
   transform: none;
+}
+
+/* Butun karta bosiladigan, ichidagi havolalar nested <a> emas */
+.card__hit {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+}
+.card :is(a, button):not(.card__hit) {
+  position: relative;
+  z-index: 1;
 }
 
 /* Bento: mobil'da 1 ustun, desktop'da 12-ustun to'r (2026 standarti) */
@@ -662,7 +1002,8 @@ a.card:hover,
   border: 1px solid var(--c-line-1);
   background: var(--c-canvas);
   color: var(--c-ink-1);
-  font-size: var(--text-body);
+  /* 16px — iOS fokusda zoom qilmasin (Windows/macOS/Android ham bir xil) */
+  font-size: 16px;
   transition:
     border-color 0.18s,
     background-color 0.18s,
@@ -804,38 +1145,60 @@ textarea.input {
   background: var(--c-accent-text);
 }
 
-/* Hero foni: ko'rinadigan to'r (2026 "visible grid" uslubiyati) + yuqoridan
-   xiralash. Faqat bitta statik fon — GPU uchun arzon. */
+/* Hero: tinch to'r + yumshoq fade — agentlik tozaligi, talaba ovozi. */
 .u-hero-lines {
   background-image:
-    linear-gradient(rgba(243, 241, 234, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(243, 241, 234, 0.045) 1px, transparent 1px);
-  background-size: 64px 64px;
+    radial-gradient(80% 55% at 85% 0%, var(--c-accent-soft), transparent 58%),
+    linear-gradient(rgba(243, 241, 234, 0.038) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(243, 241, 234, 0.038) 1px, transparent 1px);
+  background-size: auto, 72px 72px, 72px 72px;
   background-position: center top;
-  mask-image: linear-gradient(180deg, #000 0%, #000 42%, transparent 92%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 48%, transparent 96%);
 }
 [data-theme="light"] .u-hero-lines {
   background-image:
-    linear-gradient(rgba(20, 22, 27, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(20, 22, 27, 0.05) 1px, transparent 1px);
+    radial-gradient(80% 55% at 85% 0%, var(--c-accent-soft), transparent 58%),
+    linear-gradient(rgba(20, 22, 27, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 22, 27, 0.045) 1px, transparent 1px);
 }
 
-/* Hero: portret freymi — rasm bo'lmasa monogram, bo'sh <img> hech qachon.
-   pastki burchakdagi panellar rasm ustiga chiqib turadi (flow + negative margin). */
+.hero-name {
+  display: flex;
+  flex-direction: column;
+  gap: 0.02em;
+  line-height: 0.88;
+}
+.hero-name__first {
+  font-size: var(--text-display-xl);
+  letter-spacing: -0.04em;
+}
+.hero-name__last {
+  font-size: clamp(2rem, 1.1rem + 4vw, 4.25rem);
+  line-height: 0.92;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  color: var(--c-ink-2);
+}
+.hero-roles {
+  max-width: 36rem;
+  color: var(--c-ink-2);
+  font-size: var(--text-body);
+  line-height: 1.55;
+}
+
 .hero-photo {
   position: relative;
   isolation: isolate;
   aspect-ratio: 4 / 5;
-  border-radius: var(--radius-4);
+  border-radius: 24px;
   border: 1px solid var(--c-line-1);
   background:
     radial-gradient(120% 90% at 80% 0%, var(--c-accent-soft), transparent 58%),
     var(--c-surface-2);
   overflow: hidden;
-  box-shadow: var(--shadow-3);
+  box-shadow: var(--sh-3);
 }
 .hero-photo::after {
-  /* ichki hairline — «print» hissi */
   content: "";
   position: absolute;
   inset: 0;
@@ -851,7 +1214,7 @@ textarea.input {
 }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .hero-photo:hover .hero-photo__img {
-    scale: 1.03;
+    scale: 1.025;
   }
 }
 .hero-photo__mono {
@@ -863,9 +1226,9 @@ textarea.input {
   justify-items: center;
   text-align: center;
   background-image:
-    linear-gradient(color-mix(in srgb, var(--c-ink-1) 5%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--c-ink-1) 5%, transparent) 1px, transparent 1px);
-  background-size: 28px 28px;
+    linear-gradient(color-mix(in srgb, var(--c-ink-1) 4.5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--c-ink-1) 4.5%, transparent) 1px, transparent 1px);
+  background-size: 32px 32px;
 }
 .hero-photo__caption {
   position: absolute;
@@ -877,12 +1240,140 @@ textarea.input {
   align-items: baseline;
   justify-content: space-between;
   gap: 0.5rem 1rem;
-  padding: 2.25rem 1.1rem 0.95rem;
+  padding: 2.4rem 1.15rem 1rem;
   background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--c-canvas) 88%, transparent) 58%);
   backdrop-filter: blur(2px);
 }
-.hero-panels {
-  margin-top: -2.75rem;
+
+/* Bitta process card — 3D shablon o'rniga. */
+.hero-process {
+  position: relative;
+  z-index: 3;
+  margin-top: -2.4rem;
+  margin-inline: 1rem 0.4rem;
+  padding: 1rem 1.1rem 1.05rem;
+  border-radius: var(--radius-3);
+  border: 1px solid var(--c-line-1);
+  background: color-mix(in srgb, var(--c-surface-1) 88%, transparent);
+  box-shadow: var(--sh-2);
+}
+@supports (backdrop-filter: blur(8px)) {
+  .hero-process {
+    backdrop-filter: blur(16px) saturate(1.15);
+  }
+}
+.hero-process__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.55rem;
+}
+.hero-process__list li {
+  display: grid;
+  grid-template-columns: 1.6rem minmax(0, 1fr);
+  gap: 0.55rem;
+  align-items: start;
+  font-size: var(--text-small);
+  color: var(--c-ink-2);
+}
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  margin-top: 0.85rem;
+  padding: 0.15rem 0.2rem;
+  border: 1px solid var(--c-line-1);
+  border-radius: var(--radius-3);
+  background: var(--c-surface-1);
+}
+.hero-stats > div {
+  padding: 0.7rem 0.85rem;
+}
+.hero-stats > div + div {
+  border-inline-start: 1px solid var(--c-line-1);
+}
+.hero-stats dt {
+  font-size: var(--text-micro);
+  font-family: var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--c-ink-3);
+}
+.hero-stats dd {
+  margin: 0.35rem 0 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+
+.hero-product {
+  position: relative;
+  border-radius: var(--radius-4);
+  border: 1px solid var(--c-line-1);
+  overflow: hidden;
+  background: var(--c-surface-1);
+  box-shadow: var(--sh-3);
+  transform: perspective(1200px) rotateY(-6deg) rotateX(2deg);
+  transform-origin: left center;
+}
+@media (max-width: 63.99rem) {
+  .hero-product {
+    transform: none;
+  }
+}
+.hero-product .device {
+  min-height: 0;
+}
+.hero-product__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  padding: 0.9rem 1rem 1rem;
+  border-top: 1px solid var(--c-line-1);
+  background: var(--c-surface-1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-product {
+    transform: none;
+  }
+}
+
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.75rem;
+  margin-top: 3.5rem;
+  padding-top: 1.35rem;
+  border-top: 1px solid var(--c-line-1);
+  font-size: var(--text-small);
+  color: var(--c-ink-2);
+}
+.hero-meta li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.hero-meta__scroll {
+  margin-left: auto;
+  color: var(--c-ink-3);
+}
+@media (max-width: 47.99rem) {
+  .hero-meta__scroll {
+    display: none;
+  }
+  .hero-stats {
+    grid-template-columns: 1fr;
+  }
+  .hero-stats > div + div {
+    border-inline-start: 0;
+    border-top: 1px solid var(--c-line-1);
+  }
 }
 
 /* Portret ustidagi admin tugmasi («+») — faqat admin kirganda render qilinadi */
@@ -955,72 +1446,98 @@ textarea.input {
     transition: none;
   }
 }
-/* Hero: suzuvchi ish oqimi panellari — pseudo-3D, CSS'gana (JS yo'q).
-   Maqsad: "AI-assisted workflow" ni vizual metafora bilan ko'rsatish. */
-.hero-panels {
-  position: relative;
-  padding: 2.5rem 0 3rem;
-  perspective: 1000px;
-}
-.hero-panel {
-  border: 1px solid var(--c-line-1);
-  border-radius: var(--radius-3);
-  background: color-mix(in srgb, var(--c-surface-2) 90%, transparent);
-  box-shadow: var(--shadow-2);
-  padding: 0.95rem 1.15rem;
-  will-change: transform;
-}
-@supports (backdrop-filter: blur(2px)) {
-  .hero-panel {
-    backdrop-filter: blur(12px) saturate(1.1);
+
+@media (max-width: 30rem) {
+  .hero-actions .btn--lg {
+    width: 100%;
+  }
+  .hero-photo {
+    max-width: 20rem;
+    margin-inline: auto;
+  }
+  .hero-process {
+    margin-inline: 0;
   }
 }
-.hero-panel--back {
-  width: 82%;
-  opacity: 0.66;
-  transform: translate3d(11%, -6%, 0) rotate(-3.4deg);
-  animation: hero-float 9s ease-in-out infinite;
+
+
+.skills-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.65rem 1rem;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--c-line-1);
+  text-transform: none;
+  letter-spacing: 0;
+  line-height: 1.65;
 }
-.hero-panel--mid {
-  position: relative;
-  z-index: 2;
-  width: 92%;
-  margin-top: -1.1rem;
-  margin-left: 4%;
-  transform: rotate(1.6deg);
-  animation: hero-float 7.2s ease-in-out infinite reverse;
+.skills-strip__label {
+  flex: none;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-accent-text);
 }
-.hero-panel--front {
-  position: relative;
-  z-index: 3;
-  width: 74%;
+.skills-strip__list {
+  font-weight: 500;
+  color: var(--c-ink-3);
+}
+.skills-board {
+  display: grid;
+  gap: 1.75rem 2.25rem;
+}
+@media (min-width: 48rem) {
+  .skills-board {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 80rem) {
+  .skills-board {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.device {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--c-surface-2);
+}
+.device__bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-top: -0.9rem;
-  margin-left: 14%;
-  transform: rotate(-2deg);
-  animation: hero-float 11s ease-in-out infinite;
+  gap: 0.6rem;
+  height: 2rem;
+  padding: 0 0.7rem;
+  border-bottom: 1px solid var(--c-line-1);
+  background: color-mix(in srgb, var(--c-surface-1) 88%, transparent);
+  flex: none;
 }
-@keyframes hero-float {
-  0%,
-  100% {
-    translate: 0 0;
-  }
-  50% {
-    translate: 0 -9px;
-  }
+.device__dots {
+  display: flex;
+  gap: 0.28rem;
 }
-@media (prefers-reduced-motion: reduce) {
-  .hero-panel {
-    animation: none;
-  }
+.device__dots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 99px;
+  background: var(--c-line-2);
 }
-@media (min-width: 64rem) {
-  .hero-panel--back {
-    width: 76%;
-  }
+.device__url {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--c-ink-3);
+}
+.device__screen {
+  position: relative;
+  flex: 1;
+  min-height: 0;
 }
 
 /* Timeline (tajriba) */

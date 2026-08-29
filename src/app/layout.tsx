@@ -2,7 +2,8 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import Script from "next/script";
 import "./globals.css";
-import { getSiteData } from "@/lib/content";
+import { getSiteData, phoneHref, socialsOf } from "@/lib/content";
+import { getLocale, LOCALE_META, t } from "@/lib/i18n";
 
 /**
  * Shriftlar — audit P1-9: 9 ta static woff2 o'rniga 3 ta VARIABLE fayl.
@@ -18,7 +19,17 @@ const display = localFont({
       style: "normal",
     },
     {
+      path: "../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-ext-full-normal.woff2",
+      weight: "100 900",
+      style: "normal",
+    },
+    {
       path: "../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-full-italic.woff2",
+      weight: "100 900",
+      style: "italic",
+    },
+    {
+      path: "../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-ext-full-italic.woff2",
       weight: "100 900",
       style: "italic",
     },
@@ -28,8 +39,23 @@ const display = localFont({
 });
 
 const sans = localFont({
-  src: "../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2",
-  weight: "100 900",
+  src: [
+    {
+      path: "../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2",
+      weight: "100 900",
+      style: "normal",
+    },
+    {
+      path: "../../node_modules/@fontsource-variable/inter/files/inter-latin-ext-wght-normal.woff2",
+      weight: "100 900",
+      style: "normal",
+    },
+    {
+      path: "../../node_modules/@fontsource-variable/inter/files/inter-cyrillic-wght-normal.woff2",
+      weight: "100 900",
+      style: "normal",
+    },
+  ],
   variable: "--font-inter",
   display: "swap",
 });
@@ -41,15 +67,18 @@ const mono = localFont({
   display: "swap",
 });
 
+/** Til cookie har so'rovda o'qilishi kerak — static HTML tilni qamab qo'ymasin. */
+export const dynamic = "force-dynamic";
+
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
+const OG_LOCALE = { uz: "uz_UZ", en: "en_US", ru: "ru_RU" } as const;
+
 export async function generateMetadata(): Promise<Metadata> {
-  const { profile } = await getSiteData();
+  const [{ profile }, locale] = await Promise.all([getSiteData(), getLocale()]);
   const name = profile.fullName || "Portfolio";
   const title = profile.title || "Student & AI Developer";
-  const description =
-    (profile.bio?.trim() ||
-      `${name} — ${title}. AI yordamida to'liq veb-ilovalar: prototip, backend, AI API integratsiyasi va deploy.`);
+  const description = `${name} | ${title}. AI-assisted development, web development, AI-powered applications and freelance product work. Tashkent, Uzbekistan.`;
 
   return {
     metadataBase: new URL(siteUrl),
@@ -76,7 +105,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       url: siteUrl,
       siteName: `${name} — Portfolio`,
-      locale: "uz_UZ",
+      locale: OG_LOCALE[locale],
       type: "website",
     },
     twitter: {
@@ -96,7 +125,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  // Tema rangi ikkala rejim uchun (audit: faqat bitta qorong'i themeColor edi)
+  maximumScale: 5,
+  viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: dark)", color: "#0a0c10" },
     { media: "(prefers-color-scheme: light)", color: "#f8f6f0" },
@@ -108,8 +138,10 @@ export const viewport: Viewport = {
 const THEME_BOOTSTRAP = `(function(){try{var d=document.documentElement;var s=localStorage.getItem('theme');if(s==='light'||s==='dark'){d.setAttribute('data-theme',s);}else if(window.matchMedia('(prefers-color-scheme: dark)').matches){d.setAttribute('data-theme','dark');}else{d.setAttribute('data-theme','light');}d.style.colorScheme=s==='light'?'light':(s==='dark'?'dark':'light dark');}catch(e){}})();`;
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const { profile, skills, services } = await getSiteData();
-  const sameAs = [profile.github, profile.linkedin, profile.instagram, profile.telegram].filter(Boolean);
+  const [{ profile, skills, services }, locale] = await Promise.all([getSiteData(), getLocale()]);
+  const sameAs = socialsOf(profile)
+    .filter((s) => s.key !== "email" && s.key !== "phone")
+    .map((s) => s.href);
 
   /** JSON-LD — faqat to'ldirilgan maydonlar bilan (bo'sh "https://github.com" kabi
    *  qiymatlar strukturali ma'lumotga chiqmaydi). */
@@ -121,7 +153,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     description: profile.bio || undefined,
     url: siteUrl,
     email: profile.email ? `mailto:${profile.email}` : undefined,
-    telephone: profile.phone || undefined,
+    telephone: phoneHref(profile.phone)?.replace(/^tel:/, "") || undefined,
     address: profile.location
       ? { "@type": "PostalAddress", addressLocality: profile.location.split(",")[0]?.trim() }
       : undefined,
@@ -135,7 +167,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html
-      lang="uz"
+      lang={LOCALE_META[locale].html}
       className={`${display.variable} ${sans.variable} ${mono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
@@ -147,7 +179,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="flex min-h-full flex-col">
         {/* Skip-link: klaviatura bilan navigatsiya qiluvchilar uchun (audit P2-19) */}
         <a href="#main" className="skip-link">
-          Asosiy kontentga o&apos;tish
+          {t(locale, "skip")}
         </a>
         {children}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(person) }} />

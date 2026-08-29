@@ -66,7 +66,7 @@ export default function PortraitUpload({ current, initials = "M", compact, onCha
         xhrRef.current = null;
         setProgress(0);
         if (xhr.status >= 200 && xhr.status < 300) {
-          setState({ kind: "done", message: "Yuklandi — sayt 1 daqiqada yangilanadi" });
+          setState({ kind: "done", message: "Yuklandi — bosh sahifada darhol ko‘rinadi" });
           let info: { url?: string; bytes: number; width: number; height: number } | undefined;
           try {
             info = JSON.parse(xhr.responseText);
@@ -141,7 +141,7 @@ export default function PortraitUpload({ current, initials = "M", compact, onCha
         className="portrait-drop relative overflow-hidden rounded-3 border border-dashed border-line-2 bg-surface-2 p-4"
       >
         <div className="flex items-center gap-4">
-          <div className="portrait-preview relative aspect-[4/5] w-24 shrink-0 overflow-hidden rounded-2 border border-line-1 bg-canvas">
+          <div className="portrait-preview relative aspect-[4/5] w-28 shrink-0 overflow-hidden rounded-2 border border-line-1 bg-canvas sm:w-36">
             {current ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={current} alt="Hozirgi portret" className="size-full object-cover" />
@@ -164,8 +164,8 @@ export default function PortraitUpload({ current, initials = "M", compact, onCha
           <div className="min-w-0 flex-1 stack gap-2.5">
             <p className="text-small text-ink-2">
               {current
-                ? "Faylni bu yerga tashlang yoki tanlang — eski portret yangisiga almashtiriladi."
-                : "Portret hozircha yoʻq. Faylni tashlang yoki tanlang — u 4:5 freymga avtomatik kesiladi."}
+                ? "Yangi rasm tashlang — eski portret o‘rniga o‘tadi. Istalgan payt almashtirasiz."
+                : "Rasmni shu yerga tashlang yoki «Rasm tanlash»ni bosing. U 4:5 freymga avtomatik kesiladi."}
             </p>
             <div className="flex flex-wrap items-center gap-2">
               <button

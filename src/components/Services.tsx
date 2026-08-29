@@ -1,6 +1,7 @@
 import Card from "./ui/Card";
 import Icon, { type IconName } from "./ui/Icon";
 import { featuresOf, type Service } from "@/lib/content";
+import { t, tx, txEach, type Locale } from "@/lib/i18n-core";
 
 const KNOWN: IconName[] = ["rocket", "layers", "gauge", "bot", "code", "database", "shield", "zap", "target", "pen"];
 
@@ -14,13 +15,13 @@ function iconFor(value: string): IconName {
  * (audit P1-10: "xizmatlar" bo'limi faqat matn edi, konversiya nuqtasi yo'q edi).
  * Ikonka emoji emas, `icon` maydoni endi ikonka kaliti (`rocket`, `layers`...).
  */
-export default function Services({ services }: { services: Service[] }) {
+export default function Services({ services, locale = "uz" }: { services: Service[]; locale?: Locale }) {
   if (services.length === 0) return null;
 
   return (
     <div className="bento">
       {services.map((s, i) => {
-        const features = featuresOf(s.features);
+        const features = txEach(locale, featuresOf(s.features));
         const wide = i === 0;
         return (
           <div key={s.id} data-span={wide ? "wide" : "third"} className="reveal">
@@ -40,14 +41,16 @@ export default function Services({ services }: { services: Service[] }) {
                   {s.delivery ? (
                     <span className="label mt-1 flex items-center justify-end gap-1.5">
                       <Icon name="clock" size={11} />
-                      {s.delivery}
+                      {tx(locale, s.delivery)}
                     </span>
                   ) : null}
                 </span>
               </div>
 
-              <h3 className={`display mt-5 font-semibold ${wide ? "text-display-m" : "text-title"}`}>{s.title}</h3>
-              <p className={`mt-2.5 text-ink-2 ${wide ? "text-lead" : "text-body"}`}>{s.description}</p>
+              <h3 className={`display mt-5 font-semibold ${wide ? "text-display-m" : "text-title"}`}>
+                {tx(locale, s.title)}
+              </h3>
+              <p className={`mt-2.5 text-ink-2 ${wide ? "text-lead" : "text-body"}`}>{tx(locale, s.description)}</p>
 
               {features.length > 0 ? (
                 <ul className={`mt-5 grid gap-2 ${wide ? "sm:grid-cols-2" : ""}`}>
@@ -60,8 +63,11 @@ export default function Services({ services }: { services: Service[] }) {
                 </ul>
               ) : null}
 
-              <a href="#contact" className="link-underline mt-6 inline-flex text-small">
-                Muhokama qilish
+              <a
+                href={`/?topic=${encodeURIComponent(s.title)}#contact`}
+                className="link-underline mt-6 inline-flex text-small"
+              >
+                {t(locale, "services.talk")}
                 <Icon name="arrow-up-right" size={13} />
               </a>
             </Card>

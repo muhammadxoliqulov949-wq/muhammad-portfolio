@@ -47,7 +47,7 @@ export default function AdminLoginPage() {
         setError(data?.error ?? "Kirishda xatlik. Ko'p urinsangiz vaqtincha bloklanadi.");
         return;
       }
-      router.replace("/admin");
+      router.replace("/admin/portrait");
       router.refresh();
     } catch {
       setError("Server bilan bog'lanib bo'lmadi.");
@@ -69,7 +69,8 @@ export default function AdminLoginPage() {
         <div className="card p-6 md:p-8">
           <h1 className="display text-display-m">Kirish</h1>
           <p className="mt-2 text-small text-ink-2">
-            Profil, loyihalar va xabarlar shu hisobdan boshqariladi.
+            Portretni o‘zingiz qo‘yasiz va istalgan payt almashtirasiz. Kirgach darhol rasm
+            yuklash sahifasi ochiladi.
           </p>
 
           <form onSubmit={onSubmit} noValidate className="mt-7 stack gap-4">

@@ -1,17 +1,18 @@
 import Image from "next/image";
 import Icon from "./ui/Icon";
 import PortraitSlot from "./PortraitSlot";
-import Rotator from "./Rotator";
 import CopyButton from "./ui/CopyButton";
+import Device from "./ui/Device";
 import {
-  listFrom,
-  phoneHref,
   portraitOf,
   rolesOf,
   safeHref,
+  sectionHref,
   socialsOf,
   type Profile,
+  type Project,
 } from "@/lib/content";
+import { t, tx, txEach, type Locale } from "@/lib/i18n-core";
 
 const SOCIAL_ICON = {
   github: "github",
@@ -22,82 +23,84 @@ const SOCIAL_ICON = {
   phone: "phone",
 } as const;
 
-/**
- * Hero — birinchi ekran.
- *
- * Uslubiy qaror: sun'iy "I'm a passionate developer" kirish o'rniga
- * to'g'ridan-to'g'ri identitet (ism + kasb) va haqiqiy raqamlar.
- * O'ng tarafdagi suzuvchi panellar — uni aldashtiruvchi "3D grafika" emas,
- * uning haqiqiy ish oqimi (AI-assisted workflow) vizualizatsiyasi.
- */
-type Props = { profile: Profile; study?: string };
+function hostOf(link: string | null | undefined): string | null {
+  const href = safeHref(link);
+  if (!href) return null;
+  try {
+    return new URL(href).host.replace(/^www\./, "");
+  } catch {
+    return null;
+  }
+}
 
-export default function Hero({ profile: p, study }: Props) {
-  const roles = rolesOf(p);
-  const socials = socialsOf(p);
-  const steps = listFrom(p.workflow);
+/**
+ * Hero — ism + kasb + ikkita CTA.
+ * Portret bo'lmasa MX harfi o'rniga haqiqiy mahsulot (IELTS.mock) chiqadi.
+ */
+type Props = { profile: Profile; study?: string; locale?: Locale; featured?: Project };
+
+export default function Hero({ profile: p, study, locale = "uz", featured }: Props) {
+  const roles = txEach(locale, rolesOf(p));
+  const title = roles[0] || p.title || "Student & AI Developer";
+  const extras = roles.slice(1);
+  const socials = socialsOf(p, locale);
   const resume = safeHref(p.resumeUrl);
   const portrait = portraitOf(p);
-
-  const stats = [
-    { label: "Amaliy tajriba", value: p.statExperience },
-    { label: "Mijozlar", value: p.statAvailability },
-    { label: "Saytlar", value: p.statProjects },
-  ].filter((s) => s.value);
+  const names = (p.fullName || "Muhammad").trim().split(/\s+/).filter(Boolean);
+  const firstName = names[0] || "Muhammad";
+  const lastName = names.slice(1).join(" ");
+  const cover = featured ? safeHref(featured.image) : null;
+  const demo = featured ? safeHref(featured.link) : null;
+  const code = featured ? safeHref(featured.github) : null;
 
   const meta = [
-    p.location ? { icon: "pin" as const, text: p.location } : null,
-    p.englishLevel ? { icon: "gauge" as const, text: `Ingliz tili: ${p.englishLevel}` } : null,
+    p.location ? { icon: "pin" as const, text: tx(locale, p.location) } : null,
+    p.englishLevel ? { icon: "gauge" as const, text: `${t(locale, "hero.english")}: ${p.englishLevel}` } : null,
     study ? { icon: "sparkle" as const, text: study } : null,
   ].filter((x): x is { icon: "pin" | "gauge" | "sparkle"; text: string } => !!x);
 
   return (
     <section id="home" className="u-hero-lines relative overflow-clip pt-28 pb-[var(--section-y)] md:pt-36">
       <div className="u-container">
-        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-16">
-          <div className="reveal">
+        <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.95fr)] lg:gap-14 xl:gap-20">
+          <div className="reveal min-w-0">
             {p.badge ? (
               <p className="label mb-7 flex flex-wrap items-center gap-2.5">
                 <span className="dot" aria-hidden />
-                <span className="label-accent">{p.badge}</span>
+                <span className="label-accent">{tx(locale, p.badge)}</span>
               </p>
             ) : null}
 
-            <h1 className="display text-display-xl leading-[0.94]">
-              Student &amp;{" "}
-              <span className="display-em">AI Developer</span>
+            <h1 className="hero-name">
+              <span className="display hero-name__first">{firstName}</span>
+              {lastName ? <span className="display hero-name__last">{lastName}</span> : null}
             </h1>
 
-            <p className="mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="display text-[19px] font-semibold">{p.fullName || "Portfolio"}</span>
-              {roles.length > 1 ? (
-                <Rotator
-                  items={roles.slice(1)}
-                  className="flex h-6 font-mono text-micro uppercase tracking-[0.14em] text-ink-3"
-                />
-              ) : null}
+            <p className="mt-6 display text-[clamp(1.35rem,2.2vw,1.85rem)] font-semibold tracking-tight">
+              {title}
             </p>
+            {extras.length > 0 ? <p className="hero-roles mt-2">{extras.join(" · ")}</p> : null}
 
-            {p.bio ? <p className="mt-6 max-w-xl text-lead text-ink-2">{p.bio}</p> : null}
+            {p.bio ? <p className="mt-7 max-w-[34rem] text-lead text-ink-2">{tx(locale, p.bio)}</p> : null}
 
-            <div className="mt-9 flex flex-wrap items-center gap-2.5">
-              <a href="#contact" className="btn btn--accent btn--lg">
-                Keling, birga ishlaymiz
+            <div className="hero-actions mt-9 flex flex-wrap items-center gap-2.5">
+              <a href={sectionHref("contact")} className="btn btn--accent btn--lg">
+                {t(locale, "hero.cta")}
                 <Icon name="arrow-right" size={16} />
               </a>
-              <a href="#work" className="btn btn--lg">
+              <a href={sectionHref("work")} className="btn btn--lg">
                 <Icon name="layers" size={16} />
-                Loyihalarni ko&apos;rish
+                {t(locale, "hero.projects")}
               </a>
               {resume ? (
                 <a href={resume} target="_blank" rel="noopener noreferrer" className="btn btn--ghost btn--lg">
                   <Icon name="download" size={16} />
-                  CV (PDF)
+                  {t(locale, "hero.cv")}
                 </a>
               ) : null}
             </div>
 
-            <div className="mt-8 flex flex-wrap items-center gap-2.5">
+            <div className="mt-8 flex flex-wrap items-center gap-2">
               {socials.map((s) => (
                 <a
                   key={s.key}
@@ -110,128 +113,99 @@ export default function Hero({ profile: p, study }: Props) {
                   <Icon name={SOCIAL_ICON[s.key]} size={17} />
                 </a>
               ))}
-              {p.email ? <CopyButton value={p.email} label="Emailni nusxa olish" /> : null}
+              {p.email ? <CopyButton value={p.email} label={t(locale, "hero.copyEmail")} /> : null}
               {p.telegram ? (
-                <CopyButton value={p.telegram.replace("@", "")} label="Telegramni nusxa olish" />
+                <CopyButton value={p.telegram.replace("@", "")} label={t(locale, "hero.copyTg")} />
               ) : null}
             </div>
           </div>
 
-          {/* Portret + ish oqimi panellari. Rasm DB'dan (`photoUrl`) yoki
-              `public/media/portrait.*` faylidan olinadi; ikkalasi bo'lmasa
-              monogram freym chiqadi — bo'sh/buzuq rasm ko'rsatilmaydi. */}
-          <div className="reveal relative mx-auto w-full max-w-[440px] lg:max-w-none">
-            <figure className="hero-photo">
-              {portrait ? (
+          <div className="reveal relative mx-auto w-full max-w-[28rem] lg:max-w-none lg:justify-self-end">
+            {portrait ? (
+              <figure className="hero-photo">
                 <Image
                   src={portrait}
-                  alt={`${p.fullName || "Muhammad Xoliqulov"} — portret`}
+                  alt={`${p.fullName || "Muhammad Xoliqulov"} — ${t(locale, "hero.portrait")}`}
                   fill
                   priority
-                  sizes="(max-width: 1024px) 90vw, 440px"
+                  unoptimized={portrait.startsWith("/api/media/")}
+                  sizes="(max-width: 1024px) 90vw, 420px"
                   className="hero-photo__img"
                 />
-              ) : (
+                <PortraitSlot current={portrait} initials={p.avatarInitials || p.fullName} />
+                <figcaption className="hero-photo__caption">
+                  <span className="text-body font-semibold">{p.fullName || "Portfolio"}</span>
+                  {p.location ? (
+                    <span className="flex items-center gap-1.5 text-small text-ink-2">
+                      <Icon name="pin" size={12} className="text-ink-3" />
+                      {tx(locale, p.location)}
+                    </span>
+                  ) : null}
+                </figcaption>
+              </figure>
+            ) : featured ? (
+              <div className="hero-product">
+                <PortraitSlot current={portrait} initials={p.avatarInitials || p.fullName} />
+                <Device label={hostOf(featured.link) || featured.title}>
+                  <div className="relative aspect-16/10">
+                    {cover ? (
+                      <Image
+                        src={cover}
+                        alt={`${featured.title} — ${t(locale, "work.cover")}`}
+                        fill
+                        priority
+                        sizes="(max-width: 1024px) 90vw, 480px"
+                        className="object-cover object-top"
+                      />
+                    ) : (
+                      <div className="grid h-full place-items-center bg-surface-2">
+                        <span className="font-mono text-small text-ink-2">{featured.title}</span>
+                      </div>
+                    )}
+                  </div>
+                </Device>
+                <div className="hero-product__bar">
+                  <div className="min-w-0">
+                    <p className="label label-accent mb-1">{t(locale, "work.featured")}</p>
+                    <p className="truncate text-body font-semibold">{featured.title}</p>
+                  </div>
+                  <span className="flex shrink-0 flex-wrap gap-2">
+                    {demo ? (
+                      <a href={demo} target="_blank" rel="noopener noreferrer" className="btn btn--accent btn--sm">
+                        {t(locale, "work.demo")}
+                        <Icon name="external" size={13} />
+                      </a>
+                    ) : null}
+                    {code ? (
+                      <a href={code} target="_blank" rel="noopener noreferrer" className="btn btn--sm">
+                        <Icon name="github" size={13} />
+                        GitHub
+                      </a>
+                    ) : null}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <figure className="hero-photo">
                 <div className="hero-photo__mono" aria-hidden="true">
                   <span className="display text-display-l font-semibold tracking-tight">
                     {(p.avatarInitials || p.fullName || "M").trim().slice(0, 2).toUpperCase()}
                   </span>
                 </div>
-              )}
-              <PortraitSlot current={portrait} initials={p.avatarInitials || p.fullName} />
-
-              <figcaption className="hero-photo__caption">
-                <span className="text-body font-semibold">{p.fullName || "Portfolio"}</span>
-                {p.location ? <span className="flex items-center gap-1.5 text-small text-ink-2">
-                  <Icon name="pin" size={12} className="text-ink-3" />
-                  {p.location}
-                </span> : null}
-              </figcaption>
-            </figure>
-
-            <div className="hero-panels" aria-hidden="true">
-              <div className="hero-panel hero-panel--back">
-                <p className="label mb-2">AI yordamchi</p>
-                <p className="text-small text-ink-2">prompt · kod · izoh</p>
-              </div>
-              <div className="hero-panel hero-panel--mid">
-                <p className="label mb-3 flex items-center justify-between">
-                  <span>muhammad / ielts.mock</span>
-                  <span className="chip chip--accent !py-0.5 text-[10px]">PWA</span>
-                </p>
-                {steps.length > 0 ? (
-                  <ol className="stack gap-2">
-                    {steps.slice(0, 4).map((step, i) => (
-                      <li key={step} className="flex items-start gap-2.5 text-small text-ink-2">
-                        <span className="u-num mt-0.5 shrink-0 font-mono text-micro text-ink-3">0{i + 1}</span>
-                        {step}
-                      </li>
-                    ))}
-                  </ol>
-                ) : (
-                  <p className="text-small text-ink-3">Ish oqimi admin panelda sozlanadi.</p>
-                )}
-              </div>
-              <div className="hero-panel hero-panel--front">
-                <span className="chip">
-                  <Icon name="rocket" size={12} />
-                  Vercel&apos;da jonli
-                </span>
-                <a
-                  href={safeHref(p.github) ?? "https://github.com"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="link-underline text-small"
-                >
-                  GitHub
-                  <Icon name="arrow-up-right" size={13} />
-                </a>
-              </div>
-            </div>
-
-            {stats.length > 0 ? (
-              <dl className="hairline-x card card--flat mt-4 !rounded-3 px-4 py-1">
-                {stats.map((s) => (
-                  <div key={s.label} className="flex items-baseline justify-between gap-4 py-2.5">
-                    <dt className="text-small text-ink-2">{s.label}</dt>
-                    <dd className="display u-num text-[19px] font-semibold">{s.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            ) : null}
+                <PortraitSlot current={portrait} initials={p.avatarInitials || p.fullName} />
+              </figure>
+            )}
           </div>
         </div>
 
         {meta.length > 0 ? (
-          <ul className="mt-14 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-line-1 pt-6">
+          <ul className="hero-meta">
             {meta.map((m) => (
-              <li key={m.text} className="flex items-center gap-2 text-small text-ink-2">
+              <li key={m.text}>
                 <Icon name={m.icon} size={14} className="text-ink-3" />
                 {m.text}
               </li>
             ))}
-            {p.email ? (
-              <li className="flex items-center gap-2 text-small text-ink-2">
-                <Icon name="mail" size={14} className="text-ink-3" />
-                <a href={`mailto:${p.email}`} className="link-underline">
-                  {p.email}
-                </a>
-              </li>
-            ) : null}
-            {phoneHref(p.phone) ? (
-              <li className="flex items-center gap-2 text-small text-ink-2">
-                <Icon name="phone" size={14} className="text-ink-3" />
-                <a href={phoneHref(p.phone) as string} className="link-underline">
-                  {p.phone}
-                </a>
-              </li>
-            ) : null}
-            <li className="ml-auto hidden items-center gap-2 text-small text-ink-3 md:flex">
-              <span className="animate-pulse-soft" aria-hidden>
-                <Icon name="chevron-down" size={14} />
-              </span>
-              Pastga suring
-            </li>
           </ul>
         ) : null}
       </div>

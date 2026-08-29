@@ -1,47 +1,143 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Icon from "./ui/Icon";
-import ThemeToggle from "./ThemeToggle";
+import { LOCALE_META, LOCALES, t, type Locale } from "@/lib/i18n-core";
+import { setLocale } from "@/lib/set-locale";
 
 export type NavLink = { id: string; label: string };
 
 type Props = {
   name: string;
   initials: string;
-  links: NavLink[];
+  links?: NavLink[] | null;
   ctaLabel?: string;
-  /** `profile.photoUrl` yoki `public/media/portrait.*` — bo'lsa avatar chiqadi */
+  locale?: Locale;
   portrait?: string | null;
 };
 
 /**
- * Sticky header.
- * Audit tuzatishlari:
- *  - mobil menyu endi `role="dialog"` + aria-expanded/controls, Escape bilan
- *    yopiladi, ochilganda fokusga o'tadi va scroll qulanadi (P2-19);
- *  - aktiv bo'lim `aria-current` bilan belgilanadi;
- *  - backdrop-blur faqat scroll qilinganda (GPU tejamkorligi);
- *  - barcha targetlar ≥44px.
+ * Sticky header — suzuvchi tab.
+ * Asosiy 4 havola + «Yana» — 80rem da yo'qolmaydi.
  */
-/** kenglik tor bo'lganda yashirinadigan qo'shimcha bo'limlar */
-const SECONDARY_SECTIONS = new Set(["about", "education", "achievements", "approach"]);
+const PRIMARY = new Set(["about", "work", "services", "contact"]);
 
-export default function Header({ name, initials, links, ctaLabel = "Loyiha muhokamasi", portrait }: Props) {
+type Theme = "dark" | "light";
+const THEME_COLORS: Record<Theme, string> = { dark: "#0a0c10", light: "#f8f6f0" };
+
+function applyTheme(next: Theme) {
+  const root = document.documentElement;
+  root.setAttribute("data-theme", next);
+  root.style.colorScheme = next;
+  try {
+    localStorage.setItem("theme", next);
+  } catch {
+    /* private rejim */
+  }
+  document.querySelectorAll('meta[name="theme-color"]').forEach((el) => {
+    el.setAttribute("content", THEME_COLORS[next]);
+    el.removeAttribute("media");
+  });
+  window.dispatchEvent(new CustomEvent("themechange", { detail: next }));
+}
+
+/** Hook yo'q — server va client bir xil daraxt. aria-busy yo'q. */
+function LocaleSwitch({ locale }: { locale: Locale }) {
+  function choose(next: Locale) {
+    if (next === locale) return;
+    try {
+      localStorage.setItem("locale", next);
+    } catch {
+      /* private */
+    }
+    void setLocale(next);
+    const url = new URL(window.location.href);
+    url.searchParams.set("lang", next);
+    window.location.assign(url.pathname + url.search + url.hash);
+  }
+
+  return (
+    <div className="lang-switch" role="group" aria-label={t(locale, "lang.aria")}>
+      {LOCALES.map((id) => (
+        <button
+          key={id}
+          type="button"
+          className="lang-switch__btn"
+          aria-pressed={locale === id ? "true" : "false"}
+          aria-label={LOCALE_META[id].name}
+          onClick={() => choose(id)}
+        >
+          {LOCALE_META[id].label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** Hook/state yo'q — tanlangan holat html[data-theme] CSS. */
+function ThemeSwitch({ locale }: { locale: Locale }) {
+  return (
+    <div className="theme-switch" role="group" aria-label={t(locale, "theme.group")}>
+      <button
+        type="button"
+        className="theme-switch__btn"
+        data-theme-set="dark"
+        aria-label={t(locale, "theme.darkAria")}
+        onClick={() => applyTheme("dark")}
+      >
+        <Icon name="moon" size={13} />
+        <span className="theme-switch__label">{t(locale, "theme.dark")}</span>
+      </button>
+      <button
+        type="button"
+        className="theme-switch__btn"
+        data-theme-set="light"
+        aria-label={t(locale, "theme.lightAria")}
+        onClick={() => applyTheme("light")}
+      >
+        <Icon name="sun" size={13} />
+        <span className="theme-switch__label">{t(locale, "theme.light")}</span>
+      </button>
+    </div>
+  );
+}
+
+export default function Header({
+  name,
+  initials,
+  links = [],
+  ctaLabel,
+  locale = "uz",
+  portrait,
+}: Props) {
+  const items = useMemo(
+    () =>
+      (Array.isArray(links) ? links : []).filter(
+        (l): l is NavLink => !!l && typeof l.id === "string" && l.id.length > 0,
+      ),
+    [links],
+  );
+  const cta = ctaLabel ?? t(locale, "hero.cta");
   const [scrolled, setScrolled] = useState(false);
-  const [active, setActive] = useState<string>(links[0]?.id ?? "home");
+  const [active, setActive] = useState<string>(items[0]?.id ?? "home");
   const [open, setOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const router = useRouter();
   const toggleRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const moreRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let raf = 0;
     const onScroll = () => {
       cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => setScrolled(window.scrollY > 16));
+      raf = requestAnimationFrame(() => {
+        setScrolled(window.scrollY > 12);
+        setMoreOpen(false);
+      });
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -52,7 +148,7 @@ export default function Header({ name, initials, links, ctaLabel = "Loyiha muhok
   }, []);
 
   useEffect(() => {
-    const nodes = links
+    const nodes = items
       .map((l) => document.getElementById(l.id))
       .filter((el): el is HTMLElement => !!el);
     if (nodes.length === 0) return;
@@ -64,13 +160,12 @@ export default function Header({ name, initials, links, ctaLabel = "Loyiha muhok
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
         if (visible) setActive(visible.target.id);
       },
-      { rootMargin: "-45% 0px -45% 0px", threshold: [0, 0.25, 0.6] }
+      { rootMargin: "-45% 0px -45% 0px", threshold: [0, 0.25, 0.6] },
     );
     nodes.forEach((n) => io.observe(n));
     return () => io.disconnect();
-  }, [links]);
+  }, [items]);
 
-  // Mobil panel: Escape + fokus boshqaruvi + scroll lokki
   useEffect(() => {
     if (!open) return;
     const prev = document.activeElement as HTMLElement | null;
@@ -92,137 +187,188 @@ export default function Header({ name, initials, links, ctaLabel = "Loyiha muhok
     };
   }, [open]);
 
+  useEffect(() => {
+    if (!moreOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      if (!moreRef.current?.contains(e.target as Node)) setMoreOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMoreOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [moreOpen]);
+
   const go = (id: string) => {
     setOpen(false);
+    setMoreOpen(false);
     const el = document.getElementById(id);
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
-      // Boshqa sahifadamiz (masalan case study) — bosh sahifaning o'sha
-      // bo'limiga yo'naltiramiz.
       router.push(`/#${id}`);
     }
   };
 
-  const navLinks = links.filter((l) => l.id !== "home");
+  const navLinks = items.filter((l) => l.id !== "home");
+  const primary = navLinks.filter((l) => PRIMARY.has(l.id));
+  const extra = navLinks.filter((l) => !PRIMARY.has(l.id));
 
   return (
-    <header
-      className={`site-header fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-300 ${
-        scrolled || open
-          ? "border-b border-line-1 bg-canvas/85 backdrop-blur-xl"
-          : "border-b border-transparent"
-      }`}
-    >
-      <div className="u-container flex items-center justify-between gap-4" style={{ minHeight: "var(--header-h)" }}>
-        <a
-          href="#home"
+    <header className={`site-header${scrolled || open ? " is-solid" : ""}${open ? " is-open" : ""}`}>
+      <div className="site-header__bar">
+        <Link
+          href="/#home"
           onClick={(e) => {
             e.preventDefault();
-            go(links[0]?.id ?? "home");
+            go(items[0]?.id ?? "home");
           }}
-          className="group flex items-center gap-2.5 rounded-2"
+          className="site-header__brand"
+          aria-current={active === "home" ? "page" : undefined}
         >
           {portrait ? (
-            <span className="relative size-9 overflow-hidden rounded-2 ring-1 ring-line-2">
-              <Image src={portrait} alt="" fill sizes="36px" className="object-cover object-top" priority />
+            <span className="site-header__avatar">
+              <Image
+                src={portrait}
+                alt=""
+                fill
+                sizes="32px"
+                className="object-cover object-top"
+                priority
+                unoptimized={portrait.startsWith("/api/media/")}
+              />
             </span>
           ) : (
-            <span className="grid size-9 place-items-center rounded-2 bg-accent font-mono text-[11px] font-bold tracking-tight text-accent-ink">
-              {initials || name.slice(0, 2).toUpperCase()}
+            <span className="site-header__mono">
+              {initials || (typeof name === "string" && name ? name.slice(0, 2) : "MX").toUpperCase()}
             </span>
           )}
-          <span className="display text-[15px] font-semibold tracking-tight">{name}</span>
-        </a>
+          <span className="display site-header__name">
+            {typeof name === "string" && name ? name : "Portfolio"}
+          </span>
+        </Link>
 
-        {/* Desktop nav: lg'da asosiy 5 bo'lim, xl'da hammasi. 9 havolani
-            1024px sig'dirish — matnni siqib yuborardi. */}
-        <nav aria-label="Sahifa bo'limlari" className="hidden items-center gap-0.5 lg:flex">
-          {navLinks.map((l, i) => (
+        <nav aria-label={t(locale, "nav.sections")} className="site-header__nav">
+          {primary.map((l) => (
             <a
               key={l.id}
-              href={`#${l.id}`}
+              href={`/#${l.id}`}
               onClick={(e) => {
                 e.preventDefault();
                 go(l.id);
               }}
-              aria-current={active === l.id ? "true" : undefined}
-              className={`relative h-11 items-center gap-1.5 rounded-2 px-3 text-small font-medium transition-colors ${
-                SECONDARY_SECTIONS.has(l.id) ? "hidden xl:flex" : "flex"
-              } ${active === l.id ? "text-ink-1" : "text-ink-2 hover:text-ink-1"}`}
+              aria-current={active === l.id ? "page" : undefined}
+              className="site-header__link"
             >
-              <span className="font-mono text-micro text-ink-3">{String(i + 1).padStart(2, "0")}</span>
               {l.label}
-              {active === l.id ? (
-                <span className="absolute inset-x-3 -bottom-px h-px bg-accent" aria-hidden />
-              ) : null}
             </a>
           ))}
+          {extra.length > 0 ? (
+            <div className="site-header__more" ref={moreRef}>
+              <button
+                type="button"
+                className="site-header__link site-header__more-btn"
+                aria-expanded={moreOpen ? "true" : "false"}
+                aria-haspopup="true"
+                onClick={() => setMoreOpen((v) => !v)}
+              >
+                {t(locale, "nav.more")}
+                <Icon name="chevron-down" size={12} />
+              </button>
+              {moreOpen ? (
+                <div className="site-header__more-panel" role="menu">
+                  {extra.map((l) => (
+                    <a
+                      key={l.id}
+                      href={`/#${l.id}`}
+                      role="menuitem"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        go(l.id);
+                      }}
+                      aria-current={active === l.id ? "page" : undefined}
+                      className="site-header__more-item"
+                    >
+                      {l.label}
+                    </a>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
         </nav>
 
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          <a href="#contact" onClick={(e) => { e.preventDefault(); go("contact"); }} className="btn btn--accent btn--sm hidden sm:inline-flex">
-            {ctaLabel}
-            <Icon name="arrow-right" size={15} />
-          </a>
+        <div className="site-header__tools">
+          <LocaleSwitch locale={locale} />
+          <ThemeSwitch locale={locale} />
+          <Link
+            href="/#contact"
+            onClick={(e) => {
+              e.preventDefault();
+              go("contact");
+            }}
+            className="btn btn--accent btn--sm site-header__cta"
+          >
+            {cta}
+          </Link>
           <button
             ref={toggleRef}
             type="button"
-            className="icon-btn lg:hidden"
-            aria-label={open ? "Menyuni yopish" : "Menyuni ochish"}
-            aria-expanded={open}
+            className="icon-btn site-header__menu"
+            aria-label={open ? t(locale, "nav.menuClose") : t(locale, "nav.menuOpen")}
+            aria-expanded={open ? "true" : "false"}
             aria-controls="mobile-nav"
             onClick={() => setOpen((v) => !v)}
           >
             <Icon name={open ? "close" : "menu"} size={18} />
           </button>
         </div>
-      </div>
 
-      {open ? (
-        <div
-          id="mobile-nav"
-          ref={panelRef}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Sahifa bo'limlari"
-          className="lg:hidden"
-        >
-          <nav className="hairline-x max-h-[70vh] overflow-y-auto border-t border-line-1 bg-canvas/95 px-[var(--gutter)] py-2 backdrop-blur-xl">
-            {links.map((l, i) => (
-              <a
-                key={l.id}
-                href={`#${l.id}`}
+        {open ? (
+          <div
+            id="mobile-nav"
+            ref={panelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={t(locale, "nav.sections")}
+            className="site-header__sheet"
+          >
+            <nav className="site-header__sheet-nav">
+              {items.map((l) => (
+                <a
+                  key={l.id}
+                  href={`/#${l.id}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    go(l.id);
+                  }}
+                  aria-current={active === l.id ? "page" : undefined}
+                  className="site-header__sheet-link"
+                >
+                  {l.label}
+                  <Icon name="arrow-up-right" size={15} className="text-ink-3" />
+                </a>
+              ))}
+            </nav>
+            <div className="site-header__sheet-foot">
+              <Link
+                href="/#contact"
                 onClick={(e) => {
                   e.preventDefault();
-                  go(l.id);
+                  go("contact");
                 }}
-                aria-current={active === l.id ? "true" : undefined}
-                className="flex min-h-[52px] items-center justify-between gap-4 py-3 text-lead"
+                className="btn btn--accent btn--lg min-w-0 flex-1"
               >
-                <span className="flex items-center gap-3">
-                  <span className="font-mono text-micro text-ink-3">{String(i + 1).padStart(2, "0")}</span>
-                  {l.label}
-                </span>
-                <Icon name="arrow-up-right" size={16} className="text-ink-3" />
-              </a>
-            ))}
-          </nav>
-          <div className="flex gap-2 border-t border-line-1 px-[var(--gutter)] py-4">
-            <a
-              href="#contact"
-              onClick={(e) => {
-                e.preventDefault();
-                go("contact");
-              }}
-              className="btn btn--accent btn--lg flex-1"
-            >
-              {ctaLabel}
-            </a>
+                {cta}
+              </Link>
+            </div>
           </div>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
     </header>
   );
 }

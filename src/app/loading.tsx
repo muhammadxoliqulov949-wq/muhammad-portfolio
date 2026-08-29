@@ -1,10 +1,11 @@
-import { SectionSkeleton } from "@/components/ui/Skeleton";
+import { HeroSkeleton, SectionSkeleton } from "@/components/ui/Skeleton";
+import { getLocale } from "@/lib/i18n";
 
-export default function Loading() {
+export default async function Loading() {
+  const locale = await getLocale();
   return (
-    <div aria-busy="true">
-      <SectionSkeleton />
-      <SectionSkeleton />
+    <div>
+      <HeroSkeleton locale={locale} />
       <SectionSkeleton />
     </div>
   );

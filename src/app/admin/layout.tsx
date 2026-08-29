@@ -43,7 +43,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <header className="sticky top-0 z-40 border-b border-line-1 bg-canvas/92 backdrop-blur-xl">
           <div className="u-container flex flex-wrap items-center justify-between gap-x-6 gap-y-3 py-2">
             <div className="flex min-w-0 items-center gap-4">
-              <Link href="/admin" className="flex shrink-0 items-center gap-2.5 rounded-2">
+              <Link href="/admin/portrait" className="flex shrink-0 items-center gap-2.5 rounded-2">
                 <span className="grid size-8 place-items-center rounded-2 bg-accent font-mono text-micro font-bold text-accent-ink">
                   AD
                 </span>
@@ -79,7 +79,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </main>
 
         <footer className="u-container border-t border-line-1 py-5 text-small text-ink-3">
-          Kontent o&apos;zgarishi bosh sahifaga 1 daqiqa ichida chiqadi (ISR + revalidatePath).
+          Saqlangan o&apos;zgarishlar saytga darhol chiqadi (revalidatePath). Portretni istalgan payt almashtirasiz.
         </footer>
       </div>
     </ToastProvider>

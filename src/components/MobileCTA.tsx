@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import Icon from "./ui/Icon";
 
 /**
  * Mobil uchun yopishqoq CTA (audit P1-14).
  * Aloqa bo'limi ekranga kirganda yo'qoladi — ekranni bekor band qilmaydi.
  */
-export default function MobileCTA({ label = "Loyihangizni muhokama qilish" }: { label?: string }) {
+export default function MobileCTA({ label = "Let's Work Together" }: { label?: string }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -39,10 +40,10 @@ export default function MobileCTA({ label = "Loyihangizni muhokama qilish" }: { 
       }`}
       aria-hidden={!visible}
     >
-      <a href="#contact" tabIndex={visible ? 0 : -1} className="btn btn--accent btn--lg w-full">
-        <Icon name="mail" size={16} />
+      <Link href="/#contact" tabIndex={visible ? 0 : -1} className="btn btn--accent btn--lg w-full">
+        <Icon name="arrow-right" size={16} />
         {label}
-      </a>
+      </Link>
     </div>
   );
 }

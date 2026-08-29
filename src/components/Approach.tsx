@@ -1,56 +1,86 @@
 import SectionHead, { Section } from "./ui/Section";
 import Card from "./ui/Card";
 import Icon from "./ui/Icon";
-import { goalsOf, listFrom, type Profile } from "@/lib/content";
+import { goalsOf, highlightsOf, listFrom, type ExperienceItem, type Profile } from "@/lib/content";
+import { t, tx, txEach, type Locale } from "@/lib/i18n-core";
 
 /**
- * Ish oqimi + rejalar.
- *
- * Bu bo'lim eski "Mijozlar fikri" o'rnida: haqiqiy iqtiboslar bo'lmagani uchun
- * ularni o'ylab topish o'rniga, Muhammadning real ishlash tarzi va hozirgi
- * yoʻnalishi koʻrsatiladi. "Kelgusi 1-2 yil" bloki ataylab ajratilgan —
- * reja natija sifatida o'qilmasligi kerak.
+ * Soxta testimonial o'rniga: odamlar bilan qilingan ish (faqat berilgan raqamlar)
+ * + ish oqimi + kelgusi 1–2 yil (reja, natija emas).
  */
-export default function Approach({ profile: p }: { profile: Profile }) {
-  const steps = listFrom(p.workflow);
-  const goals = goalsOf(p);
-  if (steps.length === 0 && goals.length === 0) return null;
+export default function Approach({
+  profile: p,
+  experience = [],
+  locale = "uz",
+}: {
+  profile: Profile;
+  experience?: ExperienceItem[];
+  locale?: Locale;
+}) {
+  const steps = txEach(locale, listFrom(p.workflow));
+  const goals = txEach(locale, goalsOf(p));
+  const people = experience
+    .map((item) => {
+      const metric = tx(locale, highlightsOf(item.highlights)[0]);
+      if (!metric) return null;
+      return { role: tx(locale, item.role), company: tx(locale, item.company), metric };
+    })
+    .filter((x): x is { role: string; company: string; metric: string } => !!x);
+
+  if (steps.length === 0 && goals.length === 0 && people.length === 0) return null;
 
   return (
     <Section id="approach">
       <SectionHead
         index="08"
-        eyebrow="Ishlash uslubim"
+        eyebrow={t(locale, "approach.eyebrow")}
         title={
           <>
-            AI bilan tez, lekin <span className="display-em">tekshirib</span> yuraman
+            {t(locale, "approach.titleBefore")} {t(locale, "approach.titleEm")}
           </>
         }
-        lead="Har bir loyihada bosqichlar bir xil — shu tufayli „tayyor“ degan soʻzning maʼnosi aniq."
+        lead={t(locale, "approach.lead")}
       />
+
+      {people.length > 0 ? (
+        <ul className="mb-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {people.map((x) => (
+            <li key={x.role}>
+              <Card className="flex h-full flex-col gap-3 p-5" interactive={false}>
+                <p className="display text-display-m leading-none">{x.metric}</p>
+                <p>
+                  <span className="block text-body font-semibold">{x.role}</span>
+                  <span className="block text-small text-ink-3">{x.company}</span>
+                </p>
+              </Card>
+            </li>
+          ))}
+        </ul>
+      ) : null}
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:gap-12">
         {steps.length > 0 ? (
-          <ol className="grid gap-3 sm:grid-cols-2">
-            {steps.map((step, i) => (
-              <li key={step}>
-                <Card className="flex h-full items-start gap-4 p-5" interactive={false}>
-                  <span className="display u-num shrink-0 text-[26px] leading-none text-ink-3">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span className="text-body">{step}</span>
-                </Card>
-              </li>
-            ))}
-          </ol>
+          <div>
+            <p className="label label-accent mb-4">{t(locale, "approach.flow")}</p>
+            <ol className="grid gap-3 sm:grid-cols-2">
+              {steps.map((step, i) => (
+                <li key={step}>
+                  <Card className="flex h-full items-start gap-4 p-5" interactive={false}>
+                    <span className="display u-num shrink-0 text-[26px] leading-none text-ink-3">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="text-body">{step}</span>
+                  </Card>
+                </li>
+              ))}
+            </ol>
+          </div>
         ) : null}
 
         {goals.length > 0 ? (
           <Card className="flex flex-col p-6" interactive={false}>
-            <p className="label label-accent mb-1">Kelgusi 1–2 yil</p>
-            <p className="mb-5 text-small text-ink-3">
-              Bu — <span className="font-medium text-ink-2">reja</span>, bajarilgan ish emas.
-            </p>
+            <p className="label label-accent mb-1">{t(locale, "approach.goals")}</p>
+            <p className="mb-5 text-small text-ink-3">{t(locale, "approach.goalsNote")}</p>
             <ul className="hairline-x stack -my-1">
               {goals.map((g) => (
                 <li key={g} className="flex items-start gap-2.5 py-2.5 text-body">

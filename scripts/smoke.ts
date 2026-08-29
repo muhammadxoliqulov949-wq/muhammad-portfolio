@@ -81,8 +81,14 @@ async function main() {
     "Hero identiteti va bo'limlar mavjud",
     ["Student", "AI Developer", "Kimman", "Aloqa", "Yutuqlar"].every((x) => home.text.includes(x)),
   );
-  ok("Ish oqimi panellari chiqdi", home.text.includes("hero-panels"));
-  ok("Portret freymi (rasm yoki monogram) chiqdi", home.text.includes('<figure class="hero-photo"'));
+  ok(
+    "Hero'da mahsulot yoki portret chiqdi",
+    home.text.includes("hero-product") || home.text.includes("hero-photo"),
+  );
+  ok(
+    "Ish oqimi Approach'da (soxta 3D panel emas)",
+    home.text.includes('id="approach"') && (home.text.includes("Ish oqimim") || home.text.includes("How I work")),
+  );
   ok("Ta'lim bo'limi DB'dan keladi", home.text.includes("International OXUS University"));
   ok("Telefon tel: havolasi bilan", /href="tel:\+998/.test(home.text));
   ok("Soxta mijoz fikri yo'q", !home.text.includes("Mijozlar fikri"));

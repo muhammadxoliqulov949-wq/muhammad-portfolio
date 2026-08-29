@@ -2,25 +2,27 @@ import SectionHead, { Section } from "./ui/Section";
 import Card from "./ui/Card";
 import Icon from "./ui/Icon";
 import type { EducationItem } from "@/lib/content";
+import { t, tx, type Locale } from "@/lib/i18n-core";
 
 /**
  * Ta'lim — fakultativ bo'lim: qator bo'lmasa komponent `null` qaytaradi,
  * shuning uchun bo'sh holat uchun "te"lashtirilgan matn ham kerak emas.
  */
-export default function Education({ items }: { items: EducationItem[] }) {
+export default function Education({ items, locale = "uz" }: { items: EducationItem[]; locale?: Locale }) {
   if (items.length === 0) return null;
 
   return (
     <Section id="education">
       <SectionHead
         index="06"
-        eyebrow="Ta'lim"
+        eyebrow={t(locale, "education.eyebrow")}
         title={
           <>
-            Biznesni <span className="display-em">oʻqib</span>, kodni qurib yuraman
+            {t(locale, "education.titleBefore")} {t(locale, "education.titleEm")}
+            {t(locale, "education.titleAfter")}
           </>
         }
-        lead="Talabaman — shuning uchun bu bo'lim faqat haqiqatni yozadi: qayerda, nimani va qachongacha."
+        lead={t(locale, "education.lead")}
       />
 
       <ol className="grid gap-4 md:grid-cols-2">
@@ -32,14 +34,14 @@ export default function Education({ items }: { items: EducationItem[] }) {
                 {e.current ? (
                   <span className="chip chip--accent">
                     <span className="dot" aria-hidden />
-                    Hozir
+                    {t(locale, "education.now")}
                   </span>
                 ) : null}
               </div>
 
               {(e.credential || e.field) && (
                 <p className="text-body text-ink-2">
-                  {[e.credential, e.field].filter(Boolean).join(" · ")}
+                  {[e.credential, e.field].filter(Boolean).map((x) => tx(locale, x)).join(" · ")}
                 </p>
               )}
 
@@ -54,13 +56,13 @@ export default function Education({ items }: { items: EducationItem[] }) {
                   {e.status ? (
                     <p className="label flex items-center gap-2">
                       <Icon name="check" size={12} />
-                      {e.status}
+                      {tx(locale, e.status)}
                     </p>
                   ) : null}
                 </div>
               )}
 
-              {e.detail ? <p className="text-small text-ink-2">{e.detail}</p> : null}
+              {e.detail ? <p className="text-small text-ink-2">{tx(locale, e.detail)}</p> : null}
             </Card>
           </li>
         ))}

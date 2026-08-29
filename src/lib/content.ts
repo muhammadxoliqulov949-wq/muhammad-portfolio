@@ -3,7 +3,8 @@ import { join } from "node:path";
 import { cache } from "react";
 import { db } from "@/db";
 import { achievements, education, experience, profile, projects, services, skills, testimonials } from "@/db/schema";
-import { asc, eq } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
+import { t, type Locale } from "@/lib/i18n-core";
 
 /**
  * Sayt ma'lumotlarini yuklash — bitta manba.
@@ -83,9 +84,9 @@ export const getSiteData = cache(async function getSiteData(): Promise<SiteData>
       .select()
       .from(projects)
       .where(eq(projects.published, true))
-      .orderBy(asc(projects.featured), asc(projects.order))
+      .orderBy(desc(projects.featured), asc(projects.order))
       .all(),
-    db.select().from(skills).orderBy(asc(skills.category), asc(skills.order)).all(),
+    db.select().from(skills).orderBy(asc(skills.order)).all(),
     db.select().from(services).orderBy(asc(services.order)).all(),
     db.select().from(experience).orderBy(asc(experience.order)).all(),
     db.select().from(testimonials).orderBy(asc(testimonials.order)).all(),
@@ -182,7 +183,7 @@ export type Social = {
   href: string;
 };
 
-export function socialsOf(p: Profile): Social[] {
+export function socialsOf(p: Profile, locale: Locale = "uz"): Social[] {
   const items: Array<Social | null> = [
     p.github && safeHref(p.github) ? { key: "github", label: "GitHub", href: safeHref(p.github) as string } : null,
     p.linkedin && safeHref(p.linkedin)
@@ -193,7 +194,7 @@ export function socialsOf(p: Profile): Social[] {
       : null,
     telegramHref(p.telegram) ? { key: "telegram", label: "Telegram", href: telegramHref(p.telegram) as string } : null,
     p.email ? { key: "email", label: "Email", href: `mailto:${p.email}` } : null,
-    phoneHref(p.phone) ? { key: "phone", label: "Telefon", href: phoneHref(p.phone) as string } : null,
+    phoneHref(p.phone) ? { key: "phone", label: t(locale, "contact.phone"), href: phoneHref(p.phone) as string } : null,
   ];
   return items.filter((x): x is Social => x !== null);
 }
@@ -220,10 +221,11 @@ export const galleryOf = (value?: string | null): string[] =>
 export const techOf = (value?: string | null): string[] => toListSafe(value);
 
 function toListSafe(value?: string | null): string[] {
-  return (value ?? "")
-    .split(/[,\n|]/)
-    .map((s) => s.trim())
-    .filter(Boolean);
+  const raw = (value ?? "").trim();
+  if (!raw) return [];
+  // `|` yoki yangi qator bo'lsa — vergul raqam ichida (`$5,000`) va gap ichida qoladi.
+  const parts = /[|\n]/.test(raw) ? raw.split(/[\n|]/) : raw.split(",");
+  return parts.map((s) => s.trim()).filter(Boolean);
 }
 
 export const featuresOf = (value?: string | null): string[] => toListSafe(value);
@@ -262,17 +264,24 @@ export function achievementsByKind(list: Achievement[]) {
 }
 export const highlightsOf = (value?: string | null): string[] => toListSafe(value);
 
+/** Ichki bo'lim havolasi — `/projects` kabi sahifadan ham bosh sahifaga olib boradi. */
+export function sectionHref(id: string): string {
+  return `/#${id}`;
+}
+
 /** Sahifa uchun navigatsiya (bo'lim mavjud bo'lsagina ko'rsatiladi). */
-export function sectionsOf(data: SiteData) {
+export function sectionsOf(data: SiteData, locale: Locale = "uz") {
+  const hasApproach = Boolean(data.profile.workflow?.trim() || data.profile.goals?.trim());
   return [
-    { id: "home", label: "Bosh sahifa" },
-    { id: "about", label: "Kimman" },
-    { id: "skills", label: "Ko'nikmalar", has: data.skills.length > 0 },
-    { id: "experience", label: "Tajriba", has: data.experience.length > 0 },
-    { id: "work", label: "Loyihalar", has: data.projects.length > 0 },
-    { id: "services", label: "Xizmatlar", has: data.services.length > 0 },
-    { id: "education", label: "Ta'lim", has: data.education.length > 0 },
-    { id: "achievements", label: "Yutuqlar", has: data.achievements.length > 0 },
-    { id: "contact", label: "Aloqa", has: true },
+    { id: "home", label: t(locale, "nav.home") },
+    { id: "about", label: t(locale, "nav.about") },
+    { id: "skills", label: t(locale, "nav.skills"), has: data.skills.length > 0 },
+    { id: "experience", label: t(locale, "nav.experience"), has: data.experience.length > 0 },
+    { id: "work", label: t(locale, "nav.work"), has: data.projects.length > 0 },
+    { id: "services", label: t(locale, "nav.services"), has: data.services.length > 0 },
+    { id: "education", label: t(locale, "nav.education"), has: data.education.length > 0 },
+    { id: "achievements", label: t(locale, "nav.achievements"), has: data.achievements.length > 0 },
+    { id: "approach", label: t(locale, "nav.approach"), has: hasApproach || data.experience.length > 0 },
+    { id: "contact", label: t(locale, "nav.contact"), has: true },
   ].filter((s) => s.has !== false);
 }

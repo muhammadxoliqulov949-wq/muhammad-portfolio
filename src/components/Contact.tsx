@@ -1,9 +1,11 @@
+import { Suspense } from "react";
 import SectionHead from "./ui/Section";
 import Icon, { type IconName } from "./ui/Icon";
 import CopyButton from "./ui/CopyButton";
 import ContactForm from "./ContactForm";
 import Card from "./ui/Card";
 import { phoneHref, safeHref, telegramHref, type Profile } from "@/lib/content";
+import { t, type Locale } from "@/lib/i18n-core";
 
 /**
  * Aloqa bo'limi — saytdagi asosiy konversiya nuqtasi.
@@ -14,7 +16,7 @@ import { phoneHref, safeHref, telegramHref, type Profile } from "@/lib/content";
  * Forma esa DB'ga yozadi (admin panelda ko'rinadi) — bu haqida ataylab
  * "xabaringiz email'ga yuboriladi" deyilmaydi.
  */
-export default function Contact({ profile: p }: { profile: Profile }) {
+export default function Contact({ profile: p, locale = "uz" }: { profile: Profile; locale?: Locale }) {
   const tg = telegramHref(p.telegram);
   const phone = phoneHref(p.phone);
 
@@ -38,7 +40,13 @@ export default function Contact({ profile: p }: { profile: Profile }) {
     });
   }
   if (p.phone && phone) {
-    channels.push({ icon: "phone", label: "Telefon", value: p.phone, href: phone, copy: p.phone });
+    channels.push({
+      icon: "phone",
+      label: t(locale, "contact.phone"),
+      value: p.phone,
+      href: phone,
+      copy: p.phone,
+    });
   }
   if (tg && p.telegram) {
     channels.push({
@@ -78,18 +86,9 @@ export default function Contact({ profile: p }: { profile: Profile }) {
   }
 
   const steps: { title: string; text: string }[] = [
-    {
-      title: "Bir necha jumla yetadi",
-      text: "Loyiha, muammo yoki sayt — nima kerakligini yozing, qolganini birga aniqlaymiz.",
-    },
-    {
-      title: "Aniq javob: qila olaman yoki yo'q",
-      text: "Muddat va narx haqida taxmin emas, hisob-kitob beriladi. Kerak bo'lsa „buni hozircha qilmayman“ ham deyman.",
-    },
-    {
-      title: "Bosqichma-bosqich topshirish",
-      text: "Ishlaydigan versiyani ko'rsatib boraman; oxirida kod, deploy va tushuntirish sizda qoladi.",
-    },
+    { title: t(locale, "contact.step1t"), text: t(locale, "contact.step1") },
+    { title: t(locale, "contact.step2t"), text: t(locale, "contact.step2") },
+    { title: t(locale, "contact.step3t"), text: t(locale, "contact.step3") },
   ];
 
   return (
@@ -97,18 +96,18 @@ export default function Contact({ profile: p }: { profile: Profile }) {
       <div className="u-container">
         <SectionHead
           index="09"
-          eyebrow="Aloqa"
+          eyebrow={t(locale, "contact.eyebrow")}
           title={
             <>
-              Keling, <span className="display-em">birga ishlaymiz</span>
+              {t(locale, "contact.titleBefore")} <span className="display-em">{t(locale, "contact.titleEm")}</span>
             </>
           }
-          lead="Bitta aniq g'oya yoki bitta aniq muammo — istalganini yozing. Javob berishdan oldin uni o'qib chiqaman."
+          lead={t(locale, "contact.lead")}
           action={
             tg ? (
               <a href={tg} target="_blank" rel="noopener noreferrer" className="btn btn--accent">
                 <Icon name="telegram" size={16} />
-                Telegramda yozish
+                {t(locale, "contact.tg")}
               </a>
             ) : null
           }
@@ -140,23 +139,22 @@ export default function Contact({ profile: p }: { profile: Profile }) {
                         )}
                       </span>
                     </span>
-                    {c.copy ? <CopyButton value={c.copy} label={`${c.label} — nusxa olish`} /> : null}
+                    {c.copy ? <CopyButton value={c.copy} label={`${c.label} — ${t(locale, "contact.copy")}`} /> : null}
                   </li>
                 ))}
               </ul>
             ) : null}
 
-            {/* Ixtiro qilmagan faktlar — admin panelda to'ldirilsagina chiqadi. */}
             <div className="flex flex-wrap gap-x-6 gap-y-2 text-small text-ink-2">
               {p.englishLevel ? (
                 <span className="flex items-center gap-2">
                   <Icon name="sparkle" size={14} className="text-ink-3" />
-                  Ingliz tili — {p.englishLevel} (amaliy: hujjat oʻqish va yozma muloqot)
+                  {t(locale, "contact.english").replace("{level}", p.englishLevel)}
                 </span>
               ) : null}
               <span className="flex items-center gap-2">
                 <Icon name="clock" size={14} className="text-ink-3" />
-                Toshkent vaqti (UTC+5)
+                {t(locale, "contact.tz")}
               </span>
             </div>
 
@@ -176,22 +174,17 @@ export default function Contact({ profile: p }: { profile: Profile }) {
 
             <Card className="flex items-start gap-3 !rounded-3 p-4" interactive={false}>
               <Icon name="shield" size={16} className="mt-0.5 shrink-0 text-accent-text" />
-              <p className="text-small text-ink-2">
-                Kod, repository va deploy — ish tugaganda sizga beriladi. Hech narsa
-                qulflab qoʻyilmaydi; keyin oʻzingiz ham davom ettira olasiz.
-              </p>
+              <p className="text-small text-ink-2">{t(locale, "contact.lock")}</p>
             </Card>
           </div>
 
           <div className="reveal">
             <Card className="p-6 md:p-8" interactive={false}>
-              <h3 className="display text-title mb-1 font-semibold">Xabar qoldiring</h3>
-              <p className="mb-6 text-small text-ink-2">
-                Bu forma xabaringizni sayt maʼlumotlar bazasiga saqlaydi — men uni admin
-                panelda koʻraman va email yoki Telegram orqali javob yozaman. Tez
-                javob kerak boʻlsa: Telegram.
-              </p>
-              <ContactForm successNote="Yozildi. Telegram yoki email orqali javob beraman." />
+              <h3 className="display text-title mb-1 font-semibold">{t(locale, "contact.formTitle")}</h3>
+              <p className="mb-6 text-small text-ink-2">{t(locale, "contact.formLead")}</p>
+              <Suspense fallback={null}>
+                <ContactForm locale={locale} successNote={t(locale, "contact.success")} />
+              </Suspense>
             </Card>
           </div>
         </div>

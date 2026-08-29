@@ -44,7 +44,7 @@ export default function Marquee({ names }: { names: string[] }) {
           type="button"
           onClick={() => setPaused((v) => !v)}
           aria-pressed={paused}
-          className="icon-btn !size-9 shrink-0"
+          className="icon-btn shrink-0"
           aria-label={paused ? "Lentani davom ettirish" : "Lentani to'xtatish"}
           title={paused ? "Davom ettirish" : "To'xtatish"}
         >
