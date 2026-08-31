@@ -46,62 +46,53 @@ function applyTheme(next: Theme) {
 
 /** Hook yo'q — server va client bir xil daraxt. aria-busy yo'q. */
 function LocaleSwitch({ locale }: { locale: Locale }) {
-  function choose(next: Locale) {
-    if (next === locale) return;
+  const router = useRouter();
+
+  async function cycle() {
+    const next = LOCALES[(LOCALES.indexOf(locale) + 1) % LOCALES.length];
     try {
       localStorage.setItem("locale", next);
     } catch {
       /* private */
     }
-    void setLocale(next);
+    await setLocale(next);
     const url = new URL(window.location.href);
     url.searchParams.set("lang", next);
-    window.location.assign(url.pathname + url.search + url.hash);
+    router.replace(`${url.pathname}${url.search}${url.hash}`, { scroll: false });
   }
 
   return (
-    <div className="lang-switch" role="group" aria-label={t(locale, "lang.aria")}>
-      {LOCALES.map((id) => (
-        <button
-          key={id}
-          type="button"
-          className="lang-switch__btn"
-          aria-pressed={locale === id ? "true" : "false"}
-          aria-label={LOCALE_META[id].name}
-          onClick={() => choose(id)}
-        >
-          {LOCALE_META[id].label}
-        </button>
-      ))}
-    </div>
+    <button
+      type="button"
+      className="lang-switch lang-switch__btn"
+      aria-label={`${t(locale, "lang.aria")}: ${LOCALE_META[locale].name}`}
+      title={LOCALE_META[locale].name}
+      onClick={() => void cycle()}
+    >
+      {LOCALE_META[locale].label}
+    </button>
   );
 }
 
 /** Hook/state yo'q — tanlangan holat html[data-theme] CSS. */
 function ThemeSwitch({ locale }: { locale: Locale }) {
   return (
-    <div className="theme-switch" role="group" aria-label={t(locale, "theme.group")}>
-      <button
-        type="button"
-        className="theme-switch__btn"
-        data-theme-set="dark"
-        aria-label={t(locale, "theme.darkAria")}
-        onClick={() => applyTheme("dark")}
-      >
-        <Icon name="moon" size={13} />
-        <span className="theme-switch__label">{t(locale, "theme.dark")}</span>
-      </button>
-      <button
-        type="button"
-        className="theme-switch__btn"
-        data-theme-set="light"
-        aria-label={t(locale, "theme.lightAria")}
-        onClick={() => applyTheme("light")}
-      >
-        <Icon name="sun" size={13} />
-        <span className="theme-switch__label">{t(locale, "theme.light")}</span>
-      </button>
-    </div>
+    <button
+      type="button"
+      className="theme-switch theme-switch__btn"
+      aria-label={t(locale, "theme.group")}
+      onClick={() => {
+        const cur = document.documentElement.getAttribute("data-theme");
+        applyTheme(cur === "light" ? "dark" : "light");
+      }}
+    >
+      <span className="theme-switch__moon">
+        <Icon name="moon" size={11} />
+      </span>
+      <span className="theme-switch__sun">
+        <Icon name="sun" size={11} />
+      </span>
+    </button>
   );
 }
 
@@ -324,7 +315,7 @@ export default function Header({
             aria-controls="mobile-nav"
             onClick={() => setOpen((v) => !v)}
           >
-            <Icon name={open ? "close" : "menu"} size={18} />
+            <Icon name={open ? "close" : "menu"} size={13} />
           </button>
         </div>
 

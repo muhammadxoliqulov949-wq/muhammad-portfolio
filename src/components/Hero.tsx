@@ -60,7 +60,7 @@ export default function Hero({ profile: p, study, locale = "uz", featured }: Pro
   ].filter((x): x is { icon: "pin" | "gauge" | "sparkle"; text: string } => !!x);
 
   return (
-    <section id="home" className="u-hero-lines relative overflow-clip pt-28 pb-[var(--section-y)] md:pt-36">
+    <section id="home" className="u-hero-lines relative overflow-x-clip pt-28 pb-[var(--section-y)] md:pt-36">
       <div className="u-container">
         <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.95fr)] lg:gap-14 xl:gap-20">
           <div className="reveal min-w-0">

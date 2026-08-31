@@ -21,9 +21,7 @@ const nextConfig: NextConfig = {
   },
 
   experimental: {
-    // Birinchi bo'yoqda CSS'ni inline qilish — FOUC'ni kesadi (1 sahifalik
-    // sayt uchun arzon va sezilarli yaxshilanish).
-    inlineCss: true,
+    inlineCss: false,
   },
 };
 
