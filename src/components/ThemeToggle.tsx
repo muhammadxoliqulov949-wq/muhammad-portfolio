@@ -23,34 +23,24 @@ function applyTheme(next: Theme) {
   window.dispatchEvent(new CustomEvent("themechange", { detail: next }));
 }
 
-/**
- * Tanlangan holat html[data-theme] orqali CSS'da — React state yo'q.
- * Bootstrap skripti hydrationdan oldin data-theme qo'yadi, shuning uchun
- * server va client bir xil tugma daraxtini chizadi (hydration mismatch yo'q).
- */
+/** Bitta tugma: tun ↔ kun. */
 export default function ThemeToggle({ locale = "uz" }: { locale?: Locale }) {
   return (
-    <div className="theme-switch" role="group" aria-label={t(locale, "theme.group")}>
-      <button
-        type="button"
-        className="theme-switch__btn"
-        data-theme-set="dark"
-        aria-label={t(locale, "theme.darkAria")}
-        onClick={() => applyTheme("dark")}
-      >
-        <Icon name="moon" size={13} />
-        <span className="theme-switch__label">{t(locale, "theme.dark")}</span>
-      </button>
-      <button
-        type="button"
-        className="theme-switch__btn"
-        data-theme-set="light"
-        aria-label={t(locale, "theme.lightAria")}
-        onClick={() => applyTheme("light")}
-      >
-        <Icon name="sun" size={13} />
-        <span className="theme-switch__label">{t(locale, "theme.light")}</span>
-      </button>
-    </div>
+    <button
+      type="button"
+      className="theme-switch theme-switch__btn"
+      aria-label={t(locale, "theme.group")}
+      onClick={() => {
+        const cur = document.documentElement.getAttribute("data-theme");
+        applyTheme(cur === "light" ? "dark" : "light");
+      }}
+    >
+      <span className="theme-switch__moon">
+        <Icon name="moon" size={14} />
+      </span>
+      <span className="theme-switch__sun">
+        <Icon name="sun" size={14} />
+      </span>
+    </button>
   );
 }

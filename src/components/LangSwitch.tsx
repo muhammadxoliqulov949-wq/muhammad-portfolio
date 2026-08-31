@@ -1,45 +1,35 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { LOCALE_META, LOCALES, t, type Locale } from "@/lib/i18n-core";
 import { setLocale } from "@/lib/set-locale";
 
-/**
- * UZ / EN / RU — Tun/Kun oldida.
- * To'liq hujjat navigatsiyasi: App Router layout'i searchParams o'zgarganda
- * qayta chizilmaydi, shuning uchun soft refresh tilni yangilamaydi.
- */
+/** Bitta tugma: UZ → EN → RU, sahifa qayta yuklanmasdan. */
 export default function LangSwitch({ locale }: { locale: Locale }) {
-  const pathname = usePathname() || "/";
+  const router = useRouter();
 
-  function choose(next: Locale) {
-    if (next === locale) return;
+  async function cycle() {
+    const next = LOCALES[(LOCALES.indexOf(locale) + 1) % LOCALES.length];
     try {
       localStorage.setItem("locale", next);
     } catch {
       /* private */
     }
-    void setLocale(next);
+    await setLocale(next);
     const url = new URL(window.location.href);
-    url.pathname = pathname;
     url.searchParams.set("lang", next);
-    window.location.assign(url.pathname + url.search + url.hash);
+    router.replace(`${url.pathname}${url.search}${url.hash}`, { scroll: false });
   }
 
   return (
-    <div className="lang-switch" role="group" aria-label={t(locale, "lang.aria")}>
-      {LOCALES.map((id) => (
-        <button
-          key={id}
-          type="button"
-          className="lang-switch__btn"
-          aria-pressed={locale === id ? "true" : "false"}
-          aria-label={LOCALE_META[id].name}
-          onClick={() => choose(id)}
-        >
-          {LOCALE_META[id].label}
-        </button>
-      ))}
-    </div>
+    <button
+      type="button"
+      className="lang-switch lang-switch__btn"
+      aria-label={`${t(locale, "lang.aria")}: ${LOCALE_META[locale].name}`}
+      title={LOCALE_META[locale].name}
+      onClick={() => void cycle()}
+    >
+      {LOCALE_META[locale].label}
+    </button>
   );
 }
