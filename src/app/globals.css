@@ -1549,6 +1549,120 @@ textarea.input {
 @media (prefers-reduced-motion: reduce) {
   .builder-desk-frame * { animation: none !important; transition: none !important; }
 }
+
+/* ── AI Builder's Desk: native-scroll story rail ─────────────────────── */
+.builder-story {
+  position: relative;
+  isolation: isolate;
+}
+.builder-story__content {
+  position: relative;
+  z-index: 1;
+}
+.builder-story__visual {
+  pointer-events: none;
+  position: sticky;
+  z-index: 0;
+  top: 14vh;
+  float: right;
+  width: min(42vw, 39rem);
+  height: 0;
+  margin-right: max(1.25rem, calc((100vw - var(--container)) / 2));
+}
+.builder-story__frame {
+  position: relative;
+  height: min(68vh, 39rem);
+  min-height: 28rem;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--c-line-1) 78%, transparent);
+  border-radius: var(--r-4);
+  background: color-mix(in srgb, var(--c-surface-1) 84%, transparent);
+  box-shadow: var(--sh-2);
+}
+.builder-story__canvas,
+.builder-story__frame > div:has(> canvas) {
+  position: absolute !important;
+  inset: 0;
+  z-index: 2;
+}
+.builder-story__status {
+  position: absolute;
+  z-index: 4;
+  inset: auto 1rem 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-family: var(--font-mono), monospace;
+  font-size: var(--text-micro);
+  letter-spacing: 0.13em;
+  color: var(--c-ink-3);
+}
+.builder-story__status span:last-child { color: var(--c-accent-text); }
+.builder-story-poster {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  background:
+    linear-gradient(var(--c-line-1) 1px, transparent 1px),
+    linear-gradient(90deg, var(--c-line-1) 1px, transparent 1px),
+    radial-gradient(circle at 62% 46%, var(--c-accent-soft), transparent 34%);
+  background-size: 3.2rem 3.2rem, 3.2rem 3.2rem, auto;
+}
+.builder-story-poster__seed,
+.builder-story-poster__panel,
+.builder-story-poster__scan,
+.builder-story-poster__ring { position: absolute; display: block; transition: transform 380ms var(--ease), opacity 260ms var(--ease); }
+.builder-story-poster__seed { width: 1.4rem; aspect-ratio: 1; left: 18%; top: 54%; rotate: 45deg; border-radius: 0.3rem; background: var(--c-accent); box-shadow: 0 0 2rem var(--c-accent-soft); }
+.builder-story-poster__panel { width: 48%; height: 27%; right: 12%; top: 20%; border: 1px solid var(--c-line-2); border-radius: var(--r-3); background: var(--c-surface-1); box-shadow: var(--sh-1); }
+.builder-story-poster__panel--two { translate: -8% 70%; opacity: 0.72; }
+.builder-story-poster__scan { width: 2px; height: 45%; left: 48%; top: 28%; background: var(--c-accent); opacity: 0.75; }
+.builder-story-poster__ring { width: 7rem; aspect-ratio: 1; right: 12%; bottom: 17%; border: 0.45rem solid var(--c-accent); border-left-color: transparent; border-radius: 50%; }
+.builder-story[data-stage="0"] .builder-story-poster__scan,
+.builder-story[data-stage="0"] .builder-story-poster__ring { opacity: 0.12; transform: scale(0.6); }
+.builder-story[data-stage="1"] .builder-story-poster__panel { transform: translate3d(-10%, 12%, 0) rotate(-4deg); }
+.builder-story[data-stage="2"] .builder-story-poster__scan { transform: translateX(8rem); }
+.builder-story[data-stage="3"] .builder-story-poster__ring { transform: scale(1.08) rotate(80deg); }
+
+@media (min-width: 64rem) {
+  .builder-story__content > section .section-head {
+    max-width: none;
+    min-height: min(55vh, 31rem);
+    padding-right: min(44vw, 42rem);
+    align-content: center;
+  }
+  .builder-story__content > #work .section-head { min-height: min(62vh, 36rem); }
+  .builder-story__content > section > .u-container,
+  .builder-story__content > .u-section > .u-container { position: relative; }
+  .builder-story__content .card { background: color-mix(in srgb, var(--c-surface-1) 94%, transparent); }
+}
+
+@media (max-width: 63.999rem) {
+  .builder-story__visual {
+    float: none;
+    top: 5.5rem;
+    width: calc(100% - 2rem);
+    margin: 0 1rem;
+  }
+  .builder-story__frame { height: 20rem; min-height: 20rem; opacity: 0.27; }
+  .builder-story__content { margin-top: 0; }
+}
+
+@media (max-width: 47.999rem) {
+  .builder-story__visual {
+    top: 5rem;
+    width: calc(100% - 2rem);
+  }
+  .builder-story__frame { height: 15rem; min-height: 15rem; opacity: 0.2; }
+  .builder-story__status { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .builder-story__visual { position: absolute; top: 1.5rem; }
+  .builder-story__frame { opacity: 0.16; }
+  .builder-story__frame * { animation: none !important; transition: none !important; }
+}
 @media (prefers-reduced-motion: reduce) {
   .hero-product {
     transform: none;

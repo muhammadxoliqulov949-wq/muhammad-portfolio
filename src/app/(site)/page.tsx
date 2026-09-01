@@ -9,6 +9,7 @@ import Education from "@/components/Education";
 import Achievements from "@/components/Achievements";
 import Approach from "@/components/Approach";
 import Contact from "@/components/Contact";
+import BuilderDeskStory from "@/components/builder-desk/BuilderDeskStory";
 import { getSiteData } from "@/lib/content";
 import { getLocale, t, tx } from "@/lib/i18n";
 
@@ -40,10 +41,12 @@ export default async function HomePage() {
         }
       />
 
-      <About profile={profile} locale={locale} />
-      <Skills skills={skills} locale={locale} />
-      <Experience items={experience} profile={profile} locale={locale} />
-      <Projects projects={projects} locale={locale} />
+      <BuilderDeskStory>
+        <About profile={profile} locale={locale} />
+        <Skills skills={skills} locale={locale} />
+        <Experience items={experience} profile={profile} locale={locale} />
+        <Projects projects={projects} locale={locale} />
+      </BuilderDeskStory>
 
       {services.length > 0 ? (
         <Section id="services" sunken>
