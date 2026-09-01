@@ -33,7 +33,6 @@ export default async function HomePage() {
       <Hero
         profile={profile}
         locale={locale}
-        featured={projects[0]}
         study={
           study
             ? `${tx(locale, study.status || "Talaba")} · ${study.institution}`
