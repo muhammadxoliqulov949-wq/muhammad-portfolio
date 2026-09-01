@@ -2,7 +2,11 @@
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Component, type ReactNode, useEffect, useMemo, useRef } from "react";
-import * as THREE from "three";
+import {
+  ACESFilmicToneMapping,
+  SRGBColorSpace,
+  type Group,
+} from "three";
 
 type Props = {
   theme: "light" | "dark";
@@ -29,7 +33,7 @@ function CameraRig({ enabled }: { enabled: boolean }) {
 }
 
 function DeskScene({ theme, quality }: Omit<Props, "onFailure">) {
-  const group = useRef<THREE.Group>(null);
+  const group = useRef<Group>(null);
   const { invalidate } = useThree();
   const dark = theme === "dark";
   const mobile = quality === "mobile";
@@ -138,8 +142,8 @@ export default function BuilderDeskScene({ theme, quality, onFailure }: Props) {
         camera={{ position: [0, 5.6, 7.8], fov: 39, near: 0.1, far: 30 }}
         gl={{ antialias: quality === "desktop", alpha: false, powerPreference: "high-performance" }}
         onCreated={({ gl }) => {
-          gl.outputColorSpace = THREE.SRGBColorSpace;
-          gl.toneMapping = THREE.ACESFilmicToneMapping;
+          gl.outputColorSpace = SRGBColorSpace;
+          gl.toneMapping = ACESFilmicToneMapping;
           gl.toneMappingExposure = theme === "dark" ? 1.05 : 0.94;
         }}
       >
