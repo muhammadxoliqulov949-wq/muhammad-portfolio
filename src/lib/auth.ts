@@ -4,10 +4,9 @@ import { and, eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { db } from "@/db";
 import { admins } from "@/db/schema";
+import { getAuthSecret } from "@/lib/env";
 
-const SECRET = new TextEncoder().encode(
-  process.env.AUTH_SECRET || "dev-secret-change-this-in-production-please"
-);
+const SECRET = getAuthSecret();
 const COOKIE_NAME = "portfolio_admin_session";
 const SESSION_DURATION = 60 * 60 * 24 * 7; // 7 kun
 

@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { profile } from "@/db/schema";
 import { profileSchema, fieldErrors } from "@/lib/schemas";
 import { requireAdmin } from "@/lib/security";
+import { invalidateSiteData } from "@/lib/content";
 
 /** GET /api/profile — ochiq (saytda allaqachon ko'rinadigan ma'lumot). */
 export async function GET() {
@@ -36,6 +37,7 @@ export async function PUT(req: NextRequest) {
     await db.insert(profile).values({ ...parsed.data, updatedAt: now }).run();
   }
 
+  invalidateSiteData();
   revalidatePath("/", "layout");
   revalidatePath("/projects", "layout");
   const updated = await db.select().from(profile).get();

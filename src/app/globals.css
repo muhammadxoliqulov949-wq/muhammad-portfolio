@@ -1,3 +1,12 @@
+/*
+ * Fontsource CSS supplies unicode-range declarations, so browsers fetch only
+ * the script/style actually used instead of preloading every subset. Fraunces
+ * keeps its full axes (including SOFT/WONK) to preserve the current identity.
+ */
+@import "@fontsource-variable/fraunces/full.css";
+@import "@fontsource-variable/fraunces/full-italic.css";
+@import "@fontsource-variable/inter/index.css";
+@import "@fontsource-variable/jetbrains-mono/index.css";
 @import "tailwindcss";
 
 /* =========================================================================
@@ -44,9 +53,9 @@
   --color-warn: var(--c-warn);
 
   /* Shriftlar */
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: var(--font-fraunces), "Iowan Old Style", Georgia, "Times New Roman", serif;
-  --font-mono: var(--font-jetbrains), ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Fraunces Variable", "Iowan Old Style", Georgia, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, "SFMono-Regular", Menlo, monospace;
 
   /* Matn massvasi (fluid) — audit P1-9: bitta massva, subpixel yo'q */
   --text-micro: 0.6875rem;

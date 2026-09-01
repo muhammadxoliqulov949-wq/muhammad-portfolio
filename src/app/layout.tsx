@@ -1,71 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import localFont from "next/font/local";
 import Script from "next/script";
 import "./globals.css";
 import { getSiteData, phoneHref, socialsOf } from "@/lib/content";
 import { getLocale, LOCALE_META, t } from "@/lib/i18n";
-
-/**
- * Shriftlar — audit P1-9: 9 ta static woff2 o'rniga 3 ta VARIABLE fayl.
- *   · Fraunces (display) — SOFT/WONK o'qlari bilan identitet beradi
- *   · Inter (UI/matn)
- *   · JetBrains Mono (leblar, sonlar, tex-log)
- */
-const display = localFont({
-  src: [
-    {
-      path: "../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-full-normal.woff2",
-      weight: "100 900",
-      style: "normal",
-    },
-    {
-      path: "../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-ext-full-normal.woff2",
-      weight: "100 900",
-      style: "normal",
-    },
-    {
-      path: "../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-full-italic.woff2",
-      weight: "100 900",
-      style: "italic",
-    },
-    {
-      path: "../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-ext-full-italic.woff2",
-      weight: "100 900",
-      style: "italic",
-    },
-  ],
-  variable: "--font-fraunces",
-  display: "swap",
-});
-
-const sans = localFont({
-  src: [
-    {
-      path: "../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2",
-      weight: "100 900",
-      style: "normal",
-    },
-    {
-      path: "../../node_modules/@fontsource-variable/inter/files/inter-latin-ext-wght-normal.woff2",
-      weight: "100 900",
-      style: "normal",
-    },
-    {
-      path: "../../node_modules/@fontsource-variable/inter/files/inter-cyrillic-wght-normal.woff2",
-      weight: "100 900",
-      style: "normal",
-    },
-  ],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const mono = localFont({
-  src: "../../node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2",
-  weight: "100 800",
-  variable: "--font-jetbrains",
-  display: "swap",
-});
 
 /** Til cookie har so'rovda o'qilishi kerak — static HTML tilni qamab qo'ymasin. */
 export const dynamic = "force-dynamic";
@@ -168,7 +105,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html
       lang={LOCALE_META[locale].html}
-      className={`${display.variable} ${sans.variable} ${mono.variable} h-full antialiased`}
+      className="h-full antialiased"
       suppressHydrationWarning
     >
       <head>

@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/security";
 import { fieldErrors } from "@/lib/schemas";
 import { asc, desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { invalidateSiteData } from "@/lib/content";
 import type { AnySQLiteColumn, SQLiteTable } from "drizzle-orm/sqlite-core";
 import type { z } from "zod";
 
@@ -37,6 +38,7 @@ const idOf = (raw: string): number | null => {
 };
 
 function revalidate(cfg: CollectionConfig) {
+  invalidateSiteData();
   for (const p of cfg.revalidatePaths ?? ["/"]) {
     revalidatePath(p, p.includes("[") ? "page" : "layout");
   }
