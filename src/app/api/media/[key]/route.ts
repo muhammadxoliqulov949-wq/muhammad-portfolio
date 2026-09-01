@@ -12,6 +12,7 @@ import {
   processImage,
 } from "@/lib/media";
 import { clientIp, rateLimit, requireAdmin, tooMany } from "@/lib/security";
+import { invalidateSiteData } from "@/lib/content";
 
 /**
  * /api/media/[key] — sayt rasmlari.
@@ -132,6 +133,7 @@ export async function POST(req: NextRequest, ctx: Ctx) {
     photoPointer = "skipped";
   }
 
+  invalidateSiteData();
   revalidatePath("/", "layout");
   revalidatePath("/");
 
@@ -172,6 +174,7 @@ export async function DELETE(req: NextRequest, ctx: Ctx) {
     }
   }
 
+  invalidateSiteData();
   revalidatePath("/", "layout");
   revalidatePath("/");
   return NextResponse.json({ ok: true });

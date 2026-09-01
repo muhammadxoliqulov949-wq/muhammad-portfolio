@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { cache } from "react";
+import { revalidateTag, unstable_cache } from "next/cache";
 import { db } from "@/db";
 import { achievements, education, experience, profile, projects, services, skills, testimonials } from "@/db/schema";
 import { asc, desc, eq } from "drizzle-orm";
@@ -26,6 +27,8 @@ export type ExperienceItem = typeof experience.$inferSelect;
 export type Testimonial = typeof testimonials.$inferSelect;
 export type EducationItem = typeof education.$inferSelect;
 export type Achievement = typeof achievements.$inferSelect;
+
+export const SITE_DATA_TAG = "portfolio-site-data";
 
 export const EMPTY_PROFILE: Profile = {
   id: 0,
@@ -76,7 +79,7 @@ export type SiteData = {
  * Barcha ochiq kontentni bitta parallell so'rov to'plamida oladi.
  * `cache()` — bir HTTP so'rovi ichida layout va sahifa bir marta o'qiydi.
  */
-export const getSiteData = cache(async function getSiteData(): Promise<SiteData> {
+const readSiteData = unstable_cache(async function readSiteData(): Promise<SiteData> {
   const [p, projectList, skillList, serviceList, experienceList, testimonialList, educationList, achievementList] =
     await Promise.all([
     db.select().from(profile).get(),
@@ -104,24 +107,38 @@ export const getSiteData = cache(async function getSiteData(): Promise<SiteData>
     education: educationList,
     achievements: achievementList,
   };
-});
+}, ["portfolio-site-data-v1"], { revalidate: 3600, tags: [SITE_DATA_TAG] });
+
+/** Request dedupe over the shared one-hour data cache. */
+export const getSiteData = cache(readSiteData);
 
 /**
  * Bitta loyihani o'qish. `cache()` — Request memoization: bitta so'rovda
  * `generateMetadata` va sahifaning o'zi bir xil id bilan ikki marta so'rasa,
  * DB'ga bitta so'rov ketadi.
  */
-export const getProjectById = cache((id: number): Promise<Project | undefined> =>
-  db.select().from(projects).where(eq(projects.id, id)).get()
+const readProjectById = unstable_cache(
+  (id: number): Promise<Project | undefined> => db.select().from(projects).where(eq(projects.id, id)).get(),
+  ["portfolio-project-by-id-v1"],
+  { revalidate: 3600, tags: [SITE_DATA_TAG] },
 );
 
-export function getPublishedProjectIds(): Promise<{ id: number }[]> {
+export const getProjectById = cache(readProjectById);
+
+const readPublishedProjectIds = unstable_cache(async (): Promise<{ id: number }[]> => {
   return db
     .select({ id: projects.id })
     .from(projects)
     .where(eq(projects.published, true))
     .orderBy(asc(projects.order))
     .all();
+}, ["portfolio-published-project-ids-v1"], { revalidate: 3600, tags: [SITE_DATA_TAG] });
+
+export const getPublishedProjectIds = cache(readPublishedProjectIds);
+
+/** Admin/API mutations invalidate shared DB reads immediately. */
+export function invalidateSiteData() {
+  revalidateTag(SITE_DATA_TAG, { expire: 0 });
 }
 
 /* ------------------------------------------------------------------ *

@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import { LOCALE_COOKIE, parseLocale } from "@/lib/i18n-core";
+import { getAuthSecret } from "@/lib/env";
 
-const SECRET = new TextEncoder().encode(
-  process.env.AUTH_SECRET || "dev-secret-change-this-in-production-please"
-);
+const SECRET = getAuthSecret();
 const COOKIE_NAME = "portfolio_admin_session";
 
 export async function proxy(req: NextRequest) {
