@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 
 const BuilderDeskStoryScene = dynamic(() => import("./BuilderDeskStoryScene"), {
@@ -12,10 +13,12 @@ type Theme = "light" | "dark";
 type Quality = "desktop" | "mobile" | "fallback";
 
 const STAGES = [
+  { id: "home", label: "IDEA" },
   { id: "about", label: "PROTOTYPE" },
   { id: "skills", label: "CODE REVIEW" },
   { id: "experience", label: "TESTING" },
-  { id: "work", label: "DEPLOY → REAL" },
+  { id: "work", label: "DEPLOYMENT" },
+  { id: "work", label: "REAL PROJECT" },
 ] as const;
 
 function currentTheme(): Theme {
@@ -50,7 +53,7 @@ function StoryPoster({ stage }: { stage: number }) {
   );
 }
 
-export default function BuilderDeskStory({ children }: { children: ReactNode }) {
+export default function BuilderDeskStory({ children, projectImage }: { children: ReactNode; projectImage?: string | null }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<number | null>(null);
   const [theme, setTheme] = useState<Theme>("dark");
@@ -81,7 +84,7 @@ export default function BuilderDeskStory({ children }: { children: ReactNode }) 
       frameRef.current = null;
       if (!rootRef.current || document.hidden) return;
       const viewportAnchor = window.innerHeight * 0.48;
-      const nodes = STAGES.map(({ id }) => document.getElementById(id)).filter((node): node is HTMLElement => Boolean(node));
+      const nodes = STAGES.slice(0, 5).map(({ id }) => document.getElementById(id)).filter((node): node is HTMLElement => Boolean(node));
       if (nodes.length === 0) return;
 
       let next = 0;
@@ -91,7 +94,7 @@ export default function BuilderDeskStory({ children }: { children: ReactNode }) 
         if (current.top <= viewportAnchor) {
           const end = following?.top ?? current.bottom;
           const distance = Math.max(end - current.top, 1);
-          next = Math.min(index + Math.max(0, Math.min(1, (viewportAnchor - current.top) / distance)), STAGES.length);
+          next = Math.min(index + Math.max(0, Math.min(1, (viewportAnchor - current.top) / distance)), STAGES.length - 1);
         }
       }
       setStage((previous) => Math.abs(previous - next) > 0.004 ? next : previous);
@@ -121,7 +124,7 @@ export default function BuilderDeskStory({ children }: { children: ReactNode }) 
   }, []);
 
   const renderScene = ready && visible && quality !== "fallback";
-  const stageIndex = Math.min(Math.floor(stage), STAGES.length - 1);
+  const stageIndex = Math.min(Math.floor(stage + 0.08), STAGES.length - 1);
 
   return (
     <div
@@ -141,6 +144,11 @@ export default function BuilderDeskStory({ children }: { children: ReactNode }) 
               stage={stage}
               onFailure={() => setQuality("fallback")}
             />
+          ) : null}
+          {projectImage && stage > 3.55 ? (
+            <div className="builder-story__project-reveal" data-visible={stage > 4.35}>
+              <Image src={projectImage} alt="" fill sizes="(min-width: 64rem) 48vw, 88vw" className="object-cover object-top" />
+            </div>
           ) : null}
           <div className="builder-story__status">
             <span>{String(stageIndex + 2).padStart(2, "0")}</span>

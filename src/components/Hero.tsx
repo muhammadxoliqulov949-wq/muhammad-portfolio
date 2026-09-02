@@ -1,6 +1,5 @@
 import Icon from "./ui/Icon";
 import CopyButton from "./ui/CopyButton";
-import BuilderDesk from "./builder-desk/BuilderDesk";
 import {
   rolesOf,
   safeHref,
@@ -44,8 +43,8 @@ export default function Hero({ profile: p, study, locale = "uz" }: Props) {
   return (
     <section id="home" className="u-hero-lines relative overflow-x-clip pt-28 pb-[var(--section-y)] md:pt-36">
       <div className="u-container">
-        <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.95fr)] lg:gap-14 xl:gap-20">
-          <div className="reveal min-w-0">
+        <div className="builder-story-hero-grid grid items-center gap-10 lg:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)] lg:gap-14 xl:gap-20">
+          <div className="builder-story-hero-copy reveal min-w-0">
             {p.badge ? (
               <p className="label mb-7 flex flex-wrap items-center gap-2.5">
                 <span className="dot" aria-hidden />
@@ -102,9 +101,7 @@ export default function Hero({ profile: p, study, locale = "uz" }: Props) {
             </div>
           </div>
 
-          <div className="reveal relative mx-auto w-full max-w-[34rem] lg:max-w-none lg:justify-self-end">
-            <BuilderDesk />
-          </div>
+          <div className="builder-story-hero-space hero-product" aria-hidden="true" />
         </div>
 
         {meta.length > 0 ? (

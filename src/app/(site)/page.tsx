@@ -10,7 +10,7 @@ import Achievements from "@/components/Achievements";
 import Approach from "@/components/Approach";
 import Contact from "@/components/Contact";
 import BuilderDeskStory from "@/components/builder-desk/BuilderDeskStory";
-import { getSiteData } from "@/lib/content";
+import { getSiteData, safeHref } from "@/lib/content";
 import { getLocale, t, tx } from "@/lib/i18n";
 
 /**
@@ -31,43 +31,44 @@ export default async function HomePage() {
 
   return (
     <>
-      <Hero
-        profile={profile}
-        locale={locale}
-        study={
-          study
-            ? `${tx(locale, study.status || "Talaba")} · ${study.institution}`
-            : undefined
-        }
-      />
-
-      <BuilderDeskStory>
+      <BuilderDeskStory projectImage={safeHref(projects[0]?.image)}>
+        <Hero
+          profile={profile}
+          locale={locale}
+          study={
+            study
+              ? `${tx(locale, study.status || "Talaba")} · ${study.institution}`
+              : undefined
+          }
+        />
         <About profile={profile} locale={locale} />
         <Skills skills={skills} locale={locale} />
         <Experience items={experience} profile={profile} locale={locale} />
         <Projects projects={projects} locale={locale} />
       </BuilderDeskStory>
 
-      {services.length > 0 ? (
-        <Section id="services" sunken>
-          <SectionHead
-            index="05"
-            eyebrow={t(locale, "services.eyebrow")}
-            title={
-              <>
-                {t(locale, "services.titleBefore")} {t(locale, "services.titleEm")}
-              </>
-            }
-            lead={t(locale, "services.lead")}
-          />
-          <Services services={services} locale={locale} />
-        </Section>
-      ) : null}
+      <div className="post-story">
+        {services.length > 0 ? (
+          <Section id="services" sunken>
+            <SectionHead
+              index="05"
+              eyebrow={t(locale, "services.eyebrow")}
+              title={
+                <>
+                  {t(locale, "services.titleBefore")} {t(locale, "services.titleEm")}
+                </>
+              }
+              lead={t(locale, "services.lead")}
+            />
+            <Services services={services} locale={locale} />
+          </Section>
+        ) : null}
 
-      <Education items={education} locale={locale} />
-      <Achievements items={achievements} locale={locale} />
-      <Approach profile={profile} experience={experience} locale={locale} />
-      <Contact profile={profile} locale={locale} />
+        <Education items={education} locale={locale} />
+        <Achievements items={achievements} locale={locale} />
+        <Approach profile={profile} experience={experience} locale={locale} />
+        <Contact profile={profile} locale={locale} />
+      </div>
     </>
   );
 }

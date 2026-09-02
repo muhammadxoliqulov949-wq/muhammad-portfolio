@@ -2057,3 +2057,195 @@ html body .icon-btn.site-header__menu {
     box-shadow: none;
   }
 }
+
+/* Phase 3C visual revision: one dominant Hero → Project workspace. */
+.builder-story {
+  --story-visual-w: min(59vw, 67rem);
+  background:
+    linear-gradient(90deg, transparent 49.9%, color-mix(in srgb, var(--c-line-1) 58%, transparent) 50%, transparent 50.1%),
+    radial-gradient(circle at 76% 14%, var(--c-accent-soft), transparent 24%);
+}
+.builder-story__visual {
+  z-index: 0;
+  top: 10vh;
+  width: var(--story-visual-w);
+  margin-right: max(0.75rem, calc((100vw - var(--container)) / 2 - 2rem));
+}
+.builder-story__frame {
+  height: 80vh;
+  min-height: 36rem;
+  border: 0;
+  border-radius: clamp(1.5rem, 4vw, 3.5rem);
+  background: transparent;
+  box-shadow: none;
+  mask-image: linear-gradient(90deg, transparent 0%, #000 11%, #000 94%, transparent 100%);
+}
+.builder-story-poster {
+  background:
+    linear-gradient(color-mix(in srgb, var(--c-line-1) 52%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--c-line-1) 52%, transparent) 1px, transparent 1px),
+    radial-gradient(circle at 52% 48%, var(--c-accent-soft), transparent 33%);
+  background-size: 4.5rem 4.5rem, 4.5rem 4.5rem, auto;
+  mask-image: radial-gradient(ellipse at center, #000 25%, transparent 78%);
+}
+.builder-story__status {
+  inset: auto 9% 1.1rem 14%;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--c-line-1);
+}
+.builder-story__project-reveal {
+  position: absolute;
+  z-index: 3;
+  left: 18%;
+  top: 23%;
+  width: 64%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border: 0.48rem solid var(--c-ink-1);
+  border-radius: 1.15rem;
+  background: var(--c-surface-2);
+  box-shadow: var(--sh-3);
+  opacity: 0;
+  transform: perspective(1100px) translate3d(0, 2.5rem, 3rem) rotateX(8deg) scale(0.82);
+  transition: opacity 260ms var(--ease), transform 520ms var(--ease);
+}
+.builder-story__project-reveal[data-visible="true"] {
+  opacity: 1;
+  transform: perspective(1100px) translate3d(0, 0, 3rem) rotateX(0deg) scale(1);
+}
+.builder-story-hero-space { min-height: min(72vh, 46rem); }
+.builder-story-hero-space.hero-product { overflow: visible; border: 0; border-radius: 0; background: transparent; box-shadow: none; transform: none; }
+.builder-story__content > #home,
+.builder-story__content > #about,
+.builder-story__content > #skills,
+.builder-story__content > #experience,
+.builder-story__content > #work {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  border-color: color-mix(in srgb, var(--c-line-1) 68%, transparent);
+  background: transparent;
+}
+.builder-story__content > section::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  z-index: -1;
+  inset: 12% auto 12% max(0.75rem, calc((100vw - var(--container)) / 2));
+  width: min(44vw, 39rem);
+  border-radius: var(--r-4);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--c-canvas) 88%, transparent), transparent 78%);
+}
+.builder-story__content > section .u-container { width: min(100% - (var(--gutter) * 2), var(--container)); }
+.builder-story__content > section .section-head {
+  width: min(40vw, 36rem);
+  min-height: 0;
+  margin-bottom: 3rem;
+  padding-right: 0;
+}
+.builder-story__content > #about .grid,
+.builder-story__content > #skills .skills-board,
+.builder-story__content > #experience .timeline,
+.builder-story__content > #experience .u-container > div:last-child {
+  width: min(43vw, 40rem);
+}
+.builder-story__content > #about .grid { grid-template-columns: 1fr; }
+.builder-story__content > #about .grid > :last-child { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.builder-story__content > #about .grid > :last-child > :last-child { grid-column: 1 / -1; }
+.builder-story__content > #skills .skills-board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.builder-story__content > #skills .skills-board > :nth-child(even) { transform: translateY(1.25rem); }
+.builder-story__content > #experience .timeline > li {
+  padding: 1rem 1.1rem 1.35rem 1.5rem;
+  border-bottom: 1px solid var(--c-line-1);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--c-surface-1) 90%, transparent), transparent);
+}
+.builder-story__content > #work { align-items: flex-start; padding-top: 14vh; }
+.builder-story__content > #work .section-head { min-height: 64vh; }
+.builder-story__content > #work .bento { position: relative; z-index: 2; padding-top: 5rem; }
+.builder-story__content > #work .bento > [data-span="full"] { transform: perspective(1500px) rotateX(1.4deg); transform-origin: top center; }
+.builder-story__content .card {
+  border-color: color-mix(in srgb, var(--c-line-1) 78%, transparent);
+  background: color-mix(in srgb, var(--c-surface-1) 91%, transparent);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 1.25rem 4rem color-mix(in srgb, var(--c-ink-1) 9%, transparent);
+}
+.post-story { position: relative; isolation: isolate; }
+.post-story::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent 49.9%, color-mix(in srgb, var(--c-line-1) 36%, transparent) 50%, transparent 50.1%),
+    radial-gradient(circle at 50% 0, var(--c-accent-soft), transparent 17%);
+  mask-image: linear-gradient(#000, transparent 32rem);
+}
+.post-story > section:not(#contact) .card { transform: perspective(1200px) translateZ(0); box-shadow: var(--sh-2); }
+.post-story #contact::before {
+  content: "";
+  position: absolute;
+  right: 8%;
+  top: 18%;
+  width: 0.8rem;
+  aspect-ratio: 1;
+  rotate: 45deg;
+  border-radius: 0.18rem;
+  background: var(--c-accent);
+  box-shadow: 0 0 2rem var(--c-accent-soft);
+}
+
+@supports (animation-timeline: view()) {
+  .builder-story__content > section .section-head,
+  .builder-story__content > section .reveal {
+    animation: story-content-in linear both;
+    animation-timeline: view();
+    animation-range: entry 8% cover 36%;
+  }
+  @keyframes story-content-in {
+    from { opacity: 0.35; transform: translate3d(0, 2.5rem, 0); }
+    to { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+}
+
+@media (max-width: 63.999rem) {
+  .builder-story { --story-visual-w: calc(100vw - 1.5rem); }
+  .builder-story__visual { top: 5.25rem; margin-right: 0.75rem; }
+  .builder-story__frame { height: 62vh; min-height: 24rem; opacity: 0.48; }
+  .builder-story-hero-grid { grid-template-columns: 1fr; }
+  .builder-story-hero-copy { max-width: 42rem; }
+  .builder-story-hero-space { min-height: 42vh; }
+  .builder-story__content > section { padding-top: 44vh; align-items: flex-start; }
+  .builder-story__content > #home { padding-top: 7rem; }
+  .builder-story__content > section .section-head,
+  .builder-story__content > #about .grid,
+  .builder-story__content > #skills .skills-board,
+  .builder-story__content > #experience .timeline,
+  .builder-story__content > #experience .u-container > div:last-child { width: 100%; }
+  .builder-story__content > section::after { inset: 42% 0.75rem 5%; width: auto; }
+  .builder-story__content > #work .section-head { min-height: 30vh; }
+}
+
+@media (max-width: 47.999rem) {
+  .builder-story__frame { height: 50vh; min-height: 20rem; opacity: 0.36; }
+  .builder-story__content > section { min-height: 115svh; padding-top: 39vh; }
+  .builder-story__content > #home { min-height: 100svh; padding-top: 6.5rem; }
+  .builder-story-hero-space { min-height: 32vh; }
+  .builder-story__content > #about .grid > :last-child,
+  .builder-story__content > #skills .skills-board { grid-template-columns: 1fr; }
+  .builder-story__content > #skills .skills-board > :nth-child(even) { transform: none; }
+  .builder-story__project-reveal { left: 10%; top: 28%; width: 80%; border-width: 0.3rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .builder-story__visual { position: sticky; top: 5rem; }
+  .builder-story__frame { opacity: 0.34; }
+  .builder-story__project-reveal { transition: none; }
+  .builder-story__content > section .section-head,
+  .builder-story__content > section .reveal { animation: none !important; transform: none !important; opacity: 1 !important; }
+}
+
+@media print {
+  .builder-story__visual { display: none !important; }
+  .builder-story__content > section { min-height: 0; display: block; }
+}
