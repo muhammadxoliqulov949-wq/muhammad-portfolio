@@ -589,7 +589,7 @@ button.theme-switch {
   background: linear-gradient(180deg, #1a1f28 0%, #10141a 100%);
   color: #f3f1ea;
   font-family: var(--font-mono);
-  font-size: 0.5625rem;
+  font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   outline: none !important;
@@ -598,6 +598,19 @@ button.theme-switch {
   button.lang-switch,
   button.theme-switch {
     font-size: 0.6875rem;
+  }
+}
+/* Kattalashtirilgan tap-nishon ichidagi belgi mutanosib bo'lsin (3G). */
+.site-header__tools .theme-switch svg,
+.icon-btn.site-header__menu svg {
+  width: 15px;
+  height: 15px;
+}
+@media (min-width: 64rem) {
+  .site-header__tools .theme-switch svg,
+  .icon-btn.site-header__menu svg {
+    width: 14px;
+    height: 14px;
   }
 }
 .theme-switch__sun {
@@ -645,7 +658,7 @@ html[data-theme="dark"] .theme-switch__moon {
   }
 }
 .site-header__bar {
-  --tab-ctrl: 26px;
+  --tab-ctrl: 40px;
   pointer-events: auto;
   position: relative;
   overflow: hidden;
@@ -1290,6 +1303,32 @@ textarea.input {
   line-height: 1.55;
 }
 
+/* Intro overlay — Phase 3C brend intro: kichik mark + accent rule.
+   Bloklamaydi (aria-hidden + pointer-events: none), CSS'da `opacity: 0`
+   (JS'siz ham ko'rinmaydi); IntroOverlay client komponenti ko'rsatadi. */
+.intro-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.85rem;
+  opacity: 0;
+  pointer-events: none;
+}
+.intro-overlay__mark {
+  font-size: var(--text-display-m);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--c-ink-1);
+}
+.intro-overlay__rule {
+  width: 2.5rem;
+  height: 1px;
+  background: var(--c-accent);
+}
+
 .hero-photo {
   position: relative;
   isolation: isolate;
@@ -1832,5 +1871,891 @@ html body .icon-btn.site-header__menu {
   .card {
     border: 1px solid #ccc;
     box-shadow: none;
+  }
+}
+
+/* =========================================================================
+   REDESIGN PHASE 3A — narrative theme regions + build core + transition
+   ========================================================================= */
+
+/* --- Narrative theme regions -----------------------------------------------
+   Scoped dark/light palettes for the cinematic journey (dark opening →
+   light editorial). These mirror the :root (dark) and [data-theme="light"]
+   values but are scoped to a subtree, so the manual data-theme toggle on
+   <html> keeps governing the global chrome (header/footer) while the
+   narrative regions carry the locked art direction.
+   -------------------------------------------------------------------------- */
+/* Phase 3D: qorong'i narrativ hudud — `--theme-progress` (0→1) bilan dark→light
+   uzluksiz o'tadi. color-mix(oklab) idrok nuqtai nazaridan silliq blend beradi;
+   `--theme-progress: 0` bo'lganda qiymatlar aynan Phase 3C dagi dark palette.
+   Manual `data-theme` toggle (html) BU yerda ishlatilmaydi — bu faqat narrativ
+   hududning ichki art-direction o'tishi; manual sozlama chrome/narrativsiz
+   bo'limlarni boshqaradi. */
+[data-narrative="dark"] {
+  --theme-progress: 0;
+  --c-canvas: color-mix(in oklab, #0a0c10, #f8f6f0 calc(var(--theme-progress) * 100%));
+  --c-canvas-sunken: color-mix(in oklab, #07090c, #efeadf calc(var(--theme-progress) * 100%));
+  --c-surface-1: color-mix(in oklab, #101319, #ffffff calc(var(--theme-progress) * 100%));
+  --c-surface-2: color-mix(in oklab, #161a21, #f6f3ea calc(var(--theme-progress) * 100%));
+  --c-surface-3: color-mix(in oklab, #1d222b, #ece7db calc(var(--theme-progress) * 100%));
+  --c-ink-1: color-mix(in oklab, #f3f1ea, #14161b calc(var(--theme-progress) * 100%));
+  --c-ink-2: color-mix(in oklab, #a8afbc, #4c5460 calc(var(--theme-progress) * 100%));
+  --c-ink-3: color-mix(in oklab, #9098a6, #5a6270 calc(var(--theme-progress) * 100%));
+  --c-inverse-ink: color-mix(in oklab, #0a0c10, #f8f6f0 calc(var(--theme-progress) * 100%));
+  --c-line-1: color-mix(in oklab, rgba(243, 241, 234, 0.11), rgba(20, 22, 27, 0.12) calc(var(--theme-progress) * 100%));
+  --c-line-2: color-mix(in oklab, rgba(243, 241, 234, 0.2), rgba(20, 22, 27, 0.22) calc(var(--theme-progress) * 100%));
+  --c-accent: color-mix(in oklab, #d6f25c, #c3e236 calc(var(--theme-progress) * 100%));
+  --c-accent-strong: color-mix(in oklab, #e4ff74, #a9cd17 calc(var(--theme-progress) * 100%));
+  --c-accent-text: color-mix(in oklab, #d6f25c, #3f4e0c calc(var(--theme-progress) * 100%));
+  --c-accent-soft: color-mix(in oklab, rgba(214, 242, 92, 0.1), rgba(169, 205, 23, 0.18) calc(var(--theme-progress) * 100%));
+  --c-accent-ink: color-mix(in oklab, #0a0c10, #101408 calc(var(--theme-progress) * 100%));
+  color-scheme: dark;
+}
+
+[data-narrative="light"] {
+  --c-canvas: #f8f6f0;
+  --c-canvas-sunken: #efeadf;
+  --c-surface-1: #ffffff;
+  --c-surface-2: #f6f3ea;
+  --c-surface-3: #ece7db;
+  --c-ink-1: #14161b;
+  --c-ink-2: #4c5460;
+  --c-ink-3: #5a6270;
+  --c-inverse-ink: #f8f6f0;
+  --c-line-1: rgba(20, 22, 27, 0.12);
+  --c-line-2: rgba(20, 22, 27, 0.22);
+  --c-accent: #c3e236;
+  --c-accent-strong: #a9cd17;
+  --c-accent-text: #3f4e0c;
+  --c-accent-soft: rgba(169, 205, 23, 0.18);
+  --c-accent-ink: #101408;
+  color-scheme: light;
+}
+
+[data-narrative] {
+  background-color: var(--c-canvas);
+  color: var(--c-ink-1);
+}
+
+/* Layout tokens — media width va text measure (Phase 2 §17). */
+body {
+  --media-max: 96rem;
+  --measure: 60ch;
+}
+
+/* --- Build Core — "build strata" (Phase 3B static) ----------------------- */
+
+.build-core {
+  border-top: 1px solid var(--c-line-1);
+}
+
+.build-core__viewport {
+  position: relative;
+}
+
+.build-core__object {
+  margin-inline: auto;
+  max-width: 46rem;
+}
+
+/* 3D sahnа: perspective + bitta tilt (desktop). Mobile/tabletda kamayadi. */
+.build-core__scene {
+  perspective: 1600px;
+}
+
+.build-core__group {
+  position: relative;
+  transform: rotateX(6deg);
+  transform-origin: 50% 100%;
+  transform-style: preserve-3d;
+}
+
+/* Dekorativ connector qatlami — kelajakdagi leader-liniyalar (Phase 3C).
+   Hozir (arrival) yashirin: ulanishlar hali "chizilmagan". */
+.build-core__connectors {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+}
+.build-core__connectors line {
+  stroke: var(--c-line-2);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Yagona qatlam ustuni: core + 5 strata. Chapdagi spine = registration cheti. */
+.build-core__stack {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border-left: 1px solid var(--c-line-1);
+  padding-left: 1.5rem;
+  transform-style: preserve-3d;
+}
+
+/* --- Core slab (barqaror asos / talab) — dominant anchor --- */
+.build-core__core {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-height: 5.5rem;
+  padding: 1.15rem 1.4rem;
+  border-radius: var(--radius-3);
+  border: 1px solid var(--c-line-2);
+  background: linear-gradient(180deg, var(--c-surface-3), var(--c-surface-1));
+  box-shadow:
+    var(--sh-1),
+    0 1px 0 color-mix(in srgb, var(--c-ink-1) 5%, transparent) inset,
+    var(--sh-2);
+  isolation: isolate;
+}
+
+/* --- Strata (5 ish bosqichi) --- */
+.build-core__stratum {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-height: 4.5rem;
+  padding: 1.05rem 1.4rem;
+  border-radius: var(--radius-3);
+  isolation: isolate;
+  box-shadow:
+    var(--sh-1),
+    0 2px 0 color-mix(in srgb, var(--c-canvas) 82%, #000),
+    0 16px 28px -26px rgba(0, 0, 0, 0.9);
+}
+
+/* PENDING — kesik chegara + kam to'ldirish (kutmoqda) */
+.build-core__stratum--pending {
+  border: 1px dashed var(--c-line-2);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--c-surface-2) 52%, transparent),
+    color-mix(in srgb, var(--c-surface-1) 34%, transparent)
+  );
+}
+
+/* ACTIVE — to'liq sirt + kuchli ierarxiya (Phase 3C da ishlatiladi) */
+.build-core__stratum--active {
+  border: 1px solid var(--c-line-2);
+  background: linear-gradient(180deg, var(--c-surface-3), var(--c-surface-1));
+  box-shadow:
+    var(--sh-1),
+    0 2px 0 color-mix(in srgb, var(--c-canvas) 82%, #000),
+    var(--sh-2);
+}
+
+/* VALIDATED — yopiq qirralar + tor aksent tikuv (Phase 3C da ishlatiladi) */
+.build-core__stratum--validated {
+  border: 1px solid var(--c-line-1);
+  background: linear-gradient(180deg, var(--c-surface-2), var(--c-surface-1));
+  box-shadow:
+    var(--sh-1),
+    0 2px 0 color-mix(in srgb, var(--c-canvas) 82%, #000),
+    0 10px 20px -22px rgba(0, 0, 0, 0.8);
+}
+
+/* Chap qirra belgisi (registration tick) — spinega ulanadi */
+.build-core__core::before,
+.build-core__stratum::before {
+  content: "";
+  position: absolute;
+  left: -1.5rem;
+  top: 50%;
+  width: 1.5rem;
+  height: 1px;
+  background: var(--c-line-2);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.build-core__core::before {
+  background: var(--c-accent);
+  height: 2px;
+}
+
+/* Indeks + label tipografiyasi */
+.build-core__idx {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.12em;
+  color: var(--c-ink-3);
+}
+
+.build-core__lbl {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--c-ink-1);
+}
+.build-core__stratum--pending .build-core__lbl {
+  color: var(--c-ink-2);
+}
+
+/* --- Holat indeksi + progress qoidasi (stepper emas) --- */
+.build-core__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-top: 2.5rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--c-line-1);
+}
+
+.build-core__meta-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-ink-3);
+}
+
+.build-core__meta-name {
+  color: var(--c-accent-text);
+}
+
+.build-core__progress {
+  position: relative;
+  flex: 1;
+  max-width: 16rem;
+  height: 1px;
+  background: var(--c-line-1);
+}
+
+.build-core__progress-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0%;
+  background: var(--c-accent);
+}
+
+/* --- Responsive --- */
+@media (max-width: 63.99rem) {
+  .build-core__group {
+    transform: rotateX(3deg);
+  }
+}
+
+@media (max-width: 47.99rem) {
+  .build-core__group {
+    transform: none;
+  }
+  .build-core__stack {
+    gap: 0.6rem;
+    padding-left: 1.25rem;
+  }
+  .build-core__core::before,
+  .build-core__stratum::before {
+    left: -1.25rem;
+    width: 1.25rem;
+  }
+  .build-core__core {
+    min-height: 4.5rem;
+  }
+  .build-core__stratum {
+    min-height: 3.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .build-core__group {
+    transform: none;
+  }
+}
+
+/* --- Product transition (Phase 3D: deployment → IELTS.mock reveal) ---------- */
+.product-transition {
+  border-top: 1px solid var(--c-line-1);
+  padding-block: var(--section-y);
+}
+
+/* Pin nishoni: reveal'ni vertical markazlab, ramka kengayishiga joy beradi. */
+.product-transition__stage {
+  position: relative;
+  min-height: 76vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+}
+
+/* Deployment paketidan to'liq mahsulot freymigacha — yagona scale nishoni. */
+.product-transition__frame {
+  position: relative;
+  width: 100%;
+  max-width: 74rem;
+  margin-inline: auto;
+  border-radius: var(--radius-4);
+  border: 1px solid var(--c-line-1);
+  overflow: clip;
+  background: var(--c-surface-1);
+  box-shadow:
+    var(--sh-1),
+    0 1px 0 color-mix(in srgb, var(--c-ink-1) 4%, transparent) inset,
+    var(--sh-3);
+  transform-origin: 50% 100%;
+  will-change: transform;
+}
+
+/* Skrinshot viewporti — clip nishoni (top-down reveal, distortion yo'q). */
+.product-transition__viewport {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--c-surface-2);
+  will-change: clip-path;
+}
+
+.product-transition__img {
+  object-fit: cover;
+  object-position: 50% 0;
+}
+
+/* Deployment echo-label — kontinuitet belgisi, reveal davomida yo'qoladi. */
+.product-transition__deploy {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-accent-text);
+}
+
+@media (max-width: 63.99rem) {
+  .product-transition__stage {
+    min-height: 0;
+  }
+  .product-transition__frame {
+    max-width: var(--media-max);
+  }
+}
+
+/* --- Capabilities — tahririy "qobiliyat indeksi" (Phase 3F) ---------------- */
+.cap-index {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cap-index__row {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  gap: 2rem;
+  padding-block: 2.25rem;
+  border-top: 1px solid var(--c-line-1);
+}
+.cap-index__row:first-child {
+  border-top: 0;
+  padding-top: 0.75rem;
+}
+
+.cap-index__num {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 1.5rem + 3vw, 3.75rem);
+  font-weight: 600;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: var(--c-ink-1);
+  opacity: 0.22;
+}
+
+.cap-index__title {
+  font-family: var(--font-display);
+  font-size: var(--text-display-m);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.cap-index__desc {
+  margin-top: 0.75rem;
+  max-width: 56ch;
+  color: var(--c-ink-2);
+}
+
+.cap-index__features {
+  margin-top: 1rem;
+  font-size: var(--text-small);
+  color: var(--c-ink-3);
+}
+
+@media (max-width: 47.99rem) {
+  .cap-index__row {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    padding-block: 1.75rem;
+  }
+  .cap-index__num {
+    font-size: 2rem;
+  }
+}
+
+/* Toolkit — ixcham, reyting emas */
+.cap-toolkit {
+  margin-top: 3.5rem;
+  padding-top: 2.75rem;
+  border-top: 1px solid var(--c-line-1);
+}
+
+.cap-toolkit__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem 2rem;
+}
+
+.cap-toolkit__groups {
+  margin: 1.75rem 0 0;
+  display: grid;
+  gap: 1.5rem 2.5rem;
+}
+@media (min-width: 48rem) {
+  .cap-toolkit__groups {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 80rem) {
+  .cap-toolkit__groups {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.cap-toolkit__group dt {
+  margin-bottom: 0.4rem;
+}
+.cap-toolkit__items {
+  margin: 0;
+  font-size: var(--text-small);
+  line-height: 1.65;
+  color: var(--c-ink-2);
+}
+
+/* =========================================================================
+   PHASE 3E — IELTS.mock case-study (low-motion editorial, light theme)
+   ========================================================================= */
+
+/* 1 · Mahsulot identiteti / overview — ikki ustun (id + impact) */
+.case-hero {
+  display: grid;
+  gap: 3rem 4rem;
+  align-items: start;
+  padding-bottom: 3rem;
+}
+@media (min-width: 64rem) {
+  .case-hero {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  }
+}
+
+.case-hero__impact {
+  position: relative;
+  padding: 1.5rem 1.6rem;
+  border: 1px solid var(--c-line-1);
+  border-left: 2px solid var(--c-accent);
+  border-radius: var(--radius-3);
+  background: var(--c-accent-soft);
+}
+
+/* Umumiy blok ritmi — har bir tahririy bo'lim */
+.case-block {
+  padding-block: 3.25rem;
+  border-top: 1px solid var(--c-line-1);
+}
+
+.case-block__lead {
+  font-size: var(--text-lead);
+}
+
+/* 4 · Imkoniyatlar — raqamlangan, toza ro'yxat */
+.case-capabilities {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+@media (min-width: 48rem) {
+  .case-capabilities {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.35rem 2.5rem;
+  }
+}
+
+.case-capabilities__item {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  min-height: 3.25rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--c-line-1);
+}
+
+.case-capabilities__idx {
+  flex: none;
+  width: 1.6rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.08em;
+  color: var(--c-ink-3);
+}
+
+.case-capabilities__name {
+  flex: 1;
+  min-width: 0;
+  font-weight: 500;
+  color: var(--c-ink-1);
+}
+
+.case-capabilities__check {
+  flex: none;
+}
+
+/* 5 · Haqiqiy interfeys galereyasi — home dominant + ikkilamchi ekranlar */
+.case-gallery {
+  display: grid;
+  gap: 1rem;
+}
+
+.case-gallery__hero,
+.case-gallery__item {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-3);
+  border: 1px solid var(--c-line-1);
+  background: var(--c-surface-2);
+}
+
+.case-gallery__hero {
+  aspect-ratio: 16 / 9;
+}
+
+.case-gallery__grid {
+  display: grid;
+  gap: 1rem;
+}
+@media (min-width: 48rem) {
+  .case-gallery__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.case-gallery__item {
+  aspect-ratio: 16 / 10;
+}
+
+/* 7 · Rol + Natija/holat — ikki ustun */
+.case-finish {
+  display: grid;
+  gap: 2.5rem 4rem;
+  margin-top: 3.25rem;
+  padding-top: 3.25rem;
+  border-top: 1px solid var(--c-line-1);
+}
+@media (min-width: 64rem) {
+  .case-finish {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* =========================================================================
+   PHASE 3F — About editorial narrative (light editorial)
+   ========================================================================= */
+
+.about-open {
+  padding-bottom: clamp(2.5rem, 2rem + 2vw, 4rem);
+}
+
+.about-statement {
+  font-size: clamp(2rem, 1.4rem + 3.4vw, 4rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  max-width: 24ch;
+}
+
+.about-grid {
+  display: grid;
+  gap: 3.5rem 4rem;
+}
+@media (min-width: 64rem) {
+  .about-grid {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  }
+}
+
+.about-narrative {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.about-lede {
+  font-size: var(--text-lead);
+  line-height: 1.6;
+  color: var(--c-ink-1);
+  max-width: 56ch;
+}
+
+.about-sub {
+  margin-top: 2rem;
+}
+.about-sub > h3 {
+  margin-bottom: 1.25rem;
+}
+
+/* Kuchli tomonlar — index qatorlar */
+.about-strengths {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+@media (min-width: 40rem) {
+  .about-strengths {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.35rem 2.5rem;
+  }
+}
+.about-strengths__item {
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--c-line-1);
+  font-size: var(--text-body);
+  color: var(--c-ink-1);
+}
+
+.about-interests {
+  font-size: var(--text-lead);
+  color: var(--c-ink-1);
+}
+
+/* Tamoyillar — katta hukmdorli bayonotlar */
+.about-principles {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 2.25rem;
+  border-bottom: 1px solid var(--c-line-1);
+}
+.about-principles__item {
+  display: flex;
+  gap: 1rem;
+  padding-block: 1.25rem;
+  border-top: 1px solid var(--c-line-1);
+}
+.about-principles__item:first-child {
+  border-top: 0;
+}
+.about-principles__mark {
+  flex: none;
+  margin-top: 0.7em;
+  width: 2rem;
+  height: 2px;
+  background: var(--c-accent);
+}
+
+/* Faktlar — hukmdorli qatorlar */
+.about-facts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.about-facts__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.about-facts__row {
+  padding-block: 1.1rem;
+  border-top: 1px solid var(--c-line-1);
+}
+.about-facts__row:first-child {
+  border-top: 0;
+}
+
+/* Kelgusi yo'nalish */
+.about-direction {
+  margin-top: 3.5rem;
+  padding-top: 3.25rem;
+  border-top: 1px solid var(--c-line-1);
+}
+
+.about-workflow {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+@media (min-width: 48rem) {
+  .about-workflow {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.35rem 2.5rem;
+  }
+}
+.about-workflow__item {
+  display: flex;
+  gap: 0.9rem;
+  align-items: baseline;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--c-line-1);
+  font-size: var(--text-body);
+  color: var(--c-ink-1);
+}
+.about-workflow__num {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.08em;
+  color: var(--c-accent-text);
+}
+
+.about-goals {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+@media (min-width: 48rem) {
+  .about-goals {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.35rem 2.5rem;
+  }
+}
+.about-goals__item {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--c-line-1);
+  font-size: var(--text-body);
+  color: var(--c-ink-2);
+}
+
+.about-honesty {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  margin-top: 2.75rem;
+  padding-top: 2.25rem;
+  border-top: 1px solid var(--c-line-1);
+  font-size: var(--text-small);
+  color: var(--c-ink-2);
+  max-width: 60ch;
+}
+
+/* =========================================================================
+   PHASE 3F — Contact final editorial state
+   ========================================================================= */
+
+.contact-final {
+  max-width: 56ch;
+}
+
+.contact-headline {
+  font-size: clamp(2.25rem, 1.5rem + 3.6vw, 4.25rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.contact-lead {
+  margin-top: 1.5rem;
+  font-size: var(--text-lead);
+  color: var(--c-ink-2);
+  max-width: 46ch;
+}
+
+.contact-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2.5rem;
+}
+/* Uzun email manzili tor ekranda (masalan 320px) tugma ichida qatorga
+   bo'linib, ko'rinib turishi kerak — `white-space: nowrap` ni bekor qilamiz. */
+.contact-cta .btn {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
+  height: auto;
+  line-height: 1.35;
+}
+
+.contact-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.75rem;
+  margin-top: 2.25rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--c-line-1);
+  font-size: var(--text-small);
+  color: var(--c-ink-2);
+}
+
+.contact-grid {
+  display: grid;
+  gap: 3rem 4rem;
+  margin-top: 3.5rem;
+}
+@media (min-width: 64rem) {
+  .contact-grid {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    align-items: start;
+  }
+}
+
+.contact-steps__list {
+  list-style: none;
+  margin: 1.25rem 0 0;
+  padding: 0;
+}
+.contact-steps__item {
+  display: flex;
+  gap: 1rem;
+  padding-block: 1.1rem;
+  border-top: 1px solid var(--c-line-1);
+}
+.contact-steps__num {
+  flex: none;
+  width: 1.6rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  letter-spacing: 0.08em;
+  color: var(--c-accent-text);
+  padding-top: 0.15rem;
+}
+
+.contact-lock {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-top: 1.75rem;
+  font-size: var(--text-small);
+  color: var(--c-ink-2);
+}
+
+.contact-form__card {
+  padding: 1.75rem;
+  border: 1px solid var(--c-line-1);
+  border-radius: var(--radius-4);
+  background: var(--c-surface-1);
+  box-shadow: var(--sh-1);
+}
+@media (min-width: 48rem) {
+  .contact-form__card {
+    padding: 2rem;
   }
 }

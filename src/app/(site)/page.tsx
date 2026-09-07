@@ -1,70 +1,61 @@
-import Hero from "@/components/Hero";
+import CinematicSpine from "@/components/cinematic/CinematicSpine";
+import IntroHero from "@/components/cinematic/IntroHero";
+import IeltsMockFeature from "@/components/IeltsMockFeature";
+import Capabilities from "@/components/Capabilities";
 import About from "@/components/About";
-import Skills from "@/components/Skills";
-import Experience from "@/components/Experience";
-import Projects from "@/components/Projects";
-import SectionHead, { Section } from "@/components/ui/Section";
-import Services from "@/components/Services";
-import Education from "@/components/Education";
-import Achievements from "@/components/Achievements";
-import Approach from "@/components/Approach";
 import Contact from "@/components/Contact";
 import { getSiteData } from "@/lib/content";
-import { getLocale, t, tx } from "@/lib/i18n";
+import { getLocale, tx } from "@/lib/i18n";
 
 /**
- * Bosh sahifa — 10 bo'limli struktura (Identitet → Ishonch → Dalil → Harakat).
+ * Bosh sahifa — 7 beat'li tuzilma (Phase 3A).
  *
- * Kontent siyosati: bu sahifada faqat DB'dagi haqiqiy ma'lumot chiqadi.
- * Bo'lim ma'lumoti bo'sh bo'lsa (masalan hozircha mijoz fikri yo'q), blok
- * umuman render bo'lmaydi — "te"lashtirilgan placeholder qo'ymaymiz.
+ * 1. Intro / Hero          (CinematicSpine → IntroHero)
+ * 2. Build Core            (CinematicSpine → BuildCoreSection)
+ * 3. Deployment → Product  (CinematicSpine → ProductTransition)
+ * 4. IELTS.mock feature    (IeltsMockFeature)
+ * 5. Capabilities          (Capabilities)
+ * 6. About                 (About)
+ * 7. Contact               (Contact)
+ *
+ * Sahifa asosan server-render; yagona yangi client chegarasi —
+ * CinematicSpine. Content CMS'dan, ixtiro yo'q.
  */
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [{ profile, projects, services, experience, skills, education, achievements }, locale] = await Promise.all([
-    getSiteData(),
-    getLocale(),
-  ]);
+  const [{ profile, projects, services, skills, experience, education, achievements }, locale] =
+    await Promise.all([getSiteData(), getLocale()]);
+
+  const featured = projects[0] ?? null;
   const study = education.find((e) => e.current);
 
   return (
     <>
-      <Hero
+      <CinematicSpine project={featured} locale={locale}>
+        <IntroHero
+          profile={profile}
+          locale={locale}
+          study={
+            study
+              ? `${tx(locale, study.status || "Talaba")} · ${study.institution}`
+              : undefined
+          }
+        />
+      </CinematicSpine>
+
+      <IeltsMockFeature project={featured} locale={locale} />
+
+      <Capabilities services={services} skills={skills} locale={locale} />
+
+      <About
         profile={profile}
+        education={education}
+        achievements={achievements}
+        experience={experience}
         locale={locale}
-        featured={projects[0]}
-        study={
-          study
-            ? `${tx(locale, study.status || "Talaba")} · ${study.institution}`
-            : undefined
-        }
       />
 
-      <About profile={profile} locale={locale} />
-      <Skills skills={skills} locale={locale} />
-      <Experience items={experience} profile={profile} locale={locale} />
-      <Projects projects={projects} locale={locale} />
-
-      {services.length > 0 ? (
-        <Section id="services" sunken>
-          <SectionHead
-            index="05"
-            eyebrow={t(locale, "services.eyebrow")}
-            title={
-              <>
-                {t(locale, "services.titleBefore")} {t(locale, "services.titleEm")}
-              </>
-            }
-            lead={t(locale, "services.lead")}
-          />
-          <Services services={services} locale={locale} />
-        </Section>
-      ) : null}
-
-      <Education items={education} locale={locale} />
-      <Achievements items={achievements} locale={locale} />
-      <Approach profile={profile} experience={experience} locale={locale} />
       <Contact profile={profile} locale={locale} />
     </>
   );

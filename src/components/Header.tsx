@@ -23,7 +23,7 @@ type Props = {
  * Sticky header — suzuvchi tab.
  * Asosiy 4 havola + «Yana» — 80rem da yo'qolmaydi.
  */
-const PRIMARY = new Set(["about", "work", "services", "contact"]);
+const PRIMARY = new Set(["build", "work", "capabilities", "about", "contact"]);
 
 type Theme = "dark" | "light";
 const THEME_COLORS: Record<Theme, string> = { dark: "#0a0c10", light: "#f8f6f0" };

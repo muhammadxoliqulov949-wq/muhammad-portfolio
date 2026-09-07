@@ -288,17 +288,16 @@ export function sectionHref(id: string): string {
 
 /** Sahifa uchun navigatsiya (bo'lim mavjud bo'lsagina ko'rsatiladi). */
 export function sectionsOf(data: SiteData, locale: Locale = "uz") {
-  const hasApproach = Boolean(data.profile.workflow?.trim() || data.profile.goals?.trim());
   return [
     { id: "home", label: t(locale, "nav.home") },
-    { id: "about", label: t(locale, "nav.about") },
-    { id: "skills", label: t(locale, "nav.skills"), has: data.skills.length > 0 },
-    { id: "experience", label: t(locale, "nav.experience"), has: data.experience.length > 0 },
+    { id: "build", label: t(locale, "nav.build"), has: true },
     { id: "work", label: t(locale, "nav.work"), has: data.projects.length > 0 },
-    { id: "services", label: t(locale, "nav.services"), has: data.services.length > 0 },
-    { id: "education", label: t(locale, "nav.education"), has: data.education.length > 0 },
-    { id: "achievements", label: t(locale, "nav.achievements"), has: data.achievements.length > 0 },
-    { id: "approach", label: t(locale, "nav.approach"), has: hasApproach || data.experience.length > 0 },
+    {
+      id: "capabilities",
+      label: t(locale, "nav.capabilities"),
+      has: data.services.length > 0 || data.skills.length > 0,
+    },
+    { id: "about", label: t(locale, "nav.about"), has: true },
     { id: "contact", label: t(locale, "nav.contact"), has: true },
   ].filter((s) => s.has !== false);
 }
