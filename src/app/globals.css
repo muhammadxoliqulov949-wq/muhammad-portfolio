@@ -227,7 +227,7 @@ body {
   --header-h: 84px;
   --gutter: clamp(1.15rem, 4vw, 2.5rem);
   --container: 80rem;
-  --section-y: clamp(4.25rem, 2.4rem + 7vw, 8.75rem);
+  --section-y: clamp(4.75rem, 2.6rem + 8vw, 9.75rem);
 
   margin: 0;
   background-color: var(--c-canvas);
@@ -1993,7 +1993,7 @@ body {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.75rem;
   border-left: 1px solid var(--c-line-1);
   padding-left: 1.5rem;
   transform-style: preserve-3d;
@@ -2012,16 +2012,12 @@ body {
   background: linear-gradient(180deg, var(--c-surface-3), var(--c-surface-1));
   box-shadow:
     var(--sh-1),
-    0 1px 0 color-mix(in srgb, var(--c-ink-1) 6%, transparent) inset,
-    0 3px 0 -1px color-mix(in srgb, var(--c-ink-1) 12%, var(--c-canvas)),
-    0 5px 0 -2px color-mix(in srgb, var(--c-ink-1) 5%, transparent),
+    0 1px 0 color-mix(in srgb, var(--c-ink-1) 5%, transparent) inset,
     var(--sh-2);
   isolation: isolate;
 }
 
-/* --- Strata (5 ish bosqichi) — bitta fizik plastina (Phase 5 polish).
-   Har bir plastina yupqa pastki yon yuz + yumshoq kontakt soyasi oladi;
-   alohida "suzuvchi karta" ko'rinishi o'rniga bitta qatlamli obyekt. --- */
+/* --- Strata (5 ish bosqichi) --- */
 .build-core__stratum {
   position: relative;
   display: flex;
@@ -2033,18 +2029,17 @@ body {
   isolation: isolate;
   box-shadow:
     var(--sh-1),
-    0 1px 0 color-mix(in srgb, var(--c-ink-1) 5%, transparent) inset,
-    0 2px 0 -1px color-mix(in srgb, var(--c-ink-1) 9%, var(--c-canvas)),
-    0 14px 24px -26px rgba(0, 0, 0, 0.7);
+    0 2px 0 color-mix(in srgb, var(--c-canvas) 82%, #000),
+    0 16px 28px -26px rgba(0, 0, 0, 0.9);
 }
 
-/* PENDING — hayoliy plastina (kutmoqda), ingichka chegara */
+/* PENDING — kesik chegara + kam to'ldirish (kutmoqda) */
 .build-core__stratum--pending {
-  border: 1px solid var(--c-line-1);
+  border: 1px dashed var(--c-line-2);
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--c-surface-2) 42%, transparent),
-    color-mix(in srgb, var(--c-surface-1) 24%, transparent)
+    color-mix(in srgb, var(--c-surface-2) 52%, transparent),
+    color-mix(in srgb, var(--c-surface-1) 34%, transparent)
   );
 }
 
@@ -2054,21 +2049,18 @@ body {
   background: linear-gradient(180deg, var(--c-surface-3), var(--c-surface-1));
   box-shadow:
     var(--sh-1),
-    0 1px 0 color-mix(in srgb, var(--c-ink-1) 6%, transparent) inset,
-    0 2px 0 -1px color-mix(in srgb, var(--c-ink-1) 14%, var(--c-canvas)),
-    0 4px 0 -2px color-mix(in srgb, var(--c-ink-1) 5%, transparent),
+    0 2px 0 color-mix(in srgb, var(--c-canvas) 82%, #000),
     var(--sh-2);
 }
 
-/* VALIDATED — yopiq qirralar, deyarli yassi (Deployment'da bitta toza siluet) */
+/* VALIDATED — yopiq qirralar + tor aksent tikuv (Phase 3C da ishlatiladi) */
 .build-core__stratum--validated {
   border: 1px solid var(--c-line-1);
   background: linear-gradient(180deg, var(--c-surface-2), var(--c-surface-1));
   box-shadow:
     var(--sh-1),
-    0 1px 0 color-mix(in srgb, var(--c-ink-1) 4%, transparent) inset,
-    0 1px 0 -1px color-mix(in srgb, var(--c-ink-1) 7%, var(--c-canvas)),
-    0 8px 16px -24px rgba(0, 0, 0, 0.55);
+    0 2px 0 color-mix(in srgb, var(--c-canvas) 82%, #000),
+    0 10px 20px -22px rgba(0, 0, 0, 0.8);
 }
 
 /* Chap qirra belgisi (registration tick) — spinega ulanadi */
@@ -2160,7 +2152,7 @@ body {
     transform: none;
   }
   .build-core__stack {
-    gap: 0.4rem;
+    gap: 0.6rem;
     padding-left: 1.25rem;
   }
   .build-core__core::before,
@@ -2378,7 +2370,7 @@ body {
 
 /* Umumiy blok ritmi — har bir tahririy bo'lim */
 .case-block {
-  padding-block: 2.75rem;
+  padding-block: 3.25rem;
   border-top: 1px solid var(--c-line-1);
 }
 
@@ -2486,15 +2478,15 @@ body {
 }
 
 .about-statement {
-  font-size: clamp(1.9rem, 1.35rem + 2.9vw, 3.5rem);
-  line-height: 1.04;
+  font-size: clamp(2rem, 1.4rem + 3.4vw, 4rem);
+  line-height: 1.02;
   letter-spacing: -0.03em;
-  max-width: 25ch;
+  max-width: 24ch;
 }
 
 .about-grid {
   display: grid;
-  gap: 3rem 3.5rem;
+  gap: 3.5rem 4rem;
 }
 @media (min-width: 64rem) {
   .about-grid {
@@ -2673,7 +2665,7 @@ body {
 }
 
 .contact-headline {
-  font-size: clamp(2.1rem, 1.45rem + 3.1vw, 3.75rem);
+  font-size: clamp(2.25rem, 1.5rem + 3.6vw, 4.25rem);
   line-height: 1;
   letter-spacing: -0.03em;
 }
