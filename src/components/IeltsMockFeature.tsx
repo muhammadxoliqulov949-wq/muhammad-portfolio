@@ -226,7 +226,7 @@ export default function IeltsMockFeature({
           </div>
         )}
 
-        <Card className="mt-10 flex flex-wrap items-center justify-between gap-4 p-6" interactive={false}>
+        <Card className="mt-14 flex flex-wrap items-center justify-between gap-4 p-6" interactive={false}>
           <p className="flex items-start gap-3 text-body text-ink-2">
             <Icon name="info" size={16} className="mt-0.5 shrink-0 text-accent-text" />
             <span>{t(locale, "work.more")}</span>
